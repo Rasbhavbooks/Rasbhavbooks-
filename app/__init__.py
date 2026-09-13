@@ -28,7 +28,7 @@ def create_app():
     from app.routes.admin_settings import admin_settings_bp
     from app.routes.admin_seo import admin_seo_bp
     from app.routes.admin_media import admin_media_bp
-    
+    from app.routes.admin_dashboard import admin_dashboard_bp
     app.register_blueprint(category_bp)
     app.register_blueprint(author_bp)
     app.register_blueprint(search_bp)
@@ -42,7 +42,7 @@ def create_app():
     app.register_blueprint(admin_settings_bp)
     app.register_blueprint(admin_seo_bp)
     app.register_blueprint(admin_media_bp)
-
+    app.register_blueprint(admin_dashboard_bp)
     @app.route("/")
     def home():
         return "Rasbhav Books is running!"
