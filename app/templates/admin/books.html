@@ -1,371 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>Books Management - Rasbhav Admin</title>
 
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-            background: #0f1115;
-            color: #f5f5f5;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: auto;
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 25px;
-            flex-wrap: wrap;
-        }
-
-        .header h1 {
-            font-size: 28px;
-        }
-
-        .header p {
-            color: #999;
-            margin-top: 6px;
-        }
-
-        button {
-            border: none;
-            cursor: pointer;
-            border-radius: 8px;
-            padding: 11px 16px;
-            font-size: 14px;
-        }
-
-        .btn-primary {
-            background: #d4af37;
-            color: #111;
-            font-weight: bold;
-        }
-
-        .btn-secondary {
-            background: #292d35;
-            color: #fff;
-        }
-
-        .btn-danger {
-            background: #b52b2b;
-            color: #fff;
-        }
-
-        .toolbar {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-
-        .search {
-            flex: 1;
-            min-width: 220px;
-            background: #191c22;
-            border: 1px solid #30343d;
-            color: #fff;
-            padding: 13px;
-            border-radius: 8px;
-            outline: none;
-        }
-
-        .table-wrapper {
-            overflow-x: auto;
-            background: #191c22;
-            border: 1px solid #30343d;
-            border-radius: 12px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 850px;
-        }
-
-        th,
-        td {
-            padding: 14px;
-            border-bottom: 1px solid #30343d;
-            text-align: left;
-        }
-
-        th {
-            color: #d4af37;
-            font-size: 13px;
-        }
-
-        td {
-            color: #ddd;
-        }
-
-        tr:last-child td {
-            border-bottom: none;
-        }
-
-        .cover {
-            width: 55px;
-            height: 75px;
-            object-fit: cover;
-            border-radius: 5px;
-            background: #292d35;
-        }
-
-        .status {
-            display: inline-block;
-            padding: 5px 9px;
-            border-radius: 20px;
-            font-size: 12px;
-            background: #292d35;
-        }
-
-        .actions {
-            display: flex;
-            gap: 7px;
-        }
-
-        .empty {
-            text-align: center;
-            padding: 40px;
-            color: #888;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #aaa;
-        }
-
-        /* =====================================================
-           MODAL
-        ===================================================== */
-
-        .modal {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.75);
-            z-index: 1000;
-            padding: 20px;
-            overflow-y: auto;
-        }
-
-        .modal.active {
-            display: block;
-        }
-
-        .modal-box {
-            max-width: 900px;
-            margin: 30px auto;
-            background: #191c22;
-            border: 1px solid #30343d;
-            border-radius: 14px;
-            padding: 25px;
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-        }
-
-        .modal-header h2 {
-            font-size: 22px;
-        }
-
-        .close {
-            background: transparent;
-            color: #fff;
-            font-size: 25px;
-            padding: 0 5px;
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 7px;
-        }
-
-        .form-group.full {
-            grid-column: 1 / -1;
-        }
-
-        label {
-            font-size: 13px;
-            color: #bbb;
-        }
-
-        input,
-        textarea,
-        select {
-            width: 100%;
-            background: #101217;
-            border: 1px solid #343944;
-            color: #fff;
-            border-radius: 8px;
-            padding: 11px;
-            outline: none;
-        }
-
-        textarea {
-            min-height: 120px;
-            resize: vertical;
-        }
-
-        .checkbox-row {
-            display: flex;
-            gap: 20px;
-            align-items: center;
-            margin-top: 5px;
-        }
-
-        .checkbox-row label {
-            display: flex;
-            align-items: center;
-            gap: 7px;
-            cursor: pointer;
-        }
-
-        .checkbox-row input {
-            width: auto;
-        }
-
-        /* =====================================================
-           SEO SECTION
-        ===================================================== */
-
-        .seo-section {
-            grid-column: 1 / -1;
-            margin-top: 10px;
-            padding: 20px;
-            border: 1px solid #343944;
-            border-radius: 12px;
-            background: #14171c;
-        }
-
-        .seo-title {
-            color: #d4af37;
-            font-size: 18px;
-            margin-bottom: 5px;
-        }
-
-        .seo-description {
-            color: #888;
-            font-size: 12px;
-            margin-bottom: 18px;
-        }
-
-        .seo-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-        }
-
-        .seo-preview {
-            margin-top: 18px;
-            padding: 15px;
-            border-radius: 8px;
-            background: #0f1115;
-            border: 1px solid #30343d;
-        }
-
-        .seo-preview-label {
-            font-size: 12px;
-            color: #888;
-            margin-bottom: 8px;
-        }
-
-        .seo-preview-title {
-            color: #8ab4f8;
-            font-size: 18px;
-            margin-bottom: 5px;
-        }
-
-        .seo-preview-url {
-            color: #5fa85f;
-            font-size: 12px;
-            margin-bottom: 7px;
-        }
-
-        .seo-preview-description {
-            color: #aaa;
-            font-size: 13px;
-            line-height: 1.5;
-        }
-
-        .char-count {
-            font-size: 11px;
-            color: #777;
-            text-align: right;
-        }
-
-        .form-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            margin-top: 25px;
-        }
-
-        .message {
-            display: none;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            background: #292d35;
-        }
-
-        .message.show {
-            display: block;
-        }
-
-        @media (max-width: 650px) {
-
-            body {
-                padding: 12px;
-            }
-
-            .header h1 {
-                font-size: 22px;
-            }
-
-            .form-grid,
-            .seo-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .form-group.full,
-            .seo-section {
-                grid-column: auto;
-            }
-
-            .modal-box {
-                padding: 18px;
-                margin: 10px auto;
-            }
-        }
-    </style>
 </head>
 
 <body>
@@ -379,11 +25,19 @@
     <div class="header">
 
         <div>
+
             <h1>📚 Books</h1>
-            <p>Manage all Rasbhav Books from Admin Panel</p>
+
+            <p>
+                Manage all Rasbhav Books from Admin Panel
+            </p>
+
         </div>
 
-        <button class="btn-primary" onclick="openAddBook()">
+        <button
+            class="btn-primary"
+            onclick="openAddBook()"
+        >
             + Add Book
         </button>
 
@@ -418,7 +72,10 @@
          MESSAGE
     ====================================================== -->
 
-    <div id="message" class="message"></div>
+    <div
+        id="message"
+        class="message"
+    ></div>
 
 
     <!-- =====================================================
@@ -432,14 +89,21 @@
             <thead>
 
                 <tr>
+
                     <th>Cover</th>
+
                     <th>Title</th>
+
                     <th>Author ID</th>
+
                     <th>Language</th>
+
                     <th>Status</th>
+
                     <th>Featured</th>
-                    <th>SEO</th>
+
                     <th>Actions</th>
+
                 </tr>
 
             </thead>
@@ -447,9 +111,14 @@
             <tbody id="booksTableBody">
 
                 <tr>
-                    <td colspan="8" class="loading">
+
+                    <td
+                        colspan="7"
+                        class="loading"
+                    >
                         Loading books...
                     </td>
+
                 </tr>
 
             </tbody>
@@ -465,7 +134,10 @@
      BOOK MODAL
 ========================================================= -->
 
-<div id="bookModal" class="modal">
+<div
+    id="bookModal"
+    class="modal"
+>
 
     <div class="modal-box">
 
@@ -497,8 +169,9 @@
 
 
                 <!-- =================================================
-                     BOOK INFORMATION
+                     BASIC BOOK INFORMATION
                 ================================================== -->
+
 
                 <div class="form-group">
 
@@ -570,6 +243,11 @@
                 </div>
 
 
+                <!-- =================================================
+                     AUTHOR / LANGUAGE
+                ================================================== -->
+
+
                 <div class="form-group">
 
                     <label>
@@ -628,6 +306,11 @@
                 </div>
 
 
+                <!-- =================================================
+                     IMAGES
+                ================================================== -->
+
+
                 <div class="form-group">
 
                     <label>
@@ -671,6 +354,11 @@
                     >
 
                 </div>
+
+
+                <!-- =================================================
+                     STATUS
+                ================================================== -->
 
 
                 <div class="form-group">
@@ -741,234 +429,174 @@
 
 
                 <!-- =================================================
-                     SEO
+                     BOOK SEO
                 ================================================== -->
 
-                <div class="seo-section">
+                <div class="form-group full">
 
-                    <div class="seo-title">
-                        🔍 SEO Settings
-                    </div>
+                    <h3>
+                        🔍 Book SEO
+                    </h3>
 
-                    <div class="seo-description">
-                        Search Engine Optimization settings for this book.
-                    </div>
+                </div>
 
 
-                    <div class="seo-grid">
+                <div class="form-group full">
 
+                    <label>
+                        Meta Title
+                    </label>
 
-                        <!-- META TITLE -->
+                    <input
+                        type="text"
+                        id="meta_title"
+                        maxlength="255"
+                        placeholder="SEO title for this book"
+                    >
 
-                        <div class="form-group full">
+                </div>
 
-                            <label>
-                                Meta Title
-                            </label>
 
-                            <input
-                                type="text"
-                                id="meta_title"
-                                maxlength="255"
-                                placeholder="Book title | Rasbhav Books"
-                                oninput="updateSeoPreview()"
-                            >
+                <div class="form-group full">
 
-                            <div class="char-count">
-                                <span id="metaTitleCount">0</span>/255
-                            </div>
+                    <label>
+                        Meta Description
+                    </label>
 
-                        </div>
+                    <textarea
+                        id="meta_description"
+                        placeholder="SEO description for this book"
+                    ></textarea>
 
+                </div>
 
-                        <!-- META DESCRIPTION -->
 
-                        <div class="form-group full">
+                <div class="form-group">
 
-                            <label>
-                                Meta Description
-                            </label>
+                    <label>
+                        Focus Keyword
+                    </label>
 
-                            <textarea
-                                id="meta_description"
-                                maxlength="500"
-                                placeholder="Write a clear SEO-friendly description..."
-                                oninput="updateSeoPreview()"
-                            ></textarea>
+                    <input
+                        type="text"
+                        id="focus_keyword"
+                        placeholder="gujarati novel"
+                    >
 
-                            <div class="char-count">
-                                <span id="metaDescriptionCount">0</span>/500
-                            </div>
+                </div>
 
-                        </div>
 
+                <div class="form-group">
 
-                        <!-- FOCUS KEYWORD -->
+                    <label>
+                        Robots
+                    </label>
 
-                        <div class="form-group">
+                    <input
+                        type="text"
+                        id="robots"
+                        value="index, follow"
+                        placeholder="index, follow"
+                    >
 
-                            <label>
-                                Focus Keyword
-                            </label>
+                </div>
 
-                            <input
-                                type="text"
-                                id="focus_keyword"
-                                maxlength="255"
-                                placeholder="Gujarati novel"
-                            >
 
-                        </div>
+                <div class="form-group full">
 
+                    <label>
+                        Canonical URL
+                    </label>
 
-                        <!-- ROBOTS -->
+                    <input
+                        type="text"
+                        id="canonical_url"
+                        placeholder="https://example.com/books/book-slug"
+                    >
 
-                        <div class="form-group">
+                </div>
 
-                            <label>
-                                Robots
-                            </label>
 
-                            <select id="robots">
+                <!-- =================================================
+                     OPEN GRAPH
+                ================================================== -->
 
-                                <option value="index, follow">
-                                    index, follow
-                                </option>
 
-                                <option value="noindex, follow">
-                                    noindex, follow
-                                </option>
+                <div class="form-group full">
 
-                                <option value="index, nofollow">
-                                    index, nofollow
-                                </option>
+                    <h3>
+                        📱 Open Graph
+                    </h3>
 
-                                <option value="noindex, nofollow">
-                                    noindex, nofollow
-                                </option>
+                </div>
 
-                            </select>
 
-                        </div>
+                <div class="form-group">
 
+                    <label>
+                        OG Title
+                    </label>
 
-                        <!-- CANONICAL -->
+                    <input
+                        type="text"
+                        id="og_title"
+                    >
 
-                        <div class="form-group full">
+                </div>
 
-                            <label>
-                                Canonical URL
-                            </label>
 
-                            <input
-                                type="url"
-                                id="canonical_url"
-                                placeholder="https://example.com/books/book-slug"
-                            >
+                <div class="form-group">
 
-                        </div>
+                    <label>
+                        OG Image
+                    </label>
 
+                    <input
+                        type="text"
+                        id="og_image"
+                        placeholder="/static/uploads/og-book.jpg"
+                    >
 
-                        <!-- OG TITLE -->
+                </div>
 
-                        <div class="form-group">
 
-                            <label>
-                                OG Title
-                            </label>
+                <div class="form-group full">
 
-                            <input
-                                type="text"
-                                id="og_title"
-                                maxlength="255"
-                                placeholder="Social sharing title"
-                            >
+                    <label>
+                        OG Description
+                    </label>
 
-                        </div>
+                    <textarea
+                        id="og_description"
+                    ></textarea>
 
+                </div>
 
-                        <!-- OG IMAGE -->
 
-                        <div class="form-group">
+                <!-- =================================================
+                     STRUCTURED DATA
+                ================================================== -->
 
-                            <label>
-                                OG Image
-                            </label>
 
-                            <input
-                                type="text"
-                                id="og_image"
-                                placeholder="/static/uploads/og-book.jpg"
-                            >
+                <div class="form-group full">
 
-                        </div>
+                    <h3>
+                        📊 Schema Data
+                    </h3>
 
+                </div>
 
-                        <!-- OG DESCRIPTION -->
 
-                        <div class="form-group full">
+                <div class="form-group full">
 
-                            <label>
-                                OG Description
-                            </label>
+                    <label>
+                        Schema JSON
+                    </label>
 
-                            <textarea
-                                id="og_description"
-                                maxlength="500"
-                                placeholder="Description shown when shared on social media..."
-                            ></textarea>
-
-                        </div>
-
-
-                        <!-- SCHEMA -->
-
-                        <div class="form-group full">
-
-                            <label>
-                                Schema JSON-LD
-                            </label>
-
-                            <textarea
-                                id="schema_data"
-                                placeholder='{"@context":"https://schema.org","@type":"Book"}'
-                            ></textarea>
-
-                        </div>
-
-                    </div>
-
-
-                    <!-- SEO PREVIEW -->
-
-                    <div class="seo-preview">
-
-                        <div class="seo-preview-label">
-                            Search Preview
-                        </div>
-
-                        <div
-                            id="seoPreviewTitle"
-                            class="seo-preview-title"
-                        >
-                            Book Title
-                        </div>
-
-                        <div
-                            id="seoPreviewUrl"
-                            class="seo-preview-url"
-                        >
-                            /books/book-slug
-                        </div>
-
-                        <div
-                            id="seoPreviewDescription"
-                            class="seo-preview-description"
-                        >
-                            Your book meta description will appear here.
-                        </div>
-
-                    </div>
+                    <textarea
+                        id="schema_data"
+                        placeholder='{"@context":"https://schema.org","@type":"Book"}'
+                    ></textarea>
 
                 </div>
 
@@ -993,7 +621,7 @@
                     type="submit"
                     class="btn-primary"
                 >
-                    Save Book + SEO
+                    Save Book
                 </button>
 
             </div>
@@ -1015,14 +643,16 @@
 ========================================================= */
 
 let books = [];
+
 let editingBookId = null;
 
 
 /* =========================================================
-   API URLS
+   API URL
 ========================================================= */
 
 const API_URL = "/api/admin/books";
+
 const SEO_API_URL = "/api/admin/seo";
 
 
@@ -1033,46 +663,70 @@ const SEO_API_URL = "/api/admin/seo";
 async function loadBooks() {
 
     const tbody =
-        document.getElementById("booksTableBody");
+        document.getElementById(
+            "booksTableBody"
+        );
+
 
     tbody.innerHTML = `
         <tr>
-            <td colspan="8" class="loading">
+            <td
+                colspan="7"
+                class="loading"
+            >
                 Loading books...
             </td>
         </tr>
     `;
 
+
     try {
 
-        const response = await fetch(API_URL, {
-            method: "GET",
-            credentials: "same-origin"
-        });
+        const response = await fetch(
+            API_URL,
+            {
+                method: "GET",
+                credentials: "same-origin"
+            }
+        );
 
-        const data = await response.json();
+
+        const data =
+            await response.json();
+
 
         if (!response.ok) {
+
             throw new Error(
-                data.message || "Unable to load books."
+                data.message ||
+                "Unable to load books."
             );
+
         }
 
-        books = data.books || [];
+
+        books =
+            data.books || [];
+
 
         renderBooks(books);
+
 
     } catch (error) {
 
         tbody.innerHTML = `
             <tr>
-                <td colspan="8" class="empty">
+                <td
+                    colspan="7"
+                    class="empty"
+                >
                     ${escapeHtml(error.message)}
                 </td>
             </tr>
         `;
 
     }
+
 }
 
 
@@ -1083,13 +737,19 @@ async function loadBooks() {
 function renderBooks(list) {
 
     const tbody =
-        document.getElementById("booksTableBody");
+        document.getElementById(
+            "booksTableBody"
+        );
+
 
     if (!list.length) {
 
         tbody.innerHTML = `
             <tr>
-                <td colspan="8" class="empty">
+                <td
+                    colspan="7"
+                    class="empty"
+                >
                     No books found.
                 </td>
             </tr>
@@ -1099,85 +759,123 @@ function renderBooks(list) {
     }
 
 
-    tbody.innerHTML = list.map(book => {
+    tbody.innerHTML =
+        list.map(book => {
 
-        const cover = book.cover_image
-            ? `<img
-                src="${escapeAttribute(book.cover_image)}"
-                class="cover"
-                alt="${escapeAttribute(book.title || "Book")}"
-              >`
-            : `<div class="cover"></div>`;
+            const cover =
+                book.cover_image
+
+                ? `
+                    <img
+                        src="${escapeAttribute(
+                            book.cover_image
+                        )}"
+                        class="cover"
+                        alt="${escapeAttribute(
+                            book.title ||
+                            "Book"
+                        )}"
+                    >
+                  `
+
+                : `
+                    <div class="cover"></div>
+                  `;
 
 
-        return `
-            <tr>
+            return `
 
-                <td>
-                    ${cover}
-                </td>
+                <tr>
 
-                <td>
-                    <strong>
-                        ${escapeHtml(book.title || "-")}
-                    </strong>
-                    <br>
+                    <td>
+                        ${cover}
+                    </td>
 
-                    <small>
-                        ${escapeHtml(book.slug || "")}
-                    </small>
-                </td>
+                    <td>
 
-                <td>
-                    ${book.author_id ?? "-"}
-                </td>
+                        <strong>
+                            ${escapeHtml(
+                                book.title ||
+                                "-"
+                            )}
+                        </strong>
 
-                <td>
-                    ${escapeHtml(book.language || "-")}
-                </td>
+                        <br>
 
-                <td>
-                    <span class="status">
-                        ${escapeHtml(book.status || "draft")}
-                    </span>
-                </td>
+                        <small>
+                            ${escapeHtml(
+                                book.slug ||
+                                ""
+                            )}
+                        </small>
 
-                <td>
-                    ${book.featured ? "⭐ Yes" : "No"}
-                </td>
+                    </td>
 
-                <td>
-                    <span class="status">
-                        ${book.seo_exists ? "✓ SEO" : "No SEO"}
-                    </span>
-                </td>
+                    <td>
+                        ${book.author_id ?? "-"}
+                    </td>
 
-                <td>
+                    <td>
+                        ${escapeHtml(
+                            book.language ||
+                            "-"
+                        )}
+                    </td>
 
-                    <div class="actions">
+                    <td>
 
-                        <button
-                            class="btn-secondary"
-                            onclick="editBook(${book.id})"
-                        >
-                            Edit
-                        </button>
+                        <span class="status">
 
-                        <button
-                            class="btn-danger"
-                            onclick="deleteBook(${book.id})"
-                        >
-                            Delete
-                        </button>
+                            ${escapeHtml(
+                                book.status ||
+                                "draft"
+                            )}
 
-                    </div>
+                        </span>
 
-                </td>
+                    </td>
 
-            </tr>
-        `;
+                    <td>
 
-    }).join("");
+                        ${
+                            book.featured
+                                ? "⭐ Yes"
+                                : "No"
+                        }
+
+                    </td>
+
+                    <td>
+
+                        <div class="actions">
+
+                            <button
+                                class="btn-secondary"
+                                onclick="editBook(
+                                    ${book.id}
+                                )"
+                            >
+                                Edit
+                            </button>
+
+                            <button
+                                class="btn-danger"
+                                onclick="deleteBook(
+                                    ${book.id}
+                                )"
+                            >
+                                Delete
+                            </button>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+            `;
+
+        }).join("");
 
 }
 
@@ -1188,11 +886,14 @@ function renderBooks(list) {
 
 function filterBooks() {
 
-    const keyword = document
-        .getElementById("searchInput")
-        .value
-        .toLowerCase()
-        .trim();
+    const keyword =
+        document
+            .getElementById(
+                "searchInput"
+            )
+            .value
+            .toLowerCase()
+            .trim();
 
 
     if (!keyword) {
@@ -1203,35 +904,44 @@ function filterBooks() {
     }
 
 
-    const filtered = books.filter(book => {
+    const filtered =
+        books.filter(book => {
 
-        return (
+            return (
 
-            String(book.title || "")
+                String(
+                    book.title || ""
+                )
                 .toLowerCase()
                 .includes(keyword)
 
-            ||
+                ||
 
-            String(book.slug || "")
+                String(
+                    book.slug || ""
+                )
                 .toLowerCase()
                 .includes(keyword)
 
-            ||
+                ||
 
-            String(book.language || "")
+                String(
+                    book.language || ""
+                )
                 .toLowerCase()
                 .includes(keyword)
 
-            ||
+                ||
 
-            String(book.tags || "")
+                String(
+                    book.tags || ""
+                )
                 .toLowerCase()
                 .includes(keyword)
 
-        );
+            );
 
-    });
+        });
 
 
     renderBooks(filtered);
@@ -1247,20 +957,43 @@ function openAddBook() {
 
     editingBookId = null;
 
-    document.getElementById("modalTitle").textContent =
-        "Add Book";
-
-    document.getElementById("bookForm").reset();
-
-    document.getElementById("bookId").value = "";
-
-    resetSeoFields();
 
     document
-        .getElementById("bookModal")
-        .classList.add("active");
+        .getElementById(
+            "modalTitle"
+        )
+        .textContent =
+        "Add Book";
 
-    updateSeoPreview();
+
+    document
+        .getElementById(
+            "bookForm"
+        )
+        .reset();
+
+
+    document
+        .getElementById(
+            "bookId"
+        )
+        .value = "";
+
+
+    document
+        .getElementById(
+            "robots"
+        )
+        .value =
+        "index, follow";
+
+
+    document
+        .getElementById(
+            "bookModal"
+        )
+        .classList
+        .add("active");
 
 }
 
@@ -1272,8 +1005,11 @@ function openAddBook() {
 function closeBookModal() {
 
     document
-        .getElementById("bookModal")
-        .classList.remove("active");
+        .getElementById(
+            "bookModal"
+        )
+        .classList
+        .remove("active");
 
 }
 
@@ -1286,106 +1022,207 @@ async function editBook(bookId) {
 
     try {
 
-        const response = await fetch(
-            `${API_URL}/${bookId}`,
-            {
-                method: "GET",
-                credentials: "same-origin"
-            }
-        );
+        const response =
+            await fetch(
+                `${API_URL}/${bookId}`,
+                {
+                    method: "GET",
+                    credentials: "same-origin"
+                }
+            );
 
 
-        const data = await response.json();
+        const data =
+            await response.json();
 
 
         if (!response.ok) {
 
             throw new Error(
-                data.message || "Unable to load book."
+                data.message ||
+                "Unable to load book."
             );
 
         }
 
 
-        const book = data.book;
+        const book =
+            data.book;
 
-        editingBookId = book.id;
+
+        editingBookId =
+            book.id;
 
 
-        document.getElementById("modalTitle").textContent =
+        document
+            .getElementById(
+                "modalTitle"
+            )
+            .textContent =
             "Edit Book";
 
 
-        document.getElementById("bookId").value =
+        document
+            .getElementById(
+                "bookId"
+            )
+            .value =
             book.id || "";
 
-        document.getElementById("title").value =
+
+        document
+            .getElementById(
+                "title"
+            )
+            .value =
             book.title || "";
 
-        document.getElementById("slug").value =
+
+        document
+            .getElementById(
+                "slug"
+            )
+            .value =
             book.slug || "";
 
-        document.getElementById("subtitle").value =
+
+        document
+            .getElementById(
+                "subtitle"
+            )
+            .value =
             book.subtitle || "";
 
-        document.getElementById("description").value =
+
+        document
+            .getElementById(
+                "description"
+            )
+            .value =
             book.description || "";
 
-        document.getElementById("short_description").value =
+
+        document
+            .getElementById(
+                "short_description"
+            )
+            .value =
             book.short_description || "";
 
-        document.getElementById("author_id").value =
+
+        document
+            .getElementById(
+                "author_id"
+            )
+            .value =
             book.author_id || "";
 
-        document.getElementById("language").value =
+
+        document
+            .getElementById(
+                "language"
+            )
+            .value =
             book.language || "";
 
-        document.getElementById("tags").value =
+
+        document
+            .getElementById(
+                "tags"
+            )
+            .value =
             book.tags || "";
 
-        document.getElementById("cover_image").value =
+
+        document
+            .getElementById(
+                "cover_image"
+            )
+            .value =
             book.cover_image || "";
 
-        document.getElementById("banner_image").value =
+
+        document
+            .getElementById(
+                "banner_image"
+            )
+            .value =
             book.banner_image || "";
 
-        document.getElementById("featured_image").value =
+
+        document
+            .getElementById(
+                "featured_image"
+            )
+            .value =
             book.featured_image || "";
 
-        document.getElementById("status").value =
+
+        document
+            .getElementById(
+                "status"
+            )
+            .value =
             book.status || "draft";
 
-        document.getElementById("featured").checked =
-            Boolean(book.featured);
 
-        document.getElementById("published").checked =
-            Boolean(book.published);
+        document
+            .getElementById(
+                "featured"
+            )
+            .checked =
+            Boolean(
+                book.featured
+            );
+
+
+        document
+            .getElementById(
+                "published"
+            )
+            .checked =
+            Boolean(
+                book.published
+            );
 
 
         if (book.publish_date) {
 
-            document.getElementById("publish_date").value =
-                formatDateTimeLocal(book.publish_date);
+            document
+                .getElementById(
+                    "publish_date"
+                )
+                .value =
+                formatDateTimeLocal(
+                    book.publish_date
+                );
 
         } else {
 
-            document.getElementById("publish_date").value = "";
+            document
+                .getElementById(
+                    "publish_date"
+                )
+                .value = "";
 
         }
 
 
-        /*
-         * Load SEO separately
-         */
+        /* =====================================================
+           LOAD BOOK SEO
+        ===================================================== */
 
-        await loadBookSEO(book.id);
+        await loadBookSEO(
+            book.id
+        );
 
 
         document
-            .getElementById("bookModal")
-            .classList.add("active");
-
-        updateSeoPreview();
+            .getElementById(
+                "bookModal"
+            )
+            .classList
+            .add("active");
 
 
     } catch (error) {
@@ -1406,28 +1243,27 @@ async function editBook(bookId) {
 
 async function loadBookSEO(bookId) {
 
-    resetSeoFields();
+    clearSEOFields();
+
 
     try {
 
-        const response = await fetch(
-            `${SEO_API_URL}?entity_type=book&entity_id=${bookId}`,
-            {
-                method: "GET",
-                credentials: "same-origin"
-            }
-        );
+        const response =
+            await fetch(
+                `${SEO_API_URL}?entity_type=book&entity_id=${bookId}`,
+                {
+                    method: "GET",
+                    credentials: "same-origin"
+                }
+            );
 
 
-        const data = await response.json();
+        const data =
+            await response.json();
 
 
         if (!response.ok) {
-
-            throw new Error(
-                data.message || "Unable to load SEO settings."
-            );
-
+            return;
         }
 
 
@@ -1440,47 +1276,163 @@ async function loadBookSEO(bookId) {
         }
 
 
-        const seo = seoList[0];
+        const seo =
+            seoList[0];
 
 
-        document.getElementById("meta_title").value =
+        document
+            .getElementById(
+                "meta_title"
+            )
+            .value =
             seo.meta_title || "";
 
-        document.getElementById("meta_description").value =
+
+        document
+            .getElementById(
+                "meta_description"
+            )
+            .value =
             seo.meta_description || "";
 
-        document.getElementById("focus_keyword").value =
+
+        document
+            .getElementById(
+                "focus_keyword"
+            )
+            .value =
             seo.focus_keyword || "";
 
-        document.getElementById("canonical_url").value =
+
+        document
+            .getElementById(
+                "canonical_url"
+            )
+            .value =
             seo.canonical_url || "";
 
-        document.getElementById("robots").value =
-            seo.robots || "index, follow";
 
-        document.getElementById("og_title").value =
+        document
+            .getElementById(
+                "robots"
+            )
+            .value =
+            seo.robots ||
+            "index, follow";
+
+
+        document
+            .getElementById(
+                "og_title"
+            )
+            .value =
             seo.og_title || "";
 
-        document.getElementById("og_description").value =
+
+        document
+            .getElementById(
+                "og_description"
+            )
+            .value =
             seo.og_description || "";
 
-        document.getElementById("og_image").value =
+
+        document
+            .getElementById(
+                "og_image"
+            )
+            .value =
             seo.og_image || "";
 
-        document.getElementById("schema_data").value =
+
+        document
+            .getElementById(
+                "schema_data"
+            )
+            .value =
             seo.schema_data || "";
 
-        document.getElementById("bookSeoId").value =
-            seo.id || "";
 
     } catch (error) {
 
         console.warn(
-            "SEO load warning:",
-            error.message
+            "SEO load failed:",
+            error
         );
 
     }
+
+}
+
+
+/* =========================================================
+   CLEAR SEO
+========================================================= */
+
+function clearSEOFields() {
+
+    document
+        .getElementById(
+            "meta_title"
+        )
+        .value = "";
+
+
+    document
+        .getElementById(
+            "meta_description"
+        )
+        .value = "";
+
+
+    document
+        .getElementById(
+            "focus_keyword"
+        )
+        .value = "";
+
+
+    document
+        .getElementById(
+            "canonical_url"
+        )
+        .value = "";
+
+
+    document
+        .getElementById(
+            "robots"
+        )
+        .value =
+        "index, follow";
+
+
+    document
+        .getElementById(
+            "og_title"
+        )
+        .value = "";
+
+
+    document
+        .getElementById(
+            "og_description"
+        )
+        .value = "";
+
+
+    document
+        .getElementById(
+            "og_image"
+        )
+        .value = "";
+
+
+    document
+        .getElementById(
+            "schema_data"
+        )
+        .value = "";
 
 }
 
@@ -1490,7 +1442,9 @@ async function loadBookSEO(bookId) {
 ========================================================= */
 
 document
-    .getElementById("bookForm")
+    .getElementById(
+        "bookForm"
+    )
     .addEventListener(
         "submit",
         async function(event) {
@@ -1501,46 +1455,106 @@ document
             const payload = {
 
                 title:
-                    document.getElementById("title").value.trim(),
+                    document
+                        .getElementById(
+                            "title"
+                        )
+                        .value
+                        .trim(),
 
                 slug:
-                    document.getElementById("slug").value.trim(),
+                    document
+                        .getElementById(
+                            "slug"
+                        )
+                        .value
+                        .trim(),
 
                 subtitle:
-                    document.getElementById("subtitle").value.trim(),
+                    document
+                        .getElementById(
+                            "subtitle"
+                        )
+                        .value
+                        .trim(),
 
                 description:
-                    document.getElementById("description").value,
+                    document
+                        .getElementById(
+                            "description"
+                        )
+                        .value,
 
                 short_description:
-                    document.getElementById("short_description").value,
+                    document
+                        .getElementById(
+                            "short_description"
+                        )
+                        .value,
 
                 author_id:
-                    getNumberOrNull("author_id"),
+                    getNumberOrNull(
+                        "author_id"
+                    ),
 
                 language:
-                    document.getElementById("language").value,
+                    document
+                        .getElementById(
+                            "language"
+                        )
+                        .value,
 
                 tags:
-                    document.getElementById("tags").value,
+                    document
+                        .getElementById(
+                            "tags"
+                        )
+                        .value,
 
                 cover_image:
-                    document.getElementById("cover_image").value.trim(),
+                    document
+                        .getElementById(
+                            "cover_image"
+                        )
+                        .value
+                        .trim(),
 
                 banner_image:
-                    document.getElementById("banner_image").value.trim(),
+                    document
+                        .getElementById(
+                            "banner_image"
+                        )
+                        .value
+                        .trim(),
 
                 featured_image:
-                    document.getElementById("featured_image").value.trim(),
+                    document
+                        .getElementById(
+                            "featured_image"
+                        )
+                        .value
+                        .trim(),
 
                 status:
-                    document.getElementById("status").value,
+                    document
+                        .getElementById(
+                            "status"
+                        )
+                        .value,
 
                 featured:
-                    document.getElementById("featured").checked,
+                    document
+                        .getElementById(
+                            "featured"
+                        )
+                        .checked,
 
                 published:
-                    document.getElementById("published").checked,
+                    document
+                        .getElementById(
+                            "published"
+                        )
+                        .checked,
 
                 publish_date:
                     getPublishDate()
@@ -1550,38 +1564,55 @@ document
 
             try {
 
-                let url = API_URL;
+                let url =
+                    API_URL;
 
-                let method = "POST";
+                let method =
+                    "POST";
 
-
-                /*
-                 * CREATE / UPDATE BOOK
-                 */
 
                 if (editingBookId) {
 
                     url =
                         `${API_URL}/${editingBookId}`;
 
-                    method = "PUT";
+                    method =
+                        "PUT";
 
                 }
 
 
-                const response = await fetch(url, {
+                /* =================================================
+                   SAVE BOOK
+                ================================================== */
 
-                    method: method,
+                const response =
+                    await fetch(
+                        url,
+                        {
 
-                    credentials: "same-origin",
+                            method:
 
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
+                                method,
 
-                    body: JSON.stringify(payload)
+                            credentials:
 
-                });
+                                "same-origin",
+
+                            headers: {
+
+                                "Content-Type":
+                                    "application/json"
+
+                            },
+
+                            body:
+                                JSON.stringify(
+                                    payload
+                                )
+
+                        }
+                    );
 
 
                 const data =
@@ -1598,18 +1629,15 @@ document
                 }
 
 
-                /*
-                 * Get book ID
-                 */
-
                 const savedBookId =
                     editingBookId ||
-                    data.book_id;
+                    data.book_id ||
+                    data.id;
 
 
-                /*
-                 * Save SEO
-                 */
+                /* =================================================
+                   SAVE SEO
+                ================================================== */
 
                 if (savedBookId) {
 
@@ -1624,7 +1652,8 @@ document
 
 
                 showMessage(
-                    "Book and SEO saved successfully."
+                    data.message ||
+                    "Book saved successfully."
                 );
 
 
@@ -1652,87 +1681,179 @@ async function saveBookSEO(bookId) {
 
     const seoPayload = {
 
-        entity_type: "book",
+        entity_type:
+            "book",
 
-        entity_id: bookId,
+        entity_id:
+            Number(bookId),
 
         meta_title:
-            document.getElementById("meta_title").value.trim(),
+            document
+                .getElementById(
+                    "meta_title"
+                )
+                .value
+                .trim(),
 
         meta_description:
-            document.getElementById("meta_description").value.trim(),
+            document
+                .getElementById(
+                    "meta_description"
+                )
+                .value
+                .trim(),
 
         focus_keyword:
-            document.getElementById("focus_keyword").value.trim(),
+            document
+                .getElementById(
+                    "focus_keyword"
+                )
+                .value
+                .trim(),
 
         canonical_url:
-            document.getElementById("canonical_url").value.trim(),
+            document
+                .getElementById(
+                    "canonical_url"
+                )
+                .value
+                .trim(),
 
         robots:
-            document.getElementById("robots").value,
+            document
+                .getElementById(
+                    "robots"
+                )
+                .value
+                .trim() ||
+            "index, follow",
 
         og_title:
-            document.getElementById("og_title").value.trim(),
+            document
+                .getElementById(
+                    "og_title"
+                )
+                .value
+                .trim(),
 
         og_description:
-            document.getElementById("og_description").value.trim(),
+            document
+                .getElementById(
+                    "og_description"
+                )
+                .value
+                .trim(),
 
         og_image:
-            document.getElementById("og_image").value.trim(),
+            document
+                .getElementById(
+                    "og_image"
+                )
+                .value
+                .trim(),
 
         schema_data:
-            document.getElementById("schema_data").value.trim()
+            document
+                .getElementById(
+                    "schema_data"
+                )
+                .value
+                .trim()
 
     };
 
 
-    const existingSeoId =
-        document.getElementById("bookSeoId").value;
+    /* =====================================================
+       CHECK EXISTING SEO
+    ====================================================== */
+
+    const checkResponse =
+        await fetch(
+            `${SEO_API_URL}?entity_type=book&entity_id=${bookId}`,
+            {
+                method: "GET",
+                credentials: "same-origin"
+            }
+        );
 
 
-    let url;
-    let method;
+    const checkData =
+        await checkResponse.json();
 
 
-    /*
-     * Existing SEO -> UPDATE
-     */
+    const existing =
+        checkData.seo_settings || [];
 
-    if (existingSeoId) {
 
-        url =
-            `${SEO_API_URL}/${existingSeoId}`;
+    let response;
 
-        method = "PUT";
+
+    /* =====================================================
+       UPDATE EXISTING SEO
+    ====================================================== */
+
+    if (existing.length) {
+
+        response =
+            await fetch(
+                `${SEO_API_URL}/${existing[0].id}`,
+                {
+
+                    method: "PUT",
+
+                    credentials:
+                        "same-origin",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json"
+
+                    },
+
+                    body:
+                        JSON.stringify(
+                            seoPayload
+                        )
+
+                }
+            );
 
     }
 
-    /*
-     * New SEO -> CREATE
-     */
+
+    /* =====================================================
+       CREATE NEW SEO
+    ====================================================== */
 
     else {
 
-        url = SEO_API_URL;
+        response =
+            await fetch(
+                SEO_API_URL,
+                {
 
-        method = "POST";
+                    method: "POST",
+
+                    credentials:
+                        "same-origin",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json"
+
+                    },
+
+                    body:
+                        JSON.stringify(
+                            seoPayload
+                        )
+
+                }
+            );
 
     }
-
-
-    const response = await fetch(url, {
-
-        method: method,
-
-        credentials: "same-origin",
-
-        headers: {
-            "Content-Type": "application/json"
-        },
-
-        body: JSON.stringify(seoPayload)
-
-    });
 
 
     const data =
@@ -1749,16 +1870,7 @@ async function saveBookSEO(bookId) {
     }
 
 
-    /*
-     * Store SEO ID after creation
-     */
-
-    if (data.seo_id) {
-
-        document.getElementById("bookSeoId").value =
-            data.seo_id;
-
-    }
+    return data;
 
 }
 
@@ -1769,19 +1881,23 @@ async function saveBookSEO(bookId) {
 
 async function deleteBook(bookId) {
 
-    const book = books.find(
-        item => item.id === bookId
-    );
+    const book =
+        books.find(
+            item =>
+                item.id === bookId
+        );
 
 
-    const title = book
-        ? book.title
-        : "this book";
+    const title =
+        book
+            ? book.title
+            : "this book";
 
 
-    const confirmed = confirm(
-        `Are you sure you want to delete "${title}"?`
-    );
+    const confirmed =
+        confirm(
+            `Are you sure you want to delete "${title}"?`
+        );
 
 
     if (!confirmed) {
@@ -1791,13 +1907,19 @@ async function deleteBook(bookId) {
 
     try {
 
-        const response = await fetch(
-            `${API_URL}/${bookId}`,
-            {
-                method: "DELETE",
-                credentials: "same-origin"
-            }
-        );
+        const response =
+            await fetch(
+                `${API_URL}/${bookId}`,
+                {
+
+                    method:
+                        "DELETE",
+
+                    credentials:
+                        "same-origin"
+
+                }
+            );
 
 
         const data =
@@ -1836,85 +1958,7 @@ async function deleteBook(bookId) {
 
 
 /* =========================================================
-   RESET SEO
-========================================================= */
-
-function resetSeoFields() {
-
-    document.getElementById("bookSeoId").value = "";
-
-    document.getElementById("meta_title").value = "";
-
-    document.getElementById("meta_description").value = "";
-
-    document.getElementById("focus_keyword").value = "";
-
-    document.getElementById("canonical_url").value = "";
-
-    document.getElementById("robots").value =
-        "index, follow";
-
-    document.getElementById("og_title").value = "";
-
-    document.getElementById("og_description").value = "";
-
-    document.getElementById("og_image").value = "";
-
-    document.getElementById("schema_data").value = "";
-
-}
-
-
-/* =========================================================
-   SEO PREVIEW
-========================================================= */
-
-function updateSeoPreview() {
-
-    const title =
-        document.getElementById("meta_title").value.trim();
-
-
-    const description =
-        document
-            .getElementById("meta_description")
-            .value
-            .trim();
-
-
-    const slug =
-        document.getElementById("slug").value.trim();
-
-
-    document.getElementById("seoPreviewTitle").textContent =
-        title || "Book Title";
-
-
-    document.getElementById("seoPreviewUrl").textContent =
-        `/books/${slug || "book-slug"}`;
-
-
-    document
-        .getElementById("seoPreviewDescription")
-        .textContent =
-            description ||
-            "Your book meta description will appear here.";
-
-
-    document.getElementById("metaTitleCount").textContent =
-        title.length;
-
-
-    document
-        .getElementById("metaDescriptionCount")
-        .textContent =
-            description.length;
-
-}
-
-
-/* =========================================================
-   NUMBER HELPER
+   HELPERS
 ========================================================= */
 
 function getNumberOrNull(id) {
@@ -1931,7 +1975,8 @@ function getNumberOrNull(id) {
     }
 
 
-    const number = Number(value);
+    const number =
+        Number(value);
 
 
     return Number.isFinite(number)
@@ -1949,7 +1994,9 @@ function getPublishDate() {
 
     const value =
         document
-            .getElementById("publish_date")
+            .getElementById(
+                "publish_date"
+            )
             .value;
 
 
@@ -1958,7 +2005,9 @@ function getPublishDate() {
     }
 
 
-    return new Date(value).toISOString();
+    return new Date(
+        value
+    ).toISOString();
 
 }
 
@@ -1973,8 +2022,14 @@ function formatDateTimeLocal(value) {
         new Date(value);
 
 
-    if (Number.isNaN(date.getTime())) {
+    if (
+        Number.isNaN(
+            date.getTime()
+        )
+    ) {
+
         return "";
+
     }
 
 
@@ -1983,23 +2038,31 @@ function formatDateTimeLocal(value) {
 
 
     const month =
-        String(date.getMonth() + 1)
-            .padStart(2, "0");
+        String(
+            date.getMonth() + 1
+        )
+        .padStart(2, "0");
 
 
     const day =
-        String(date.getDate())
-            .padStart(2, "0");
+        String(
+            date.getDate()
+        )
+        .padStart(2, "0");
 
 
     const hours =
-        String(date.getHours())
-            .padStart(2, "0");
+        String(
+            date.getHours()
+        )
+        .padStart(2, "0");
 
 
     const minutes =
-        String(date.getMinutes())
-            .padStart(2, "0");
+        String(
+            date.getMinutes()
+        )
+        .padStart(2, "0");
 
 
     return `${year}-${month}-${day}T${hours}:${minutes}`;
@@ -2011,24 +2074,36 @@ function formatDateTimeLocal(value) {
    MESSAGE
 ========================================================= */
 
-function showMessage(text, error = false) {
+function showMessage(
+    text,
+    error = false
+) {
 
     const message =
-        document.getElementById("message");
+        document.getElementById(
+            "message"
+        );
 
 
     message.textContent =
         text;
 
 
-    message.classList.add("show");
+    message.classList.add(
+        "show"
+    );
 
 
-    setTimeout(() => {
+    setTimeout(
+        () => {
 
-        message.classList.remove("show");
+            message.classList.remove(
+                "show"
+            );
 
-    }, 4000);
+        },
+        4000
+    );
 
 }
 
@@ -2075,7 +2150,9 @@ function escapeHtml(value) {
 
 function escapeAttribute(value) {
 
-    return escapeHtml(value);
+    return escapeHtml(
+        value
+    );
 
 }
 
@@ -2085,57 +2162,22 @@ function escapeAttribute(value) {
 ========================================================= */
 
 document
-    .getElementById("bookModal")
+    .getElementById(
+        "bookModal"
+    )
     .addEventListener(
         "click",
         function(event) {
 
-            if (event.target === this) {
+            if (
+                event.target === this
+            ) {
 
                 closeBookModal();
 
             }
 
         }
-    );
-
-
-/* =========================================================
-   SEO LIVE PREVIEW EVENTS
-========================================================= */
-
-document
-    .getElementById("title")
-    .addEventListener(
-        "input",
-        function() {
-
-            const metaTitle =
-                document
-                    .getElementById("meta_title")
-                    .value
-                    .trim();
-
-
-            if (!metaTitle) {
-
-                document
-                    .getElementById("seoPreviewTitle")
-                    .textContent =
-                        this.value.trim() ||
-                        "Book Title";
-
-            }
-
-        }
-    );
-
-
-document
-    .getElementById("slug")
-    .addEventListener(
-        "input",
-        updateSeoPreview
     );
 
 
