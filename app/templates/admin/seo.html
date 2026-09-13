@@ -1,0 +1,1897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>SEO Manager - Rasbhav Admin</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #0f1115;
+            color: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1250px;
+            margin: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+        }
+
+        .header p {
+            color: #999;
+            margin-top: 6px;
+        }
+
+        button {
+            border: none;
+            cursor: pointer;
+            border-radius: 8px;
+            padding: 10px 15px;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: #d4af37;
+            color: #111;
+            font-weight: bold;
+        }
+
+        .btn-secondary {
+            background: #292d35;
+            color: #fff;
+        }
+
+        .btn-danger {
+            background: #b52b2b;
+            color: #fff;
+        }
+
+        .btn-small {
+            padding: 7px 10px;
+            font-size: 12px;
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .search,
+        .filter {
+            background: #191c22;
+            border: 1px solid #30343d;
+            color: #fff;
+            padding: 12px;
+            border-radius: 8px;
+            outline: none;
+        }
+
+        .search {
+            flex: 1;
+            min-width: 220px;
+        }
+
+        .filter {
+            min-width: 160px;
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            border-color: #d4af37;
+        }
+
+        .message {
+            display: none;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 18px;
+            background: #292d35;
+        }
+
+        .message.show {
+            display: block;
+        }
+
+        .seo-grid {
+            display: grid;
+            grid-template-columns: repeat(
+                auto-fill,
+                minmax(300px, 1fr)
+            );
+            gap: 18px;
+        }
+
+        .seo-card {
+            background: #191c22;
+            border: 1px solid #30343d;
+            border-radius: 12px;
+            padding: 18px;
+        }
+
+        .seo-card h3 {
+            margin-bottom: 12px;
+            word-break: break-word;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 9px;
+            border-radius: 20px;
+            background: #292d35;
+            color: #d4af37;
+            font-size: 11px;
+            margin-bottom: 12px;
+        }
+
+        .seo-value {
+            color: #aaa;
+            font-size: 13px;
+            line-height: 1.6;
+            margin-top: 8px;
+            word-break: break-word;
+        }
+
+        .seo-value strong {
+            color: #ddd;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 7px;
+            margin-top: 16px;
+        }
+
+        .loading,
+        .empty {
+            text-align: center;
+            padding: 50px 20px;
+            color: #888;
+            background: #191c22;
+            border: 1px solid #30343d;
+            border-radius: 12px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.78);
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: block;
+        }
+
+        .modal-box {
+            width: 100%;
+            max-width: 800px;
+            margin: 25px auto;
+            background: #191c22;
+            border: 1px solid #30343d;
+            border-radius: 14px;
+            padding: 25px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .modal-header h2 {
+            font-size: 22px;
+        }
+
+        .close {
+            background: transparent;
+            color: #fff;
+            font-size: 28px;
+            padding: 0 5px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .full {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            color: #bbb;
+            font-size: 13px;
+        }
+
+        input,
+        textarea,
+        select {
+            width: 100%;
+            background: #101217;
+            color: #fff;
+            border: 1px solid #343944;
+            border-radius: 8px;
+            padding: 11px;
+            outline: none;
+        }
+
+        textarea {
+            min-height: 110px;
+            resize: vertical;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        .char-count {
+            color: #777;
+            font-size: 11px;
+            text-align: right;
+        }
+
+        .schema-help {
+            color: #777;
+            font-size: 11px;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 650px) {
+
+            body {
+                padding: 12px;
+            }
+
+            .header h1 {
+                font-size: 22px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .full {
+                grid-column: auto;
+            }
+
+            .seo-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-box {
+                margin: 8px auto;
+                padding: 18px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- =====================================================
+         HEADER
+    ====================================================== -->
+
+    <div class="header">
+
+        <div>
+            <h1>🔍 SEO Manager</h1>
+
+            <p>
+                Manage SEO settings for Rasbhav Books
+            </p>
+        </div>
+
+        <button
+            class="btn-primary"
+            onclick="openAddSEO()"
+        >
+            + Add SEO
+        </button>
+
+    </div>
+
+
+    <!-- =====================================================
+         TOOLBAR
+    ====================================================== -->
+
+    <div class="toolbar">
+
+        <input
+            type="search"
+            id="searchInput"
+            class="search"
+            placeholder="Search SEO settings..."
+            oninput="filterSEO()"
+        >
+
+        <select
+            id="entityFilter"
+            class="filter"
+            onchange="filterSEO()"
+        >
+            <option value="">All Types</option>
+            <option value="book">Book</option>
+            <option value="chapter">Chapter</option>
+            <option value="category">Category</option>
+            <option value="author">Author</option>
+            <option value="page">Page</option>
+            <option value="home">Home</option>
+            <option value="site">Site</option>
+        </select>
+
+        <button
+            class="btn-secondary"
+            onclick="loadSEO()"
+        >
+            ↻ Refresh
+        </button>
+
+    </div>
+
+
+    <!-- =====================================================
+         MESSAGE
+    ====================================================== -->
+
+    <div
+        id="message"
+        class="message"
+    ></div>
+
+
+    <!-- =====================================================
+         SEO LIST
+    ====================================================== -->
+
+    <div id="seoContainer">
+
+        <div class="loading">
+            Loading SEO settings...
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     ADD / EDIT SEO MODAL
+========================================================= -->
+
+<div
+    id="seoModal"
+    class="modal"
+>
+
+    <div class="modal-box">
+
+        <div class="modal-header">
+
+            <h2 id="modalTitle">
+                Add SEO Settings
+            </h2>
+
+            <button
+                class="close"
+                onclick="closeSEOModal()"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <form id="seoForm">
+
+            <input
+                type="hidden"
+                id="seoId"
+            >
+
+
+            <div class="form-grid">
+
+
+                <!-- ENTITY TYPE -->
+
+                <div class="form-group">
+
+                    <label>
+                        Entity Type *
+                    </label>
+
+                    <select
+                        id="entity_type"
+                        required
+                    >
+                        <option value="">
+                            Select Entity
+                        </option>
+
+                        <option value="book">
+                            Book
+                        </option>
+
+                        <option value="chapter">
+                            Chapter
+                        </option>
+
+                        <option value="category">
+                            Category
+                        </option>
+
+                        <option value="author">
+                            Author
+                        </option>
+
+                        <option value="page">
+                            Page
+                        </option>
+
+                        <option value="home">
+                            Home
+                        </option>
+
+                        <option value="site">
+                            Site
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- ENTITY ID -->
+
+                <div
+                    class="form-group"
+                    id="entityIdGroup"
+                >
+
+                    <label>
+                        Entity ID
+                    </label>
+
+                    <input
+                        type="number"
+                        id="entity_id"
+                        min="1"
+                        placeholder="Example: 1"
+                    >
+
+                </div>
+
+
+                <!-- META TITLE -->
+
+                <div class="form-group full">
+
+                    <label>
+                        Meta Title
+                    </label>
+
+                    <input
+                        type="text"
+                        id="meta_title"
+                        maxlength="60"
+                        placeholder="SEO title"
+                        oninput="updateCount(
+                            'meta_title',
+                            'metaTitleCount',
+                            60
+                        )"
+                    >
+
+                    <div
+                        class="char-count"
+                        id="metaTitleCount"
+                    >
+                        0 / 60
+                    </div>
+
+                </div>
+
+
+                <!-- META DESCRIPTION -->
+
+                <div class="form-group full">
+
+                    <label>
+                        Meta Description
+                    </label>
+
+                    <textarea
+                        id="meta_description"
+                        maxlength="160"
+                        placeholder="SEO meta description"
+                        oninput="updateCount(
+                            'meta_description',
+                            'metaDescriptionCount',
+                            160
+                        )"
+                    ></textarea>
+
+                    <div
+                        class="char-count"
+                        id="metaDescriptionCount"
+                    >
+                        0 / 160
+                    </div>
+
+                </div>
+
+
+                <!-- FOCUS KEYWORD -->
+
+                <div class="form-group">
+
+                    <label>
+                        Focus Keyword
+                    </label>
+
+                    <input
+                        type="text"
+                        id="focus_keyword"
+                        placeholder="Gujarati books"
+                    >
+
+                </div>
+
+
+                <!-- ROBOTS -->
+
+                <div class="form-group">
+
+                    <label>
+                        Robots
+                    </label>
+
+                    <select id="robots">
+
+                        <option value="index, follow">
+                            index, follow
+                        </option>
+
+                        <option value="noindex, follow">
+                            noindex, follow
+                        </option>
+
+                        <option value="index, nofollow">
+                            index, nofollow
+                        </option>
+
+                        <option value="noindex, nofollow">
+                            noindex, nofollow
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- CANONICAL URL -->
+
+                <div class="form-group full">
+
+                    <label>
+                        Canonical URL
+                    </label>
+
+                    <input
+                        type="url"
+                        id="canonical_url"
+                        placeholder="https://example.com/page"
+                    >
+
+                </div>
+
+
+                <!-- OG TITLE -->
+
+                <div class="form-group full">
+
+                    <label>
+                        Open Graph Title
+                    </label>
+
+                    <input
+                        type="text"
+                        id="og_title"
+                        placeholder="Social sharing title"
+                    >
+
+                </div>
+
+
+                <!-- OG DESCRIPTION -->
+
+                <div class="form-group full">
+
+                    <label>
+                        Open Graph Description
+                    </label>
+
+                    <textarea
+                        id="og_description"
+                        placeholder="Social sharing description"
+                    ></textarea>
+
+                </div>
+
+
+                <!-- OG IMAGE -->
+
+                <div class="form-group full">
+
+                    <label>
+                        Open Graph Image
+                    </label>
+
+                    <input
+                        type="text"
+                        id="og_image"
+                        placeholder="/static/uploads/og-image.jpg"
+                    >
+
+                </div>
+
+
+                <!-- SCHEMA DATA -->
+
+                <div class="form-group full">
+
+                    <label>
+                        Schema JSON
+                    </label>
+
+                    <textarea
+                        id="schema_data"
+                        placeholder='{"@context":"https://schema.org","@type":"Book"}'
+                    ></textarea>
+
+                    <div class="schema-help">
+                        Enter valid JSON-LD schema data.
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 FORM ACTIONS
+            ================================================== -->
+
+            <div class="form-actions">
+
+                <button
+                    type="button"
+                    class="btn-secondary"
+                    onclick="closeSEOModal()"
+                >
+                    Cancel
+                </button>
+
+                <button
+                    type="submit"
+                    class="btn-primary"
+                >
+                    Save SEO
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<script>
+
+"use strict";
+
+
+/* =========================================================
+   GLOBAL STATE
+========================================================= */
+
+let seoItems = [];
+
+let editingSEOId = null;
+
+
+/* =========================================================
+   API
+========================================================= */
+
+const API_URL = "/api/admin/seo";
+
+
+/* =========================================================
+   LOAD SEO
+========================================================= */
+
+async function loadSEO() {
+
+    const container =
+        document.getElementById(
+            "seoContainer"
+        );
+
+
+    container.innerHTML = `
+        <div class="loading">
+            Loading SEO settings...
+        </div>
+    `;
+
+
+    try {
+
+        const response =
+            await fetch(
+                API_URL,
+                {
+                    method: "GET",
+                    credentials: "same-origin"
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.message ||
+                "Unable to load SEO settings."
+            );
+
+        }
+
+
+        seoItems =
+            data.seo_settings || [];
+
+
+        renderSEO(
+            seoItems
+        );
+
+
+    } catch (error) {
+
+        container.innerHTML = `
+            <div class="empty">
+                ${escapeHtml(
+                    error.message
+                )}
+            </div>
+        `;
+
+    }
+
+}
+
+
+/* =========================================================
+   RENDER SEO
+========================================================= */
+
+function renderSEO(list) {
+
+    const container =
+        document.getElementById(
+            "seoContainer"
+        );
+
+
+    if (!list.length) {
+
+        container.innerHTML = `
+            <div class="empty">
+                No SEO settings found.
+            </div>
+        `;
+
+        return;
+    }
+
+
+    container.innerHTML = `
+
+        <div class="seo-grid">
+
+            ${list.map(
+                item => createSEOCard(item)
+            ).join("")}
+
+        </div>
+
+    `;
+
+}
+
+
+/* =========================================================
+   SEO CARD
+========================================================= */
+
+function createSEOCard(item) {
+
+    const entity =
+        item.entity_type || "-";
+
+
+    const entityLabel =
+        entity.charAt(0).toUpperCase() +
+        entity.slice(1);
+
+
+    return `
+
+        <div class="seo-card">
+
+            <span class="badge">
+                ${escapeHtml(
+                    entityLabel
+                )}
+            </span>
+
+
+            <h3>
+                ${escapeHtml(
+                    item.meta_title ||
+                    "Untitled SEO"
+                )}
+            </h3>
+
+
+            <div class="seo-value">
+
+                <strong>
+                    Entity ID:
+                </strong>
+
+                ${item.entity_id ?? "-"}
+
+            </div>
+
+
+            <div class="seo-value">
+
+                <strong>
+                    Description:
+                </strong>
+
+                ${escapeHtml(
+                    item.meta_description ||
+                    "-"
+                )}
+
+            </div>
+
+
+            <div class="seo-value">
+
+                <strong>
+                    Focus Keyword:
+                </strong>
+
+                ${escapeHtml(
+                    item.focus_keyword ||
+                    "-"
+                )}
+
+            </div>
+
+
+            <div class="seo-value">
+
+                <strong>
+                    Robots:
+                </strong>
+
+                ${escapeHtml(
+                    item.robots ||
+                    "-"
+                )}
+
+            </div>
+
+
+            <div class="seo-value">
+
+                <strong>
+                    Canonical:
+                </strong>
+
+                ${escapeHtml(
+                    item.canonical_url ||
+                    "-"
+                )}
+
+            </div>
+
+
+            <div class="card-actions">
+
+                <button
+                    class="btn-secondary btn-small"
+                    onclick="editSEO(${item.id})"
+                >
+                    Edit
+                </button>
+
+                <button
+                    class="btn-danger btn-small"
+                    onclick="deleteSEO(${item.id})"
+                >
+                    Delete
+                </button>
+
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+
+/* =========================================================
+   FILTER
+========================================================= */
+
+function filterSEO() {
+
+    const keyword =
+        document
+            .getElementById(
+                "searchInput"
+            )
+            .value
+            .toLowerCase()
+            .trim();
+
+
+    const entityType =
+        document
+            .getElementById(
+                "entityFilter"
+            )
+            .value;
+
+
+    const filtered =
+        seoItems.filter(
+            item => {
+
+                const text = [
+
+                    item.entity_type,
+                    item.entity_id,
+                    item.meta_title,
+                    item.meta_description,
+                    item.focus_keyword,
+                    item.canonical_url,
+                    item.og_title,
+                    item.og_description
+
+                ]
+                .join(" ")
+                .toLowerCase();
+
+
+                const matchesSearch =
+                    !keyword ||
+                    text.includes(keyword);
+
+
+                const matchesType =
+                    !entityType ||
+                    item.entity_type === entityType;
+
+
+                return (
+                    matchesSearch &&
+                    matchesType
+                );
+
+            }
+        );
+
+
+    renderSEO(
+        filtered
+    );
+
+}
+
+
+/* =========================================================
+   OPEN ADD SEO
+========================================================= */
+
+function openAddSEO() {
+
+    editingSEOId = null;
+
+
+    document
+        .getElementById(
+            "seoForm"
+        )
+        .reset();
+
+
+    document
+        .getElementById(
+            "seoId"
+        )
+        .value = "";
+
+
+    document
+        .getElementById(
+            "modalTitle"
+        )
+        .textContent =
+        "Add SEO Settings";
+
+
+    updateEntityIdVisibility();
+
+
+    updateCount(
+        "meta_title",
+        "metaTitleCount",
+        60
+    );
+
+
+    updateCount(
+        "meta_description",
+        "metaDescriptionCount",
+        160
+    );
+
+
+    document
+        .getElementById(
+            "seoModal"
+        )
+        .classList.add(
+            "active"
+        );
+
+}
+
+
+/* =========================================================
+   CLOSE SEO MODAL
+========================================================= */
+
+function closeSEOModal() {
+
+    document
+        .getElementById(
+            "seoModal"
+        )
+        .classList.remove(
+            "active"
+        );
+
+}
+
+
+/* =========================================================
+   ENTITY ID VISIBILITY
+========================================================= */
+
+function updateEntityIdVisibility() {
+
+    const type =
+        document
+            .getElementById(
+                "entity_type"
+            )
+            .value;
+
+
+    const group =
+        document
+            .getElementById(
+                "entityIdGroup"
+            );
+
+
+    const input =
+        document
+            .getElementById(
+                "entity_id"
+            );
+
+
+    const needsId =
+        [
+            "book",
+            "chapter",
+            "category",
+            "author",
+            "page"
+        ].includes(type);
+
+
+    if (needsId) {
+
+        group.style.display =
+            "flex";
+
+        input.required =
+            true;
+
+    } else {
+
+        group.style.display =
+            "none";
+
+        input.required =
+            false;
+
+        input.value =
+            "";
+
+    }
+
+}
+
+
+/* =========================================================
+   ENTITY TYPE CHANGE
+========================================================= */
+
+document
+    .getElementById(
+        "entity_type"
+    )
+    .addEventListener(
+        "change",
+        updateEntityIdVisibility
+    );
+
+
+/* =========================================================
+   EDIT SEO
+========================================================= */
+
+async function editSEO(seoId) {
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_URL}/${seoId}`,
+                {
+                    method: "GET",
+                    credentials: "same-origin"
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.message ||
+                "Unable to load SEO settings."
+            );
+
+        }
+
+
+        const item =
+            data.seo;
+
+
+        editingSEOId =
+            item.id;
+
+
+        document
+            .getElementById(
+                "modalTitle"
+            )
+            .textContent =
+            "Edit SEO Settings";
+
+
+        document
+            .getElementById(
+                "seoId"
+            )
+            .value =
+            item.id || "";
+
+
+        document
+            .getElementById(
+                "entity_type"
+            )
+            .value =
+            item.entity_type || "";
+
+
+        document
+            .getElementById(
+                "entity_id"
+            )
+            .value =
+            item.entity_id ?? "";
+
+
+        document
+            .getElementById(
+                "meta_title"
+            )
+            .value =
+            item.meta_title || "";
+
+
+        document
+            .getElementById(
+                "meta_description"
+            )
+            .value =
+            item.meta_description || "";
+
+
+        document
+            .getElementById(
+                "focus_keyword"
+            )
+            .value =
+            item.focus_keyword || "";
+
+
+        document
+            .getElementById(
+                "canonical_url"
+            )
+            .value =
+            item.canonical_url || "";
+
+
+        document
+            .getElementById(
+                "robots"
+            )
+            .value =
+            item.robots ||
+            "index, follow";
+
+
+        document
+            .getElementById(
+                "og_title"
+            )
+            .value =
+            item.og_title || "";
+
+
+        document
+            .getElementById(
+                "og_description"
+            )
+            .value =
+            item.og_description || "";
+
+
+        document
+            .getElementById(
+                "og_image"
+            )
+            .value =
+            item.og_image || "";
+
+
+        document
+            .getElementById(
+                "schema_data"
+            )
+            .value =
+            formatSchema(
+                item.schema_data
+            );
+
+
+        updateEntityIdVisibility();
+
+
+        updateCount(
+            "meta_title",
+            "metaTitleCount",
+            60
+        );
+
+
+        updateCount(
+            "meta_description",
+            "metaDescriptionCount",
+            160
+        );
+
+
+        document
+            .getElementById(
+                "seoModal"
+            )
+            .classList.add(
+                "active"
+            );
+
+
+    } catch (error) {
+
+        showMessage(
+            error.message
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   SAVE SEO
+========================================================= */
+
+document
+    .getElementById(
+        "seoForm"
+    )
+    .addEventListener(
+        "submit",
+        async function(event) {
+
+            event.preventDefault();
+
+
+            const entityType =
+                document
+                    .getElementById(
+                        "entity_type"
+                    )
+                    .value;
+
+
+            const entityIdValue =
+                document
+                    .getElementById(
+                        "entity_id"
+                    )
+                    .value;
+
+
+            const schemaValue =
+                document
+                    .getElementById(
+                        "schema_data"
+                    )
+                    .value
+                    .trim();
+
+
+            /* =============================================
+               VALIDATE SCHEMA JSON
+            ============================================== */
+
+            if (schemaValue) {
+
+                try {
+
+                    JSON.parse(
+                        schemaValue
+                    );
+
+                } catch (error) {
+
+                    showMessage(
+                        "Schema Data must contain valid JSON."
+                    );
+
+                    return;
+
+                }
+
+            }
+
+
+            const payload = {
+
+                entity_type:
+                    entityType,
+
+                entity_id:
+                    entityIdValue
+                        ? Number(
+                            entityIdValue
+                        )
+                        : null,
+
+                meta_title:
+                    document
+                        .getElementById(
+                            "meta_title"
+                        )
+                        .value
+                        .trim(),
+
+                meta_description:
+                    document
+                        .getElementById(
+                            "meta_description"
+                        )
+                        .value
+                        .trim(),
+
+                focus_keyword:
+                    document
+                        .getElementById(
+                            "focus_keyword"
+                        )
+                        .value
+                        .trim(),
+
+                canonical_url:
+                    document
+                        .getElementById(
+                            "canonical_url"
+                        )
+                        .value
+                        .trim(),
+
+                robots:
+                    document
+                        .getElementById(
+                            "robots"
+                        )
+                        .value,
+
+                og_title:
+                    document
+                        .getElementById(
+                            "og_title"
+                        )
+                        .value
+                        .trim(),
+
+                og_description:
+                    document
+                        .getElementById(
+                            "og_description"
+                        )
+                        .value
+                        .trim(),
+
+                og_image:
+                    document
+                        .getElementById(
+                            "og_image"
+                        )
+                        .value
+                        .trim(),
+
+                schema_data:
+                    schemaValue ||
+                    null
+
+            };
+
+
+            try {
+
+                let url =
+                    API_URL;
+
+                let method =
+                    "POST";
+
+
+                if (editingSEOId) {
+
+                    url =
+                        `${API_URL}/${editingSEOId}`;
+
+                    method =
+                        "PUT";
+
+                }
+
+
+                const response =
+                    await fetch(
+                        url,
+                        {
+                            method: method,
+
+                            credentials:
+                                "same-origin",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body:
+                                JSON.stringify(
+                                    payload
+                                )
+                        }
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        data.message ||
+                        "Unable to save SEO settings."
+                    );
+
+                }
+
+
+                closeSEOModal();
+
+
+                showMessage(
+                    data.message ||
+                    "SEO settings saved successfully."
+                );
+
+
+                await loadSEO();
+
+
+            } catch (error) {
+
+                showMessage(
+                    error.message
+                );
+
+            }
+
+        }
+    );
+
+
+/* =========================================================
+   DELETE SEO
+========================================================= */
+
+async function deleteSEO(seoId) {
+
+    const item =
+        seoItems.find(
+            seo => seo.id === seoId
+        );
+
+
+    const name =
+        item
+            ? (
+                item.meta_title ||
+                `${item.entity_type} #${item.entity_id || ""}`
+            )
+            : "this SEO setting";
+
+
+    const confirmed =
+        confirm(
+            `Are you sure you want to delete "${name}"?`
+        );
+
+
+    if (!confirmed) {
+        return;
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_URL}/${seoId}`,
+                {
+                    method: "DELETE",
+                    credentials: "same-origin"
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.message ||
+                "Unable to delete SEO settings."
+            );
+
+        }
+
+
+        showMessage(
+            data.message ||
+            "SEO settings deleted successfully."
+        );
+
+
+        await loadSEO();
+
+
+    } catch (error) {
+
+        showMessage(
+            error.message
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   CHARACTER COUNT
+========================================================= */
+
+function updateCount(
+    inputId,
+    countId,
+    max
+) {
+
+    const input =
+        document.getElementById(
+            inputId
+        );
+
+
+    const counter =
+        document.getElementById(
+            countId
+        );
+
+
+    if (!input || !counter) {
+        return;
+    }
+
+
+    counter.textContent =
+        `${input.value.length} / ${max}`;
+
+}
+
+
+/* =========================================================
+   FORMAT SCHEMA
+========================================================= */
+
+function formatSchema(value) {
+
+    if (!value) {
+        return "";
+    }
+
+
+    if (typeof value === "object") {
+
+        return JSON.stringify(
+            value,
+            null,
+            2
+        );
+
+    }
+
+
+    try {
+
+        return JSON.stringify(
+            JSON.parse(value),
+            null,
+            2
+        );
+
+    } catch (error) {
+
+        return value;
+
+    }
+
+}
+
+
+/* =========================================================
+   MESSAGE
+========================================================= */
+
+function showMessage(text) {
+
+    const message =
+        document.getElementById(
+            "message"
+        );
+
+
+    message.textContent =
+        text;
+
+
+    message.classList.add(
+        "show"
+    );
+
+
+    setTimeout(
+        function() {
+
+            message.classList.remove(
+                "show"
+            );
+
+        },
+        4000
+    );
+
+}
+
+
+/* =========================================================
+   ESCAPE HTML
+========================================================= */
+
+function escapeHtml(value) {
+
+    return String(value)
+        .replaceAll(
+            "&",
+            "&amp;"
+        )
+        .replaceAll(
+            "<",
+            "&lt;"
+        )
+        .replaceAll(
+            ">",
+            "&gt;"
+        )
+        .replaceAll(
+            '"',
+            "&quot;"
+        )
+        .replaceAll(
+            "'",
+            "&#039;"
+        );
+
+}
+
+
+/* =========================================================
+   MODAL OUTSIDE CLICK
+========================================================= */
+
+document
+    .getElementById(
+        "seoModal"
+    )
+    .addEventListener(
+        "click",
+        function(event) {
+
+            if (
+                event.target === this
+            ) {
+
+                closeSEOModal();
+
+            }
+
+        }
+    );
+
+
+/* =========================================================
+   ESC KEY
+========================================================= */
+
+document.addEventListener(
+    "keydown",
+    function(event) {
+
+        if (
+            event.key === "Escape"
+        ) {
+
+            closeSEOModal();
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   INITIAL LOAD
+========================================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function() {
+
+        loadSEO();
+
+    }
+);
+
+</script>
+
+</body>
+</html>
