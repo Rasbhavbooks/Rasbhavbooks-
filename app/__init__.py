@@ -24,6 +24,8 @@ def create_app():
     from app.routes.admin_chapters import admin_chapters_bp 
     from app.routes.admin_categories import admin_categories_bp
     from app.routes.admin_authors import admin_authors_bp
+    from app.routes.admin_users import admin_users_bp
+
     
     app.register_blueprint(category_bp)
     app.register_blueprint(author_bp)
@@ -34,6 +36,7 @@ def create_app():
     app.register_blueprint(admin_chapters_bp)
     app.register_blueprint(admin_categories_bp)
     app.register_blueprint(admin_authors_bp)
+    app.register_blueprint(admin_users_bp)
 
     @app.route("/")
     def home():
