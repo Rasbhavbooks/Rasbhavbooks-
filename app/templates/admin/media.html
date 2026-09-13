@@ -1,0 +1,1732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Media Library - Rasbhav Admin</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #0f1115;
+            color: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1250px;
+            margin: auto;
+        }
+
+        /* =====================================================
+           HEADER
+        ===================================================== */
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+        }
+
+        .header p {
+            color: #999;
+            margin-top: 6px;
+        }
+
+        /* =====================================================
+           BUTTONS
+        ===================================================== */
+
+        button {
+            border: none;
+            cursor: pointer;
+            border-radius: 8px;
+            padding: 10px 15px;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: #d4af37;
+            color: #111;
+            font-weight: bold;
+        }
+
+        .btn-secondary {
+            background: #292d35;
+            color: #fff;
+        }
+
+        .btn-danger {
+            background: #b52b2b;
+            color: #fff;
+        }
+
+        .btn-small {
+            padding: 7px 10px;
+            font-size: 12px;
+        }
+
+        /* =====================================================
+           TOOLBAR
+        ===================================================== */
+
+        .toolbar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .search {
+            flex: 1;
+            min-width: 220px;
+            background: #191c22;
+            border: 1px solid #30343d;
+            color: #fff;
+            padding: 13px;
+            border-radius: 8px;
+            outline: none;
+        }
+
+        .search:focus,
+        input:focus,
+        textarea:focus,
+        select:focus {
+            border-color: #d4af37;
+        }
+
+        /* =====================================================
+           MEDIA GRID
+        ===================================================== */
+
+        .media-grid {
+            display: grid;
+            grid-template-columns: repeat(
+                auto-fill,
+                minmax(230px, 1fr)
+            );
+            gap: 18px;
+        }
+
+        .media-card {
+            background: #191c22;
+            border: 1px solid #30343d;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .media-preview {
+            height: 190px;
+            background: #101217;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .media-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .file-icon {
+            font-size: 55px;
+            opacity: 0.6;
+        }
+
+        .media-info {
+            padding: 15px;
+        }
+
+        .media-name {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 7px;
+            word-break: break-word;
+        }
+
+        .media-meta {
+            color: #999;
+            font-size: 12px;
+            line-height: 1.7;
+            word-break: break-word;
+        }
+
+        .media-actions {
+            display: flex;
+            gap: 7px;
+            margin-top: 14px;
+        }
+
+        /* =====================================================
+           EMPTY / LOADING
+        ===================================================== */
+
+        .loading,
+        .empty {
+            text-align: center;
+            padding: 50px 20px;
+            color: #888;
+            background: #191c22;
+            border: 1px solid #30343d;
+            border-radius: 12px;
+        }
+
+        /* =====================================================
+           MESSAGE
+        ===================================================== */
+
+        .message {
+            display: none;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 18px;
+            background: #292d35;
+        }
+
+        .message.show {
+            display: block;
+        }
+
+        /* =====================================================
+           MODAL
+        ===================================================== */
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.78);
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: block;
+        }
+
+        .modal-box {
+            width: 100%;
+            max-width: 720px;
+            margin: 25px auto;
+            background: #191c22;
+            border: 1px solid #30343d;
+            border-radius: 14px;
+            padding: 25px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .modal-header h2 {
+            font-size: 22px;
+        }
+
+        .close {
+            background: transparent;
+            color: #fff;
+            font-size: 28px;
+            padding: 0 5px;
+        }
+
+        /* =====================================================
+           FORM
+        ===================================================== */
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .full {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            color: #bbb;
+            font-size: 13px;
+        }
+
+        input,
+        textarea,
+        select {
+            width: 100%;
+            background: #101217;
+            color: #fff;
+            border: 1px solid #343944;
+            border-radius: 8px;
+            padding: 11px;
+            outline: none;
+        }
+
+        textarea {
+            min-height: 110px;
+            resize: vertical;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        /* =====================================================
+           PREVIEW MODAL
+        ===================================================== */
+
+        .preview-image-wrapper {
+            background: #101217;
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .preview-image {
+            max-width: 100%;
+            max-height: 65vh;
+            object-fit: contain;
+        }
+
+        .preview-details {
+            margin-top: 18px;
+            color: #bbb;
+            line-height: 1.8;
+            word-break: break-word;
+        }
+
+        /* =====================================================
+           RESPONSIVE
+        ===================================================== */
+
+        @media (max-width: 650px) {
+
+            body {
+                padding: 12px;
+            }
+
+            .header h1 {
+                font-size: 22px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .full {
+                grid-column: auto;
+            }
+
+            .modal-box {
+                margin: 8px auto;
+                padding: 18px;
+            }
+
+            .media-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+
+<body>
+
+<div class="container">
+
+    <!-- =====================================================
+         HEADER
+    ====================================================== -->
+
+    <div class="header">
+
+        <div>
+            <h1>🖼️ Media Library</h1>
+
+            <p>
+                Manage images and media used across Rasbhav Books
+            </p>
+        </div>
+
+        <button
+            class="btn-primary"
+            onclick="openAddMedia()"
+        >
+            + Add Media
+        </button>
+
+    </div>
+
+
+    <!-- =====================================================
+         TOOLBAR
+    ====================================================== -->
+
+    <div class="toolbar">
+
+        <input
+            type="search"
+            id="searchInput"
+            class="search"
+            placeholder="Search media..."
+            oninput="filterMedia()"
+        >
+
+        <button
+            class="btn-secondary"
+            onclick="loadMedia()"
+        >
+            ↻ Refresh
+        </button>
+
+    </div>
+
+
+    <!-- =====================================================
+         MESSAGE
+    ====================================================== -->
+
+    <div
+        id="message"
+        class="message"
+    ></div>
+
+
+    <!-- =====================================================
+         MEDIA CONTENT
+    ====================================================== -->
+
+    <div id="mediaContainer">
+
+        <div class="loading">
+            Loading media...
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     ADD / EDIT MEDIA MODAL
+========================================================= -->
+
+<div
+    id="mediaModal"
+    class="modal"
+>
+
+    <div class="modal-box">
+
+        <div class="modal-header">
+
+            <h2 id="modalTitle">
+                Add Media
+            </h2>
+
+            <button
+                class="close"
+                onclick="closeMediaModal()"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <form id="mediaForm">
+
+            <input
+                type="hidden"
+                id="mediaId"
+            >
+
+
+            <div class="form-grid">
+
+
+                <!-- NAME -->
+
+                <div class="form-group full">
+
+                    <label>
+                        Media Name *
+                    </label>
+
+                    <input
+                        type="text"
+                        id="name"
+                        required
+                        placeholder="Book Cover Image"
+                    >
+
+                </div>
+
+
+                <!-- FILE NAME -->
+
+                <div class="form-group">
+
+                    <label>
+                        File Name
+                    </label>
+
+                    <input
+                        type="text"
+                        id="file_name"
+                        placeholder="cover.jpg"
+                    >
+
+                </div>
+
+
+                <!-- FILE TYPE -->
+
+                <div class="form-group">
+
+                    <label>
+                        File Type
+                    </label>
+
+                    <select id="file_type">
+
+                        <option value="">
+                            Select Type
+                        </option>
+
+                        <option value="image">
+                            Image
+                        </option>
+
+                        <option value="document">
+                            Document
+                        </option>
+
+                        <option value="video">
+                            Video
+                        </option>
+
+                        <option value="audio">
+                            Audio
+                        </option>
+
+                        <option value="other">
+                            Other
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- MIME TYPE -->
+
+                <div class="form-group">
+
+                    <label>
+                        MIME Type
+                    </label>
+
+                    <input
+                        type="text"
+                        id="mime_type"
+                        placeholder="image/jpeg"
+                    >
+
+                </div>
+
+
+                <!-- FILE PATH -->
+
+                <div class="form-group">
+
+                    <label>
+                        File Path *
+                    </label>
+
+                    <input
+                        type="text"
+                        id="file_path"
+                        required
+                        placeholder="/static/uploads/image.jpg"
+                    >
+
+                </div>
+
+
+                <!-- URL -->
+
+                <div class="form-group full">
+
+                    <label>
+                        URL
+                    </label>
+
+                    <input
+                        type="text"
+                        id="url"
+                        placeholder="/static/uploads/image.jpg"
+                    >
+
+                </div>
+
+
+                <!-- ALT TEXT -->
+
+                <div class="form-group full">
+
+                    <label>
+                        Alt Text
+                    </label>
+
+                    <input
+                        type="text"
+                        id="alt_text"
+                        placeholder="Rasbhav Books Gujarati novel cover"
+                    >
+
+                </div>
+
+
+                <!-- TITLE -->
+
+                <div class="form-group full">
+
+                    <label>
+                        Title
+                    </label>
+
+                    <input
+                        type="text"
+                        id="title"
+                        placeholder="Image title"
+                    >
+
+                </div>
+
+
+                <!-- DESCRIPTION -->
+
+                <div class="form-group full">
+
+                    <label>
+                        Description
+                    </label>
+
+                    <textarea
+                        id="description"
+                        placeholder="Describe this media..."
+                    ></textarea>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 FORM ACTIONS
+            ================================================== -->
+
+            <div class="form-actions">
+
+                <button
+                    type="button"
+                    class="btn-secondary"
+                    onclick="closeMediaModal()"
+                >
+                    Cancel
+                </button>
+
+                <button
+                    type="submit"
+                    class="btn-primary"
+                >
+                    Save Media
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     PREVIEW MODAL
+========================================================= -->
+
+<div
+    id="previewModal"
+    class="modal"
+>
+
+    <div class="modal-box">
+
+        <div class="modal-header">
+
+            <h2>
+                Media Preview
+            </h2>
+
+            <button
+                class="close"
+                onclick="closePreview()"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <div id="previewContent"></div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+"use strict";
+
+
+/* =========================================================
+   GLOBAL STATE
+========================================================= */
+
+let mediaItems = [];
+
+let editingMediaId = null;
+
+
+/* =========================================================
+   API
+========================================================= */
+
+const API_URL = "/api/admin/media";
+
+
+/* =========================================================
+   LOAD MEDIA
+========================================================= */
+
+async function loadMedia() {
+
+    const container =
+        document.getElementById("mediaContainer");
+
+
+    container.innerHTML = `
+        <div class="loading">
+            Loading media...
+        </div>
+    `;
+
+
+    try {
+
+        const response = await fetch(
+            API_URL,
+            {
+                method: "GET",
+                credentials: "same-origin"
+            }
+        );
+
+
+        const data = await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.message || "Unable to load media."
+            );
+
+        }
+
+
+        mediaItems = data.media || [];
+
+        renderMedia(mediaItems);
+
+
+    } catch (error) {
+
+        container.innerHTML = `
+            <div class="empty">
+                ${escapeHtml(error.message)}
+            </div>
+        `;
+
+    }
+
+}
+
+
+/* =========================================================
+   RENDER MEDIA
+========================================================= */
+
+function renderMedia(list) {
+
+    const container =
+        document.getElementById("mediaContainer");
+
+
+    if (!list.length) {
+
+        container.innerHTML = `
+            <div class="empty">
+                No media found.
+            </div>
+        `;
+
+        return;
+    }
+
+
+    container.innerHTML = `
+
+        <div class="media-grid">
+
+            ${list.map(item => createMediaCard(item)).join("")}
+
+        </div>
+
+    `;
+
+}
+
+
+/* =========================================================
+   MEDIA CARD
+========================================================= */
+
+function createMediaCard(item) {
+
+    const isImage =
+        isImageMedia(item);
+
+
+    let preview;
+
+
+    if (isImage) {
+
+        const imageUrl =
+            getMediaUrl(item);
+
+
+        preview = `
+
+            <div
+                class="media-preview"
+                onclick="previewMedia(${item.id})"
+                style="cursor:pointer;"
+            >
+
+                <img
+                    src="${escapeAttribute(imageUrl)}"
+                    alt="${escapeAttribute(
+                        item.alt_text ||
+                        item.name ||
+                        "Media"
+                    )}"
+                    onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=&quot;file-icon&quot;>🖼️</div>';"
+                >
+
+            </div>
+
+        `;
+
+    } else {
+
+        preview = `
+
+            <div class="media-preview">
+
+                <div class="file-icon">
+                    📄
+                </div>
+
+            </div>
+
+        `;
+
+    }
+
+
+    return `
+
+        <div class="media-card">
+
+            ${preview}
+
+
+            <div class="media-info">
+
+                <div class="media-name">
+
+                    ${escapeHtml(
+                        item.name || "Unnamed Media"
+                    )}
+
+                </div>
+
+
+                <div class="media-meta">
+
+                    <div>
+                        File:
+                        ${escapeHtml(
+                            item.file_name || "-"
+                        )}
+                    </div>
+
+                    <div>
+                        Type:
+                        ${escapeHtml(
+                            item.file_type || "-"
+                        )}
+                    </div>
+
+                    <div>
+                        MIME:
+                        ${escapeHtml(
+                            item.mime_type || "-"
+                        )}
+                    </div>
+
+                    <div>
+                        Alt:
+                        ${escapeHtml(
+                            item.alt_text || "-"
+                        )}
+                    </div>
+
+                </div>
+
+
+                <div class="media-actions">
+
+                    <button
+                        class="btn-secondary btn-small"
+                        onclick="previewMedia(${item.id})"
+                    >
+                        Preview
+                    </button>
+
+                    <button
+                        class="btn-secondary btn-small"
+                        onclick="editMedia(${item.id})"
+                    >
+                        Edit
+                    </button>
+
+                    <button
+                        class="btn-danger btn-small"
+                        onclick="deleteMedia(${item.id})"
+                    >
+                        Delete
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+
+/* =========================================================
+   SEARCH
+========================================================= */
+
+function filterMedia() {
+
+    const keyword =
+        document
+            .getElementById("searchInput")
+            .value
+            .toLowerCase()
+            .trim();
+
+
+    if (!keyword) {
+
+        renderMedia(mediaItems);
+
+        return;
+
+    }
+
+
+    const filtered =
+        mediaItems.filter(item => {
+
+            return (
+
+                String(item.name || "")
+                    .toLowerCase()
+                    .includes(keyword)
+
+                ||
+
+                String(item.file_name || "")
+                    .toLowerCase()
+                    .includes(keyword)
+
+                ||
+
+                String(item.file_type || "")
+                    .toLowerCase()
+                    .includes(keyword)
+
+                ||
+
+                String(item.mime_type || "")
+                    .toLowerCase()
+                    .includes(keyword)
+
+                ||
+
+                String(item.alt_text || "")
+                    .toLowerCase()
+                    .includes(keyword)
+
+                ||
+
+                String(item.title || "")
+                    .toLowerCase()
+                    .includes(keyword)
+
+            );
+
+        });
+
+
+    renderMedia(filtered);
+
+}
+
+
+/* =========================================================
+   OPEN ADD MEDIA
+========================================================= */
+
+function openAddMedia() {
+
+    editingMediaId = null;
+
+
+    document.getElementById("modalTitle").textContent =
+        "Add Media";
+
+
+    document.getElementById("mediaForm").reset();
+
+
+    document.getElementById("mediaId").value = "";
+
+
+    document
+        .getElementById("mediaModal")
+        .classList.add("active");
+
+}
+
+
+/* =========================================================
+   CLOSE MEDIA MODAL
+========================================================= */
+
+function closeMediaModal() {
+
+    document
+        .getElementById("mediaModal")
+        .classList.remove("active");
+
+}
+
+
+/* =========================================================
+   EDIT MEDIA
+========================================================= */
+
+async function editMedia(mediaId) {
+
+    try {
+
+        const response = await fetch(
+            `${API_URL}/${mediaId}`,
+            {
+                method: "GET",
+                credentials: "same-origin"
+            }
+        );
+
+
+        const data = await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.message || "Unable to load media."
+            );
+
+        }
+
+
+        const item = data.media;
+
+
+        editingMediaId = item.id;
+
+
+        document.getElementById("modalTitle").textContent =
+            "Edit Media";
+
+
+        document.getElementById("mediaId").value =
+            item.id || "";
+
+
+        document.getElementById("name").value =
+            item.name || "";
+
+
+        document.getElementById("file_name").value =
+            item.file_name || "";
+
+
+        document.getElementById("file_path").value =
+            item.file_path || "";
+
+
+        document.getElementById("file_type").value =
+            item.file_type || "";
+
+
+        document.getElementById("mime_type").value =
+            item.mime_type || "";
+
+
+        document.getElementById("alt_text").value =
+            item.alt_text || "";
+
+
+        document.getElementById("title").value =
+            item.title || "";
+
+
+        document.getElementById("description").value =
+            item.description || "";
+
+
+        document.getElementById("url").value =
+            item.url || "";
+
+
+        document
+            .getElementById("mediaModal")
+            .classList.add("active");
+
+
+    } catch (error) {
+
+        showMessage(
+            error.message
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   SAVE MEDIA
+========================================================= */
+
+document
+    .getElementById("mediaForm")
+    .addEventListener(
+        "submit",
+        async function(event) {
+
+            event.preventDefault();
+
+
+            const payload = {
+
+                name:
+                    document
+                        .getElementById("name")
+                        .value
+                        .trim(),
+
+                file_name:
+                    document
+                        .getElementById("file_name")
+                        .value
+                        .trim(),
+
+                file_path:
+                    document
+                        .getElementById("file_path")
+                        .value
+                        .trim(),
+
+                file_type:
+                    document
+                        .getElementById("file_type")
+                        .value,
+
+                mime_type:
+                    document
+                        .getElementById("mime_type")
+                        .value
+                        .trim(),
+
+                alt_text:
+                    document
+                        .getElementById("alt_text")
+                        .value
+                        .trim(),
+
+                title:
+                    document
+                        .getElementById("title")
+                        .value
+                        .trim(),
+
+                description:
+                    document
+                        .getElementById("description")
+                        .value,
+
+                url:
+                    document
+                        .getElementById("url")
+                        .value
+                        .trim()
+
+            };
+
+
+            try {
+
+                let url = API_URL;
+
+                let method = "POST";
+
+
+                if (editingMediaId) {
+
+                    url =
+                        `${API_URL}/${editingMediaId}`;
+
+                    method = "PUT";
+
+                }
+
+
+                const response =
+                    await fetch(
+                        url,
+                        {
+                            method: method,
+
+                            credentials:
+                                "same-origin",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body:
+                                JSON.stringify(payload)
+                        }
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        data.message ||
+                        "Unable to save media."
+                    );
+
+                }
+
+
+                closeMediaModal();
+
+
+                showMessage(
+                    data.message ||
+                    "Media saved successfully."
+                );
+
+
+                await loadMedia();
+
+
+            } catch (error) {
+
+                showMessage(
+                    error.message
+                );
+
+            }
+
+        }
+    );
+
+
+/* =========================================================
+   DELETE MEDIA
+========================================================= */
+
+async function deleteMedia(mediaId) {
+
+    const item =
+        mediaItems.find(
+            media => media.id === mediaId
+        );
+
+
+    const name =
+        item
+            ? item.name
+            : "this media";
+
+
+    const confirmed =
+        confirm(
+            `Are you sure you want to delete "${name}"?`
+        );
+
+
+    if (!confirmed) {
+        return;
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_URL}/${mediaId}`,
+                {
+                    method: "DELETE",
+                    credentials: "same-origin"
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.message ||
+                "Unable to delete media."
+            );
+
+        }
+
+
+        showMessage(
+            data.message ||
+            "Media deleted successfully."
+        );
+
+
+        await loadMedia();
+
+
+    } catch (error) {
+
+        showMessage(
+            error.message
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   PREVIEW MEDIA
+========================================================= */
+
+function previewMedia(mediaId) {
+
+    const item =
+        mediaItems.find(
+            media => media.id === mediaId
+        );
+
+
+    if (!item) {
+        return;
+    }
+
+
+    const container =
+        document.getElementById("previewContent");
+
+
+    const mediaUrl =
+        getMediaUrl(item);
+
+
+    if (isImageMedia(item)) {
+
+        container.innerHTML = `
+
+            <div class="preview-image-wrapper">
+
+                <img
+                    src="${escapeAttribute(mediaUrl)}"
+                    class="preview-image"
+                    alt="${escapeAttribute(
+                        item.alt_text ||
+                        item.name ||
+                        "Media"
+                    )}"
+                >
+
+            </div>
+
+
+            <div class="preview-details">
+
+                <strong>
+                    ${escapeHtml(
+                        item.name || "-"
+                    )}
+                </strong>
+
+                <br>
+
+                File:
+                ${escapeHtml(
+                    item.file_name || "-"
+                )}
+
+                <br>
+
+                Type:
+                ${escapeHtml(
+                    item.file_type || "-"
+                )}
+
+                <br>
+
+                MIME:
+                ${escapeHtml(
+                    item.mime_type || "-"
+                )}
+
+                <br>
+
+                Alt:
+                ${escapeHtml(
+                    item.alt_text || "-"
+                )}
+
+                <br>
+
+                URL:
+                ${escapeHtml(
+                    item.url || mediaUrl || "-"
+                )}
+
+            </div>
+
+        `;
+
+    } else {
+
+        container.innerHTML = `
+
+            <div class="empty">
+
+                <div class="file-icon">
+                    📄
+                </div>
+
+                <br>
+
+                <strong>
+                    ${escapeHtml(
+                        item.name || "-"
+                    )}
+                </strong>
+
+                <br><br>
+
+                File:
+                ${escapeHtml(
+                    item.file_name || "-"
+                )}
+
+                <br>
+
+                Path:
+                ${escapeHtml(
+                    item.file_path || "-"
+                )}
+
+            </div>
+
+        `;
+
+    }
+
+
+    document
+        .getElementById("previewModal")
+        .classList.add("active");
+
+}
+
+
+/* =========================================================
+   CLOSE PREVIEW
+========================================================= */
+
+function closePreview() {
+
+    document
+        .getElementById("previewModal")
+        .classList.remove("active");
+
+}
+
+
+/* =========================================================
+   MEDIA URL
+========================================================= */
+
+function getMediaUrl(item) {
+
+    return (
+        item.url ||
+        item.file_path ||
+        ""
+    );
+
+}
+
+
+/* =========================================================
+   IMAGE CHECK
+========================================================= */
+
+function isImageMedia(item) {
+
+    const mime =
+        String(
+            item.mime_type || ""
+        ).toLowerCase();
+
+
+    const type =
+        String(
+            item.file_type || ""
+        ).toLowerCase();
+
+
+    const fileName =
+        String(
+            item.file_name || ""
+        ).toLowerCase();
+
+
+    return (
+        mime.startsWith("image/")
+
+        ||
+
+        type === "image"
+
+        ||
+
+        /\.(jpg|jpeg|png|gif|webp|svg|avif)$/i
+            .test(fileName)
+
+    );
+
+}
+
+
+/* =========================================================
+   MESSAGE
+========================================================= */
+
+function showMessage(text) {
+
+    const message =
+        document.getElementById("message");
+
+
+    message.textContent = text;
+
+    message.classList.add("show");
+
+
+    setTimeout(
+        function() {
+
+            message.classList.remove("show");
+
+        },
+        4000
+    );
+
+}
+
+
+/* =========================================================
+   ESCAPE HTML
+========================================================= */
+
+function escapeHtml(value) {
+
+    return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+
+}
+
+
+/* =========================================================
+   ESCAPE ATTRIBUTE
+========================================================= */
+
+function escapeAttribute(value) {
+
+    return escapeHtml(value);
+
+}
+
+
+/* =========================================================
+   MODAL OUTSIDE CLICK
+========================================================= */
+
+document
+    .getElementById("mediaModal")
+    .addEventListener(
+        "click",
+        function(event) {
+
+            if (event.target === this) {
+
+                closeMediaModal();
+
+            }
+
+        }
+    );
+
+
+document
+    .getElementById("previewModal")
+    .addEventListener(
+        "click",
+        function(event) {
+
+            if (event.target === this) {
+
+                closePreview();
+
+            }
+
+        }
+    );
+
+
+/* =========================================================
+   ESC KEY
+========================================================= */
+
+document.addEventListener(
+    "keydown",
+    function(event) {
+
+        if (event.key === "Escape") {
+
+            closeMediaModal();
+
+            closePreview();
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   INITIAL LOAD
+========================================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function() {
+
+        loadMedia();
+
+    }
+);
+
+</script>
+
+</body>
+</html>
