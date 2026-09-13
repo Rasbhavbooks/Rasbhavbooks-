@@ -1,0 +1,1436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Books Management - Rasbhav Admin</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #0f1115;
+            color: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .header h1 {
+            font-size: 28px;
+        }
+
+        .header p {
+            color: #999;
+            margin-top: 6px;
+        }
+
+        button {
+            border: none;
+            cursor: pointer;
+            border-radius: 8px;
+            padding: 11px 16px;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: #d4af37;
+            color: #111;
+            font-weight: bold;
+        }
+
+        .btn-secondary {
+            background: #292d35;
+            color: #fff;
+        }
+
+        .btn-danger {
+            background: #b52b2b;
+            color: #fff;
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .search {
+            flex: 1;
+            min-width: 220px;
+            background: #191c22;
+            border: 1px solid #30343d;
+            color: #fff;
+            padding: 13px;
+            border-radius: 8px;
+            outline: none;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            background: #191c22;
+            border: 1px solid #30343d;
+            border-radius: 12px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 850px;
+        }
+
+        th,
+        td {
+            padding: 14px;
+            border-bottom: 1px solid #30343d;
+            text-align: left;
+        }
+
+        th {
+            color: #d4af37;
+            font-size: 13px;
+        }
+
+        td {
+            color: #ddd;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .cover {
+            width: 55px;
+            height: 75px;
+            object-fit: cover;
+            border-radius: 5px;
+            background: #292d35;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 5px 9px;
+            border-radius: 20px;
+            font-size: 12px;
+            background: #292d35;
+        }
+
+        .actions {
+            display: flex;
+            gap: 7px;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 40px;
+            color: #888;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #aaa;
+        }
+
+        /* =====================================================
+           MODAL
+        ===================================================== */
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.75);
+            z-index: 1000;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: block;
+        }
+
+        .modal-box {
+            max-width: 800px;
+            margin: 30px auto;
+            background: #191c22;
+            border: 1px solid #30343d;
+            border-radius: 14px;
+            padding: 25px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .modal-header h2 {
+            font-size: 22px;
+        }
+
+        .close {
+            background: transparent;
+            color: #fff;
+            font-size: 25px;
+            padding: 0 5px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .form-group.full {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            font-size: 13px;
+            color: #bbb;
+        }
+
+        input,
+        textarea,
+        select {
+            width: 100%;
+            background: #101217;
+            border: 1px solid #343944;
+            color: #fff;
+            border-radius: 8px;
+            padding: 11px;
+            outline: none;
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .checkbox-row {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            margin-top: 5px;
+        }
+
+        .checkbox-row label {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            cursor: pointer;
+        }
+
+        .checkbox-row input {
+            width: auto;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        .message {
+            display: none;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            background: #292d35;
+        }
+
+        .message.show {
+            display: block;
+        }
+
+        @media (max-width: 650px) {
+
+            body {
+                padding: 12px;
+            }
+
+            .header h1 {
+                font-size: 22px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-group.full {
+                grid-column: auto;
+            }
+
+            .modal-box {
+                padding: 18px;
+                margin: 10px auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- =====================================================
+         HEADER
+    ====================================================== -->
+
+    <div class="header">
+
+        <div>
+            <h1>📚 Books</h1>
+            <p>Manage all Rasbhav Books from Admin Panel</p>
+        </div>
+
+        <button class="btn-primary" onclick="openAddBook()">
+            + Add Book
+        </button>
+
+    </div>
+
+
+    <!-- =====================================================
+         TOOLBAR
+    ====================================================== -->
+
+    <div class="toolbar">
+
+        <input
+            type="search"
+            id="searchInput"
+            class="search"
+            placeholder="Search books..."
+            oninput="filterBooks()"
+        >
+
+        <button
+            class="btn-secondary"
+            onclick="loadBooks()"
+        >
+            ↻ Refresh
+        </button>
+
+    </div>
+
+
+    <!-- =====================================================
+         MESSAGE
+    ====================================================== -->
+
+    <div id="message" class="message"></div>
+
+
+    <!-- =====================================================
+         BOOKS TABLE
+    ====================================================== -->
+
+    <div class="table-wrapper">
+
+        <table>
+
+            <thead>
+
+                <tr>
+                    <th>Cover</th>
+                    <th>Title</th>
+                    <th>Author ID</th>
+                    <th>Language</th>
+                    <th>Status</th>
+                    <th>Featured</th>
+                    <th>Actions</th>
+                </tr>
+
+            </thead>
+
+            <tbody id="booksTableBody">
+
+                <tr>
+                    <td colspan="7" class="loading">
+                        Loading books...
+                    </td>
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     BOOK MODAL
+========================================================= -->
+
+<div id="bookModal" class="modal">
+
+    <div class="modal-box">
+
+        <div class="modal-header">
+
+            <h2 id="modalTitle">
+                Add Book
+            </h2>
+
+            <button
+                class="close"
+                onclick="closeBookModal()"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <form id="bookForm">
+
+            <input
+                type="hidden"
+                id="bookId"
+            >
+
+
+            <div class="form-grid">
+
+
+                <!-- TITLE -->
+
+                <div class="form-group">
+
+                    <label>
+                        Book Title *
+                    </label>
+
+                    <input
+                        type="text"
+                        id="title"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- SLUG -->
+
+                <div class="form-group">
+
+                    <label>
+                        Slug *
+                    </label>
+
+                    <input
+                        type="text"
+                        id="slug"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- SUBTITLE -->
+
+                <div class="form-group full">
+
+                    <label>
+                        Subtitle
+                    </label>
+
+                    <input
+                        type="text"
+                        id="subtitle"
+                    >
+
+                </div>
+
+
+                <!-- SHORT DESCRIPTION -->
+
+                <div class="form-group full">
+
+                    <label>
+                        Short Description
+                    </label>
+
+                    <textarea
+                        id="short_description"
+                    ></textarea>
+
+                </div>
+
+
+                <!-- DESCRIPTION -->
+
+                <div class="form-group full">
+
+                    <label>
+                        Description
+                    </label>
+
+                    <textarea
+                        id="description"
+                    ></textarea>
+
+                </div>
+
+
+                <!-- AUTHOR -->
+
+                <div class="form-group">
+
+                    <label>
+                        Author ID
+                    </label>
+
+                    <input
+                        type="number"
+                        id="author_id"
+                    >
+
+                </div>
+
+
+                <!-- LANGUAGE -->
+
+                <div class="form-group">
+
+                    <label>
+                        Language
+                    </label>
+
+                    <select id="language">
+
+                        <option value="">
+                            Select Language
+                        </option>
+
+                        <option value="gujarati">
+                            Gujarati
+                        </option>
+
+                        <option value="hindi">
+                            Hindi
+                        </option>
+
+                        <option value="english">
+                            English
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- TAGS -->
+
+                <div class="form-group full">
+
+                    <label>
+                        Tags
+                    </label>
+
+                    <input
+                        type="text"
+                        id="tags"
+                        placeholder="love, novel, gujarati"
+                    >
+
+                </div>
+
+
+                <!-- COVER -->
+
+                <div class="form-group">
+
+                    <label>
+                        Cover Image
+                    </label>
+
+                    <input
+                        type="text"
+                        id="cover_image"
+                        placeholder="/static/uploads/cover.jpg"
+                    >
+
+                </div>
+
+
+                <!-- BANNER -->
+
+                <div class="form-group">
+
+                    <label>
+                        Banner Image
+                    </label>
+
+                    <input
+                        type="text"
+                        id="banner_image"
+                        placeholder="/static/uploads/banner.jpg"
+                    >
+
+                </div>
+
+
+                <!-- FEATURED IMAGE -->
+
+                <div class="form-group full">
+
+                    <label>
+                        Featured Image
+                    </label>
+
+                    <input
+                        type="text"
+                        id="featured_image"
+                        placeholder="/static/uploads/featured.jpg"
+                    >
+
+                </div>
+
+
+                <!-- STATUS -->
+
+                <div class="form-group">
+
+                    <label>
+                        Status
+                    </label>
+
+                    <select id="status">
+
+                        <option value="draft">
+                            Draft
+                        </option>
+
+                        <option value="published">
+                            Published
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- PUBLISH DATE -->
+
+                <div class="form-group">
+
+                    <label>
+                        Publish Date
+                    </label>
+
+                    <input
+                        type="datetime-local"
+                        id="publish_date"
+                    >
+
+                </div>
+
+
+                <!-- OPTIONS -->
+
+                <div class="form-group full">
+
+                    <div class="checkbox-row">
+
+                        <label>
+
+                            <input
+                                type="checkbox"
+                                id="featured"
+                            >
+
+                            Featured Book
+
+                        </label>
+
+
+                        <label>
+
+                            <input
+                                type="checkbox"
+                                id="published"
+                            >
+
+                            Published
+
+                        </label>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- FORM ACTIONS -->
+
+            <div class="form-actions">
+
+                <button
+                    type="button"
+                    class="btn-secondary"
+                    onclick="closeBookModal()"
+                >
+                    Cancel
+                </button>
+
+                <button
+                    type="submit"
+                    class="btn-primary"
+                >
+                    Save Book
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<script>
+
+"use strict";
+
+
+/* =========================================================
+   GLOBAL STATE
+========================================================= */
+
+let books = [];
+let editingBookId = null;
+
+
+/* =========================================================
+   API URL
+========================================================= */
+
+const API_URL = "/api/admin/books";
+
+
+/* =========================================================
+   LOAD BOOKS
+========================================================= */
+
+async function loadBooks() {
+
+    const tbody = document.getElementById("booksTableBody");
+
+    tbody.innerHTML = `
+        <tr>
+            <td colspan="7" class="loading">
+                Loading books...
+            </td>
+        </tr>
+    `;
+
+    try {
+
+        const response = await fetch(API_URL, {
+            method: "GET",
+            credentials: "same-origin"
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(
+                data.message || "Unable to load books."
+            );
+        }
+
+        books = data.books || [];
+
+        renderBooks(books);
+
+    } catch (error) {
+
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="7" class="empty">
+                    ${escapeHtml(error.message)}
+                </td>
+            </tr>
+        `;
+
+    }
+
+}
+
+
+/* =========================================================
+   RENDER BOOKS
+========================================================= */
+
+function renderBooks(list) {
+
+    const tbody = document.getElementById("booksTableBody");
+
+    if (!list.length) {
+
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="7" class="empty">
+                    No books found.
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+
+    tbody.innerHTML = list.map(book => {
+
+        const cover = book.cover_image
+            ? `<img
+                src="${escapeAttribute(book.cover_image)}"
+                class="cover"
+                alt="${escapeAttribute(book.title || "Book")}"
+              >`
+            : `<div class="cover"></div>`;
+
+
+        return `
+            <tr>
+
+                <td>
+                    ${cover}
+                </td>
+
+                <td>
+                    <strong>
+                        ${escapeHtml(book.title || "-")}
+                    </strong>
+                    <br>
+                    <small>
+                        ${escapeHtml(book.slug || "")}
+                    </small>
+                </td>
+
+                <td>
+                    ${book.author_id ?? "-"}
+                </td>
+
+                <td>
+                    ${escapeHtml(book.language || "-")}
+                </td>
+
+                <td>
+                    <span class="status">
+                        ${escapeHtml(book.status || "draft")}
+                    </span>
+                </td>
+
+                <td>
+                    ${book.featured ? "⭐ Yes" : "No"}
+                </td>
+
+                <td>
+
+                    <div class="actions">
+
+                        <button
+                            class="btn-secondary"
+                            onclick="editBook(${book.id})"
+                        >
+                            Edit
+                        </button>
+
+                        <button
+                            class="btn-danger"
+                            onclick="deleteBook(${book.id})"
+                        >
+                            Delete
+                        </button>
+
+                    </div>
+
+                </td>
+
+            </tr>
+        `;
+
+    }).join("");
+
+}
+
+
+/* =========================================================
+   SEARCH
+========================================================= */
+
+function filterBooks() {
+
+    const keyword = document
+        .getElementById("searchInput")
+        .value
+        .toLowerCase()
+        .trim();
+
+
+    if (!keyword) {
+
+        renderBooks(books);
+
+        return;
+    }
+
+
+    const filtered = books.filter(book => {
+
+        return (
+            String(book.title || "")
+                .toLowerCase()
+                .includes(keyword)
+
+            ||
+
+            String(book.slug || "")
+                .toLowerCase()
+                .includes(keyword)
+
+            ||
+
+            String(book.language || "")
+                .toLowerCase()
+                .includes(keyword)
+
+            ||
+
+            String(book.tags || "")
+                .toLowerCase()
+                .includes(keyword)
+        );
+
+    });
+
+
+    renderBooks(filtered);
+
+}
+
+
+/* =========================================================
+   OPEN ADD BOOK
+========================================================= */
+
+function openAddBook() {
+
+    editingBookId = null;
+
+    document.getElementById("modalTitle").textContent =
+        "Add Book";
+
+    document.getElementById("bookForm").reset();
+
+    document.getElementById("bookId").value = "";
+
+    document
+        .getElementById("bookModal")
+        .classList.add("active");
+
+}
+
+
+/* =========================================================
+   CLOSE MODAL
+========================================================= */
+
+function closeBookModal() {
+
+    document
+        .getElementById("bookModal")
+        .classList.remove("active");
+
+}
+
+
+/* =========================================================
+   EDIT BOOK
+========================================================= */
+
+async function editBook(bookId) {
+
+    try {
+
+        const response = await fetch(
+            `${API_URL}/${bookId}`,
+            {
+                method: "GET",
+                credentials: "same-origin"
+            }
+        );
+
+
+        const data = await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.message || "Unable to load book."
+            );
+
+        }
+
+
+        const book = data.book;
+
+        editingBookId = book.id;
+
+
+        document.getElementById("modalTitle").textContent =
+            "Edit Book";
+
+
+        document.getElementById("bookId").value =
+            book.id || "";
+
+        document.getElementById("title").value =
+            book.title || "";
+
+        document.getElementById("slug").value =
+            book.slug || "";
+
+        document.getElementById("subtitle").value =
+            book.subtitle || "";
+
+        document.getElementById("description").value =
+            book.description || "";
+
+        document.getElementById("short_description").value =
+            book.short_description || "";
+
+        document.getElementById("author_id").value =
+            book.author_id || "";
+
+        document.getElementById("language").value =
+            book.language || "";
+
+        document.getElementById("tags").value =
+            book.tags || "";
+
+        document.getElementById("cover_image").value =
+            book.cover_image || "";
+
+        document.getElementById("banner_image").value =
+            book.banner_image || "";
+
+        document.getElementById("featured_image").value =
+            book.featured_image || "";
+
+        document.getElementById("status").value =
+            book.status || "draft";
+
+        document.getElementById("featured").checked =
+            Boolean(book.featured);
+
+        document.getElementById("published").checked =
+            Boolean(book.published);
+
+
+        if (book.publish_date) {
+
+            document.getElementById("publish_date").value =
+                formatDateTimeLocal(book.publish_date);
+
+        } else {
+
+            document.getElementById("publish_date").value = "";
+
+        }
+
+
+        document
+            .getElementById("bookModal")
+            .classList.add("active");
+
+
+    } catch (error) {
+
+        showMessage(
+            error.message,
+            true
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   SAVE BOOK
+========================================================= */
+
+document
+    .getElementById("bookForm")
+    .addEventListener("submit", async function(event) {
+
+        event.preventDefault();
+
+
+        const payload = {
+
+            title:
+                document.getElementById("title").value.trim(),
+
+            slug:
+                document.getElementById("slug").value.trim(),
+
+            subtitle:
+                document.getElementById("subtitle").value.trim(),
+
+            description:
+                document.getElementById("description").value,
+
+            short_description:
+                document.getElementById("short_description").value,
+
+            author_id:
+                getNumberOrNull("author_id"),
+
+            language:
+                document.getElementById("language").value,
+
+            tags:
+                document.getElementById("tags").value,
+
+            cover_image:
+                document.getElementById("cover_image").value.trim(),
+
+            banner_image:
+                document.getElementById("banner_image").value.trim(),
+
+            featured_image:
+                document.getElementById("featured_image").value.trim(),
+
+            status:
+                document.getElementById("status").value,
+
+            featured:
+                document.getElementById("featured").checked,
+
+            published:
+                document.getElementById("published").checked,
+
+            publish_date:
+                getPublishDate()
+
+        };
+
+
+        try {
+
+            let url = API_URL;
+            let method = "POST";
+
+
+            if (editingBookId) {
+
+                url = `${API_URL}/${editingBookId}`;
+                method = "PUT";
+
+            }
+
+
+            const response = await fetch(url, {
+
+                method: method,
+
+                credentials: "same-origin",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify(payload)
+
+            });
+
+
+            const data = await response.json();
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.message || "Unable to save book."
+                );
+
+            }
+
+
+            closeBookModal();
+
+            showMessage(
+                data.message || "Book saved successfully."
+            );
+
+            await loadBooks();
+
+
+        } catch (error) {
+
+            showMessage(
+                error.message,
+                true
+            );
+
+        }
+
+    });
+
+
+/* =========================================================
+   DELETE BOOK
+========================================================= */
+
+async function deleteBook(bookId) {
+
+    const book = books.find(
+        item => item.id === bookId
+    );
+
+
+    const title = book
+        ? book.title
+        : "this book";
+
+
+    const confirmed = confirm(
+        `Are you sure you want to delete "${title}"?`
+    );
+
+
+    if (!confirmed) {
+        return;
+    }
+
+
+    try {
+
+        const response = await fetch(
+            `${API_URL}/${bookId}`,
+            {
+                method: "DELETE",
+                credentials: "same-origin"
+            }
+        );
+
+
+        const data = await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.message || "Unable to delete book."
+            );
+
+        }
+
+
+        showMessage(
+            data.message || "Book deleted successfully."
+        );
+
+
+        await loadBooks();
+
+
+    } catch (error) {
+
+        showMessage(
+            error.message,
+            true
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+function getNumberOrNull(id) {
+
+    const value =
+        document.getElementById(id).value.trim();
+
+
+    if (!value) {
+        return null;
+    }
+
+
+    const number = Number(value);
+
+
+    return Number.isFinite(number)
+        ? number
+        : null;
+
+}
+
+
+function getPublishDate() {
+
+    const value =
+        document.getElementById("publish_date").value;
+
+
+    if (!value) {
+        return null;
+    }
+
+
+    return new Date(value).toISOString();
+
+}
+
+
+function formatDateTimeLocal(value) {
+
+    const date = new Date(value);
+
+
+    if (Number.isNaN(date.getTime())) {
+        return "";
+    }
+
+
+    const year =
+        date.getFullYear();
+
+
+    const month =
+        String(date.getMonth() + 1)
+            .padStart(2, "0");
+
+
+    const day =
+        String(date.getDate())
+            .padStart(2, "0");
+
+
+    const hours =
+        String(date.getHours())
+            .padStart(2, "0");
+
+
+    const minutes =
+        String(date.getMinutes())
+            .padStart(2, "0");
+
+
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+
+}
+
+
+function showMessage(text, error = false) {
+
+    const message =
+        document.getElementById("message");
+
+
+    message.textContent = text;
+
+    message.classList.add("show");
+
+
+    setTimeout(() => {
+
+        message.classList.remove("show");
+
+    }, 4000);
+
+}
+
+
+function escapeHtml(value) {
+
+    return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+
+}
+
+
+function escapeAttribute(value) {
+
+    return escapeHtml(value);
+
+}
+
+
+/* =========================================================
+   MODAL OUTSIDE CLICK
+========================================================= */
+
+document
+    .getElementById("bookModal")
+    .addEventListener("click", function(event) {
+
+        if (event.target === this) {
+            closeBookModal();
+        }
+
+    });
+
+
+/* =========================================================
+   INITIAL LOAD
+========================================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function() {
+        loadBooks();
+    }
+);
+
+</script>
+
+</body>
+</html>
