@@ -11,7 +11,7 @@ from app.models.category import Category
 admin_dashboard_bp = Blueprint(
     "admin_dashboard",
     __name__,
-    url_prefix="/api/admin/dashboard"
+    url_prefix="/api/admin/dashboard/stats"
 )
 
 
