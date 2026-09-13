@@ -19,10 +19,14 @@ def create_app():
     from app.routes.author import author_bp
     from app.routes.search import search_bp
     from app.routes.admin import admin_bp
+    from app.routes.user import user_bp
+    from app.routes.admin_books import admin_books_bp
     app.register_blueprint(category_bp)
     app.register_blueprint(author_bp)
     app.register_blueprint(search_bp)
     app.register_blueprint(admin_bp)
+    app.register_blueprint(user_bp)
+    app.register_blueprint(admin_books_bp)
 
     @app.route("/")
     def home():
