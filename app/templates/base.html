@@ -2,15 +2,132 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>{% block title %}Rasbhav Books{% endblock %}</title>
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <meta name="description"
+          content="{% block description %}Rasbhav Books - Read Gujarati, Hindi and English Books Online{% endblock %}">
+
+    <title>
+        {% block title %}Rasbhav Books{% endblock %}
+    </title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/main.css') }}">
 </head>
 
 <body>
 
-    {% block content %}
-    {% endblock %}
+    <!-- HEADER -->
+    <header id="site-header">
+
+        <nav class="navbar">
+
+            <a href="/" class="logo">
+                Rasbhav Books
+            </a>
+
+            <div class="nav-links">
+
+                <a href="/">Home</a>
+
+                <a href="/books">
+                    Books
+                </a>
+
+                <a href="/library">
+                    My Library
+                </a>
+
+                <a href="/favorites">
+                    Favorites
+                </a>
+
+                <a href="/bookmarks">
+                    Bookmarks
+                </a>
+
+                <a href="/search">
+                    Search
+                </a>
+
+            </div>
+
+        </nav>
+
+    </header>
+
+
+    <!-- MAIN CONTENT -->
+
+    <main id="main-content">
+
+        {% block content %}
+        {% endblock %}
+
+    </main>
+
+
+    <!-- FOOTER -->
+
+    <footer id="site-footer">
+
+        <div class="footer-content">
+
+            <div class="footer-brand">
+
+                <h3>
+                    Rasbhav Books
+                </h3>
+
+                <p>
+                    Read Gujarati, Hindi and English books
+                    online.
+                </p>
+
+            </div>
+
+
+            <div class="footer-links">
+
+                <a href="/about">
+                    About
+                </a>
+
+                <a href="/contact">
+                    Contact
+                </a>
+
+                <a href="/privacy">
+                    Privacy Policy
+                </a>
+
+                <a href="/terms">
+                    Terms
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <div class="footer-bottom">
+
+            <p>
+                © 2026 Rasbhav Books.
+                All Rights Reserved.
+            </p>
+
+        </div>
+
+    </footer>
+
+
+    <!-- JAVASCRIPT -->
+
+    <script src="{{ url_for('static', filename='js/main.js') }}">
+    </script>
 
 </body>
 </html>
