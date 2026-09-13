@@ -1,0 +1,502 @@
+{% extends "base.html" %}
+
+{% block title %}
+Rasbhav Books | Read Gujarati, Hindi & English Books
+{% endblock %}
+
+{% block description %}
+Read Gujarati, Hindi and English books online on Rasbhav Books.
+Discover novels, stories, poetry and more.
+{% endblock %}
+
+{% block content %}
+
+<!-- =====================================================
+     ANNOUNCEMENT BAR
+===================================================== -->
+
+<section class="announcement-bar">
+    <div class="container">
+        <p id="announcement-text">
+            Welcome to Rasbhav Books
+        </p>
+    </div>
+</section>
+
+
+<!-- =====================================================
+     HERO SECTION
+===================================================== -->
+
+<section class="hero-section">
+
+    <div class="hero-overlay"></div>
+
+    <div class="container hero-content">
+
+        <p class="hero-label">
+            RASBHAV BOOKS
+        </p>
+
+        <h1>
+            Discover Stories.<br>
+            Read. Feel. Remember.
+        </h1>
+
+        <p class="hero-subtitle">
+            Explore Gujarati, Hindi and English books
+            in a beautiful modern reading experience.
+        </p>
+
+        <div class="hero-buttons">
+
+            <a href="/books" class="btn btn-primary">
+                Explore Books
+            </a>
+
+            <a href="/library" class="btn btn-secondary">
+                My Library
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     FEATURED BOOKS
+===================================================== -->
+
+<section class="home-section featured-section">
+
+    <div class="container">
+
+        <div class="section-header">
+
+            <p class="section-label">
+                FEATURED
+            </p>
+
+            <h2>
+                Featured Books
+            </h2>
+
+            <p>
+                Discover books selected specially for you.
+            </p>
+
+        </div>
+
+
+        <div
+            id="featured-books"
+            class="book-grid"
+        >
+
+            <div class="loading">
+                Loading books...
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     LATEST BOOKS
+===================================================== -->
+
+<section class="home-section latest-section">
+
+    <div class="container">
+
+        <div class="section-header">
+
+            <p class="section-label">
+                LATEST
+            </p>
+
+            <h2>
+                Latest Books
+            </h2>
+
+            <p>
+                Explore the newest books added to Rasbhav Books.
+            </p>
+
+        </div>
+
+
+        <div
+            id="latest-books"
+            class="book-grid"
+        >
+
+            <div class="loading">
+                Loading books...
+            </div>
+
+        </div>
+
+
+        <div class="section-action">
+
+            <a href="/books" class="btn btn-outline">
+                View All Books
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     POPULAR BOOKS
+===================================================== -->
+
+<section class="home-section popular-section">
+
+    <div class="container">
+
+        <div class="section-header">
+
+            <p class="section-label">
+                POPULAR
+            </p>
+
+            <h2>
+                Popular Books
+            </h2>
+
+            <p>
+                Stories readers are enjoying right now.
+            </p>
+
+        </div>
+
+
+        <div
+            id="popular-books"
+            class="book-grid"
+        >
+
+            <div class="loading">
+                Loading books...
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     CATEGORIES
+===================================================== -->
+
+<section class="home-section categories-section">
+
+    <div class="container">
+
+        <div class="section-header">
+
+            <p class="section-label">
+                EXPLORE
+            </p>
+
+            <h2>
+                Browse Categories
+            </h2>
+
+            <p>
+                Find your next story by category.
+            </p>
+
+        </div>
+
+
+        <div
+            id="categories"
+            class="category-grid"
+        >
+
+            <div class="loading">
+                Loading categories...
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     AUTHORS
+===================================================== -->
+
+<section class="home-section authors-section">
+
+    <div class="container">
+
+        <div class="section-header">
+
+            <p class="section-label">
+                AUTHORS
+            </p>
+
+            <h2>
+                Discover Authors
+            </h2>
+
+            <p>
+                Explore books from your favorite authors.
+            </p>
+
+        </div>
+
+
+        <div
+            id="authors"
+            class="author-grid"
+        >
+
+            <div class="loading">
+                Loading authors...
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     WHY RASBHAV BOOKS
+===================================================== -->
+
+<section class="home-section why-section">
+
+    <div class="container">
+
+        <div class="section-header">
+
+            <p class="section-label">
+                WHY RASBHAV
+            </p>
+
+            <h2>
+                A Better Way to Read
+            </h2>
+
+        </div>
+
+
+        <div class="feature-grid">
+
+
+            <article class="feature-card">
+
+                <div class="feature-icon">
+                    📚
+                </div>
+
+                <h3>
+                    Multiple Languages
+                </h3>
+
+                <p>
+                    Read Gujarati, Hindi and English books
+                    from one platform.
+                </p>
+
+            </article>
+
+
+            <article class="feature-card">
+
+                <div class="feature-icon">
+                    🔖
+                </div>
+
+                <h3>
+                    Bookmarks
+                </h3>
+
+                <p>
+                    Save important places and continue
+                    reading whenever you want.
+                </p>
+
+            </article>
+
+
+            <article class="feature-card">
+
+                <div class="feature-icon">
+                    ❤️
+                </div>
+
+                <h3>
+                    Personal Library
+                </h3>
+
+                <p>
+                    Keep your favorite books and reading
+                    activity organized.
+                </p>
+
+            </article>
+
+
+            <article class="feature-card">
+
+                <div class="feature-icon">
+                    📖
+                </div>
+
+                <h3>
+                    Continue Reading
+                </h3>
+
+                <p>
+                    Your reading progress helps you return
+                    exactly where you stopped.
+                </p>
+
+            </article>
+
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     PROMOTIONAL / CUSTOM SECTION
+===================================================== -->
+
+<section class="promo-section">
+
+    <div class="container promo-content">
+
+        <div class="promo-text">
+
+            <p class="section-label">
+                RASBHAV COLLECTION
+            </p>
+
+            <h2>
+                Every Story Has a Feeling.
+            </h2>
+
+            <p>
+                Discover meaningful stories, unforgettable
+                characters and beautiful words.
+            </p>
+
+            <a href="/books" class="btn btn-primary">
+                Start Reading
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     NEWSLETTER
+===================================================== -->
+
+<section class="home-section newsletter-section">
+
+    <div class="container newsletter-content">
+
+        <p class="section-label">
+            STAY CONNECTED
+        </p>
+
+        <h2>
+            Get New Books & Updates
+        </h2>
+
+        <p>
+            Stay updated with new stories and collections.
+        </p>
+
+
+        <form
+            id="newsletter-form"
+            class="newsletter-form"
+        >
+
+            <input
+                type="email"
+                id="newsletter-email"
+                name="email"
+                placeholder="Enter your email"
+                autocomplete="email"
+                required
+            >
+
+            <button
+                type="submit"
+                class="btn btn-primary"
+            >
+                Subscribe
+            </button>
+
+        </form>
+
+
+        <p
+            id="newsletter-message"
+            class="form-message"
+        ></p>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     FINAL CTA
+===================================================== -->
+
+<section class="cta-section">
+
+    <div class="container cta-content">
+
+        <p class="section-label">
+            YOUR NEXT STORY
+        </p>
+
+        <h2>
+            Your Next Story Is Waiting.
+        </h2>
+
+        <p>
+            Find a book, open the reader and start reading.
+        </p>
+
+        <a href="/books" class="btn btn-primary">
+            Browse All Books
+        </a>
+
+    </div>
+
+</section>
+
+{% endblock %}
