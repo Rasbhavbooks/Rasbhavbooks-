@@ -46,3 +46,4 @@ class Admin(db.Model):
         default=datetime.utcnow,
         onupdate=datetime.utcnow
     )
+
