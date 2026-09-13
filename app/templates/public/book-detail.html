@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title id="pageTitle">Book Details | Rasbhav Books</title>
+
+    <meta
+        name="description"
+        id="metaDescription"
+        content="Read books online on Rasbhav Books."
+    >
+
+    <meta
+        name="robots"
+        id="metaRobots"
+        content="index, follow"
+    >
+
+    <link
+        rel="canonical"
+        id="canonicalUrl"
+        href=""
+    >
+
+    <meta
+        property="og:title"
+        id="ogTitle"
+        content=""
+    >
+
+    <meta
+        property="og:description"
+        id="ogDescription"
+        content=""
+    >
+
+    <meta
+        property="og:image"
+        id="ogImage"
+        content=""
+    >
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/main.css') }}"
+    >
+
+</head>
+
+<body>
+
+<!-- =====================================================
+     HEADER
+===================================================== -->
+
+<header class="site-header">
+
+    <div class="container header-inner">
+
+        <a href="/" class="site-logo">
+            Rasbhav Books
+        </a>
+
+        <nav class="main-nav">
+
+            <a href="/">
+                Home
+            </a>
+
+            <a href="/books">
+                Books
+            </a>
+
+            <a href="/search">
+                Search
+            </a>
+
+            <a href="/library">
+                My Library
+            </a>
+
+        </nav>
+
+    </div>
+
+</header>
+
+
+<!-- =====================================================
+     BREADCRUMB
+===================================================== -->
+
+<section class="breadcrumb-section">
+
+    <div class="container">
+
+        <nav class="breadcrumb">
+
+            <a href="/">
+                Home
+            </a>
+
+            <span>›</span>
+
+            <a href="/books">
+                Books
+            </a>
+
+            <span>›</span>
+
+            <span id="breadcrumbTitle">
+                Book
+            </span>
+
+        </nav>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     BOOK DETAILS
+===================================================== -->
+
+<main>
+
+    <section class="book-detail-section">
+
+        <div class="container">
+
+            <div id="bookLoading" class="loading-state">
+
+                <div class="loader"></div>
+
+                <p>
+                    Loading book...
+                </p>
+
+            </div>
+
+
+            <div
+                id="bookError"
+                class="error-state"
+                style="display:none;"
+            >
+
+                <h2>
+                    Book Not Found
+                </h2>
+
+                <p>
+                    The requested book could not be found.
+                </p>
+
+                <a
+                    href="/books"
+                    class="btn btn-primary"
+                >
+                    Browse Books
+                </a>
+
+            </div>
+
+
+            <article
+                id="bookContent"
+                class="book-detail"
+                style="display:none;"
+            >
+
+                <!-- =====================================
+                     BOOK HERO
+                ====================================== -->
+
+                <div class="book-hero">
+
+                    <div class="book-cover-wrapper">
+
+                        <img
+                            id="bookCover"
+                            class="book-cover-large"
+                            src=""
+                            alt=""
+                        >
+
+                    </div>
+
+
+                    <div class="book-info">
+
+                        <div class="book-label">
+                            RASBHAV BOOKS
+                        </div>
+
+                        <h1 id="bookTitle">
+                            Book Title
+                        </h1>
+
+                        <p
+                            id="bookSubtitle"
+                            class="book-subtitle"
+                        ></p>
+
+
+                        <div class="book-meta">
+
+                            <span id="bookLanguage">
+                                —
+                            </span>
+
+                            <span class="meta-separator">
+                                •
+                            </span>
+
+                            <span id="bookStatus">
+                                —
+                            </span>
+
+                        </div>
+
+
+                        <p
+                            id="bookShortDescription"
+                            class="book-short-description"
+                        ></p>
+
+
+                        <div class="book-actions">
+
+                            <a
+                                id="readBookButton"
+                                href="#"
+                                class="btn btn-primary"
+                            >
+                                Read Book
+                            </a>
+
+                            <button
+                                id="favoriteButton"
+                                type="button"
+                                class="btn btn-secondary"
+                            >
+                                ♡ Favorite
+                            </button>
+
+                            <button
+                                id="bookmarkButton"
+                                type="button"
+                                class="btn btn-secondary"
+                            >
+                                🔖 Bookmark
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =====================================
+                     DESCRIPTION
+                ====================================== -->
+
+                <section class="book-description-section">
+
+                    <h2>
+                        About This Book
+                    </h2>
+
+                    <div
+                        id="bookDescription"
+                        class="book-description"
+                    ></div>
+
+                </section>
+
+
+                <!-- =====================================
+                     BOOK INFORMATION
+                ====================================== -->
+
+                <section class="book-information-section">
+
+                    <h2>
+                        Book Information
+                    </h2>
+
+                    <div class="book-information-grid">
+
+                        <div class="info-item">
+
+                            <span class="info-label">
+                                Language
+                            </span>
+
+                            <strong id="infoLanguage">
+                                —
+                            </strong>
+
+                        </div>
+
+
+                        <div class="info-item">
+
+                            <span class="info-label">
+                                Author
+                            </span>
+
+                            <strong id="infoAuthor">
+                                —
+                            </strong>
+
+                        </div>
+
+
+                        <div class="info-item">
+
+                            <span class="info-label">
+                                Published
+                            </span>
+
+                            <strong id="infoPublishDate">
+                                —
+                            </strong>
+
+                        </div>
+
+
+                        <div class="info-item">
+
+                            <span class="info-label">
+                                Status
+                            </span>
+
+                            <strong id="infoStatus">
+                                —
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- =====================================
+                     TAGS
+                ====================================== -->
+
+                <section
+                    id="tagsSection"
+                    class="book-tags-section"
+                    style="display:none;"
+                >
+
+                    <h2>
+                        Tags
+                    </h2>
+
+                    <div
+                        id="bookTags"
+                        class="book-tags"
+                    ></div>
+
+                </section>
+
+
+                <!-- =====================================
+                     BANNER
+                ====================================== -->
+
+                <section
+                    id="bookBannerSection"
+                    class="book-banner-section"
+                    style="display:none;"
+                >
+
+                    <img
+                        id="bookBanner"
+                        src=""
+                        alt=""
+                    >
+
+                </section>
+
+
+                <!-- =====================================
+                     CHAPTERS
+                ====================================== -->
+
+                <section class="chapters-section">
+
+                    <div class="section-heading">
+
+                        <div>
+
+                            <span class="section-kicker">
+                                READ
+                            </span>
+
+                            <h2>
+                                Chapters
+                            </h2>
+
+                        </div>
+
+                        <span
+                            id="chapterCount"
+                            class="chapter-count"
+                        >
+                            0 Chapters
+                        </span>
+
+                    </div>
+
+
+                    <div
+                        id="chaptersLoading"
+                        class="loading-state small"
+                    >
+                        Loading chapters...
+                    </div>
+
+
+                    <div
+                        id="chaptersEmpty"
+                        class="empty-state"
+                        style="display:none;"
+                    >
+                        No published chapters available yet.
+                    </div>
+
+
+                    <div
+                        id="chaptersList"
+                        class="chapters-list"
+                    ></div>
+
+                </section>
+
+            </article>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<!-- =====================================================
+     FOOTER
+===================================================== -->
+
+<footer class="site-footer">
+
+    <div class="container">
+
+        <div class="footer-inner">
+
+            <div>
+
+                <h3>
+                    Rasbhav Books
+                </h3>
+
+                <p>
+                    Gujarati, Hindi and English books,
+                    stories and literature.
+                </p>
+
+            </div>
+
+
+            <div class="footer-links">
+
+                <a href="/books">
+                    Books
+                </a>
+
+                <a href="/search">
+                    Search
+                </a>
+
+                <a href="/library">
+                    My Library
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <div class="footer-bottom">
+
+            © <span id="currentYear"></span>
+            Rasbhav Books. All rights reserved.
+
+        </div>
+
+    </div>
+
+</footer>
+
+
+<!-- =====================================================
+     BOOK DATA
+===================================================== -->
+
+<script>
+
+"use strict";
+
+const BOOK_SLUG = {{ slug|tojson }};
+
+</script>
+
+
+<script
+    src="{{ url_for('static', filename='js/books.js') }}"
+    defer
+></script>
+
+</body>
+</html>
