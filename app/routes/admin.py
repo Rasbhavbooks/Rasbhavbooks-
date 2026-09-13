@@ -30,6 +30,12 @@ def admin_required():
 
 @admin_bp.route("/panel", methods=["GET"])
 def admin_panel():
+
+    if not session.get("admin_id"):
+        return render_template(
+            "admin/login.html"
+        )
+
     return render_template(
         "admin/dashboard.html"
     )
