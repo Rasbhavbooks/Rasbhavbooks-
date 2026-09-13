@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual Environment
+venv/
+.venv/
+env/
+
+# Environment Variables
+.env
+.env.*
+
+# SQLite database
+*.db
+*.sqlite
+*.sqlite3
+
+# Instance
+instance/*.db
+instance/*.sqlite
+instance/*.sqlite3
+
+# Uploaded files
+app/static/uploads/*
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# PythonAnywhere
+*.log
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
