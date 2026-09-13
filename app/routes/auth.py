@@ -94,3 +94,4 @@ def status():
             "is_super_admin": admin.is_super_admin
         }
     })
+
