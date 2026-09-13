@@ -7,3 +7,12 @@ from app.models.admin import Admin
 from app.models.bookmark import Bookmark
 from app.models.favorite import Favorite
 from app.models.reading_progress import ReadingProgress
+from app.models.page import Page
+from app.models.menu import Menu
+from app.models.menu_item import MenuItem
+from app.models.site_setting import SiteSetting
+from app.models.seo import SEO
+from app.models.media import Media
+from app.models.widget import Widget
+from app.models.layout_section import LayoutSection
+from app.models.book_categories import BookCategory
