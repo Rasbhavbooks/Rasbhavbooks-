@@ -1,136 +1,68 @@
-from flask import Blueprint, jsonify
-
-from app.models.book import Book
-from app.models.seo import SEO
+from app import db
+from datetime import datetime
 
 
-books_bp = Blueprint(
-    "books",
-    __name__,
-    url_prefix="/api/books"
-)
+class SEO(db.Model):
+    __tablename__ = "seo_settings"
 
+    id = db.Column(
+        db.Integer,
+        primary_key=True
+    )
 
-# =========================================================
-# GET ALL PUBLISHED BOOKS
-# =========================================================
+    entity_type = db.Column(
+        db.String(50),
+        nullable=False
+    )
 
-@books_bp.route("", methods=["GET"])
-def get_books():
+    entity_id = db.Column(
+        db.Integer
+    )
 
-    books = Book.query.filter_by(
-        published=True
-    ).order_by(
-        Book.created_at.desc()
-    ).all()
+    meta_title = db.Column(
+        db.String(255)
+    )
 
-    return jsonify([
-        {
-            "id": book.id,
-            "title": book.title,
-            "slug": book.slug,
-            "subtitle": book.subtitle,
-            "short_description": book.short_description,
-            "language": book.language,
-            "cover_image": book.cover_image,
-            "featured": book.featured,
-            "published": book.published
-        }
-        for book in books
-    ])
+    meta_description = db.Column(
+        db.Text
+    )
 
+    focus_keyword = db.Column(
+        db.String(255)
+    )
 
-# =========================================================
-# GET SINGLE PUBLISHED BOOK
-# WITH SEO
-# =========================================================
+    canonical_url = db.Column(
+        db.String(500)
+    )
 
-@books_bp.route("/<slug>", methods=["GET"])
-def get_book(slug):
+    robots = db.Column(
+        db.String(100),
+        default="index, follow"
+    )
 
-    book = Book.query.filter_by(
-        slug=slug,
-        published=True
-    ).first_or_404()
+    og_title = db.Column(
+        db.String(255)
+    )
 
+    og_description = db.Column(
+        db.Text
+    )
 
-    # -----------------------------------------------------
-    # GET BOOK SEO
-    # -----------------------------------------------------
+    og_image = db.Column(
+        db.String(500)
+    )
 
-    seo = SEO.query.filter_by(
-        entity_type="book",
-        entity_id=book.id
-    ).first()
+    schema_data = db.Column(
+        db.Text
+    )
 
+    created_at = db.Column(
+        db.DateTime,
+        default=datetime.utcnow
+    )
 
-    # -----------------------------------------------------
-    # SEO DATA
-    # -----------------------------------------------------
-
-    seo_data = None
-
-    if seo:
-
-        seo_data = {
-            "meta_title": seo.meta_title,
-            "meta_description": seo.meta_description,
-            "focus_keyword": seo.focus_keyword,
-            "canonical_url": seo.canonical_url,
-            "robots": seo.robots,
-            "og_title": seo.og_title,
-            "og_description": seo.og_description,
-            "og_image": seo.og_image,
-            "schema_data": seo.schema_data
-        }
-
-
-    # -----------------------------------------------------
-    # BOOK RESPONSE
-    # -----------------------------------------------------
-
-    return jsonify({
-
-        "id": book.id,
-
-        "title": book.title,
-
-        "slug": book.slug,
-
-        "subtitle": book.subtitle,
-
-        "description": book.description,
-
-        "short_description": book.short_description,
-
-        "author_id": book.author_id,
-
-        "language": book.language,
-
-        "tags": book.tags,
-
-        "cover_image": book.cover_image,
-
-        "banner_image": book.banner_image,
-
-        "featured_image": book.featured_image,
-
-        "status": book.status,
-
-        "featured": book.featured,
-
-        "published": book.published,
-
-        "publish_date": (
-            book.publish_date.isoformat()
-            if book.publish_date
-            else None
-        ),
-
-        # -------------------------------------------------
-        # SEO
-        # -------------------------------------------------
-
-        "seo": seo_data
-
-    })
+    updated_at = db.Column(
+        db.DateTime,
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow
+    )
