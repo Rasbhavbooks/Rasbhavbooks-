@@ -13,6 +13,8 @@ def create_app():
 
     db.init_app(app)
 
+    from app import models
+
     @app.route("/")
     def home():
         return "Rasbhav Books is running!"
