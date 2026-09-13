@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, session
+from flask import Blueprint, render_template, jsonify, session
 
 
 admin_bp = Blueprint(
@@ -25,7 +25,18 @@ def admin_required():
 
 
 # =========================================================
-# ADMIN DASHBOARD
+# ADMIN PANEL PAGE
+# =========================================================
+
+@admin_bp.route("/panel", methods=["GET"])
+def admin_panel():
+    return render_template(
+        "admin/dashboard.html"
+    )
+
+
+# =========================================================
+# ADMIN DASHBOARD STATUS
 # =========================================================
 
 @admin_bp.route("/dashboard", methods=["GET"])
