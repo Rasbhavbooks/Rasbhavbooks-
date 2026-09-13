@@ -15,6 +15,12 @@ def create_app():
 
     from app import models
 
+    from app.routes.category import category_bp
+    from app.routes.author import author_bp
+
+    app.register_blueprint(category_bp)
+    app.register_blueprint(author_bp)
+
     @app.route("/")
     def home():
         return "Rasbhav Books is running!"
