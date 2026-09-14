@@ -74,6 +74,7 @@ def create_app():
     from app.routes.admin_media import admin_media_bp
     from app.routes.admin_pages import admin_pages_bp
     from app.routes.admin_menu import admin_menu_bp
+    from app.routes.admin_menu_items import admin_menu_items_bp
 
 
     # =====================================================
@@ -106,6 +107,7 @@ def create_app():
     app.register_blueprint(admin_media_bp)
     app.register_blueprint(admin_pages_bp)
     app.register_blueprint(admin_menu_bp)
+    app.register_blueprint(admin_menu_items_bp)
 
 
     # =====================================================
