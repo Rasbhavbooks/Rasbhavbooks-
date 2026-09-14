@@ -1,11 +1,8 @@
 # ============================================================
 # RASBHAV BOOKS
 # ADMIN BOOK ROUTES / API
+# ============================================================
 #
-# File:
-# app/routes/admin_books.py
-#
-# Architecture:
 # ADMIN PANEL
 #      ↓
 # ADMIN BOOK API
@@ -18,21 +15,32 @@
 # - Admin authentication
 # - Book CRUD
 # - Slug validation
-# - Publish date validation
-# - SEO CRUD
+# - Author support
+# - Category support
+# - Publish / Draft
+# - Featured control
+# - Publish date
+# - SEO management
 # - JSON-LD Book Schema
 # - Safe JSON responses
-# - Database rollback on errors
+# - Database rollback
 # ============================================================
 
 
-from flask import Blueprint, request, jsonify, session
+from flask import Blueprint, request, jsonify
+
 from datetime import datetime
 import json
 
 from app import db
+
 from app.models.book import Book
 from app.models.seo import SEO
+from app.models.author import Author
+from app.models.category import Category
+from app.models.book_categories import BookCategory
+
+from app.routes.admin import admin_required
 
 
 # ============================================================
@@ -47,34 +55,10 @@ admin_books_bp = Blueprint(
 
 
 # ============================================================
-# ADMIN AUTHENTICATION
-# ============================================================
-
-def admin_required():
-    """
-    Check whether an admin is logged in.
-    """
-
-    if not session.get("admin_id"):
-        return jsonify({
-            "success": False,
-            "message": "Admin login required."
-        }), 401
-
-    return None
-
-
-# ============================================================
 # HELPERS
 # ============================================================
 
 def clean_string(value, default=None):
-    """
-    Convert a value into a clean string.
-
-    Empty strings become default.
-    """
-
     if value is None:
         return default
 
@@ -87,10 +71,6 @@ def clean_string(value, default=None):
 
 
 def parse_bool(value, default=False):
-    """
-    Safely convert common values into boolean.
-    """
-
     if value is None:
         return default
 
@@ -108,7 +88,8 @@ def parse_bool(value, default=False):
             "true",
             "1",
             "yes",
-            "on"
+            "on",
+            "enabled"
         ):
             return True
 
@@ -116,20 +97,30 @@ def parse_bool(value, default=False):
             "false",
             "0",
             "no",
-            "off"
+            "off",
+            "disabled"
         ):
             return False
 
     return default
 
 
-def parse_datetime(value):
-    """
-    Convert ISO datetime string into datetime object.
-    """
+def parse_int(value, default=None):
+    if value is None:
+        return default
 
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def parse_datetime(value):
     if not value:
         return None
+
+    if isinstance(value, datetime):
+        return value
 
     try:
         return datetime.fromisoformat(
@@ -149,13 +140,118 @@ def parse_datetime(value):
 
 
 # ============================================================
+# AUTHOR VALIDATION
+# ============================================================
+
+def validate_author(author_id):
+    if author_id is None:
+        return None
+
+    author_id = parse_int(author_id)
+
+    if author_id is None:
+        raise ValueError(
+            "Invalid author_id."
+        )
+
+    author = Author.query.get(author_id)
+
+    if not author:
+        raise ValueError(
+            "Author not found."
+        )
+
+    return author
+
+
+# ============================================================
+# CATEGORY VALIDATION
+# ============================================================
+
+def normalize_category_ids(value):
+    if value is None:
+        return []
+
+    if isinstance(value, str):
+
+        value = value.strip()
+
+        if not value:
+            return []
+
+        try:
+            value = json.loads(value)
+
+        except (
+            ValueError,
+            TypeError,
+            json.JSONDecodeError
+        ):
+            value = [
+                item.strip()
+                for item in value.split(",")
+                if item.strip()
+            ]
+
+    if not isinstance(value, list):
+        value = [value]
+
+    result = []
+
+    for item in value:
+
+        category_id = parse_int(item)
+
+        if category_id is None:
+            continue
+
+        if category_id not in result:
+            result.append(category_id)
+
+    return result
+
+
+def validate_categories(category_ids):
+
+    if not category_ids:
+        return []
+
+    categories = (
+        Category.query
+        .filter(
+            Category.id.in_(category_ids)
+        )
+        .all()
+    )
+
+    found_ids = {
+        category.id
+        for category in categories
+    }
+
+    missing_ids = [
+        category_id
+        for category_id in category_ids
+        if category_id not in found_ids
+    ]
+
+    if missing_ids:
+        raise ValueError(
+            "Category not found: "
+            + ", ".join(
+                str(item)
+                for item in missing_ids
+            )
+        )
+
+    return categories
+
+
+# ============================================================
 # SEO SCHEMA
 # ============================================================
 
 def build_book_schema(book):
-    """
-    Build Schema.org Book JSON-LD.
-    """
 
     description = (
         book.short_description
@@ -166,11 +262,8 @@ def build_book_schema(book):
     schema = {
         "@context": "https://schema.org",
         "@type": "Book",
-
         "name": book.title,
-
         "url": f"/books/{book.slug}",
-
         "description": description
     }
 
@@ -180,77 +273,29 @@ def build_book_schema(book):
     if book.language:
         schema["inLanguage"] = book.language
 
+    if book.author:
+        schema["author"] = {
+            "@type": "Person",
+            "name": book.author.name
+        }
+
     return schema
 
 
 # ============================================================
-# CREATE DEFAULT SEO
-# ============================================================
-
-def create_default_seo(book):
-    """
-    Create SEO record for a new book.
-    """
-
-    description = (
-        book.short_description
-        or book.description
-        or f"Read {book.title} online on Rasbhav Books."
-    )
-
-    schema = build_book_schema(book)
-
-    seo = SEO(
-        entity_type="book",
-
-        entity_id=book.id,
-
-        meta_title=(
-            f"{book.title} | Rasbhav Books"
-        ),
-
-        meta_description=description,
-
-        focus_keyword=book.title,
-
-        canonical_url=(
-            f"/books/{book.slug}"
-        ),
-
-        robots="index, follow",
-
-        og_title=(
-            f"{book.title} | Rasbhav Books"
-        ),
-
-        og_description=description,
-
-        og_image=book.cover_image,
-
-        schema_data=json.dumps(
-            schema,
-            ensure_ascii=False
-        )
-    )
-
-    db.session.add(seo)
-
-    return seo
-
-
-# ============================================================
-# SAVE / UPDATE BOOK SEO
+# SEO SAVE
 # ============================================================
 
 def save_book_seo(book, data):
-    """
-    Create or update SEO information for a book.
-    """
 
-    seo = SEO.query.filter_by(
-        entity_type="book",
-        entity_id=book.id
-    ).first()
+    seo = (
+        SEO.query
+        .filter_by(
+            entity_type="book",
+            entity_id=book.id
+        )
+        .first()
+    )
 
     if not seo:
 
@@ -267,39 +312,37 @@ def save_book_seo(book, data):
         or f"Read {book.title} online on Rasbhav Books."
     )
 
+    default_title = (
+        f"{book.title} | Rasbhav Books"
+    )
+
+    default_canonical = (
+        f"/books/{book.slug}"
+    )
+
     # --------------------------------------------------------
     # META TITLE
     # --------------------------------------------------------
 
-    meta_title = data.get(
-        "meta_title"
-    )
-
-    if meta_title is not None:
+    if "meta_title" in data:
 
         seo.meta_title = clean_string(
-            meta_title,
-            f"{book.title} | Rasbhav Books"
+            data.get("meta_title"),
+            default_title
         )
 
     elif not seo.meta_title:
 
-        seo.meta_title = (
-            f"{book.title} | Rasbhav Books"
-        )
+        seo.meta_title = default_title
 
     # --------------------------------------------------------
     # META DESCRIPTION
     # --------------------------------------------------------
 
-    meta_description = data.get(
-        "meta_description"
-    )
-
-    if meta_description is not None:
+    if "meta_description" in data:
 
         seo.meta_description = clean_string(
-            meta_description,
+            data.get("meta_description"),
             description
         )
 
@@ -311,14 +354,10 @@ def save_book_seo(book, data):
     # FOCUS KEYWORD
     # --------------------------------------------------------
 
-    focus_keyword = data.get(
-        "focus_keyword"
-    )
-
-    if focus_keyword is not None:
+    if "focus_keyword" in data:
 
         seo.focus_keyword = clean_string(
-            focus_keyword,
+            data.get("focus_keyword"),
             book.title
         )
 
@@ -327,38 +366,28 @@ def save_book_seo(book, data):
         seo.focus_keyword = book.title
 
     # --------------------------------------------------------
-    # CANONICAL URL
+    # CANONICAL
     # --------------------------------------------------------
 
-    canonical_url = data.get(
-        "canonical_url"
-    )
-
-    if canonical_url is not None:
+    if "canonical_url" in data:
 
         seo.canonical_url = clean_string(
-            canonical_url,
-            f"/books/{book.slug}"
+            data.get("canonical_url"),
+            default_canonical
         )
 
     elif not seo.canonical_url:
 
-        seo.canonical_url = (
-            f"/books/{book.slug}"
-        )
+        seo.canonical_url = default_canonical
 
     # --------------------------------------------------------
     # ROBOTS
     # --------------------------------------------------------
 
-    robots = data.get(
-        "robots"
-    )
-
-    if robots is not None:
+    if "robots" in data:
 
         seo.robots = clean_string(
-            robots,
+            data.get("robots"),
             "index, follow"
         )
 
@@ -370,14 +399,10 @@ def save_book_seo(book, data):
     # OPEN GRAPH TITLE
     # --------------------------------------------------------
 
-    og_title = data.get(
-        "og_title"
-    )
-
-    if og_title is not None:
+    if "og_title" in data:
 
         seo.og_title = clean_string(
-            og_title,
+            data.get("og_title"),
             seo.meta_title
         )
 
@@ -389,35 +414,25 @@ def save_book_seo(book, data):
     # OPEN GRAPH DESCRIPTION
     # --------------------------------------------------------
 
-    og_description = data.get(
-        "og_description"
-    )
-
-    if og_description is not None:
+    if "og_description" in data:
 
         seo.og_description = clean_string(
-            og_description,
+            data.get("og_description"),
             seo.meta_description
         )
 
     elif not seo.og_description:
 
-        seo.og_description = (
-            seo.meta_description
-        )
+        seo.og_description = seo.meta_description
 
     # --------------------------------------------------------
     # OPEN GRAPH IMAGE
     # --------------------------------------------------------
 
-    og_image = data.get(
-        "og_image"
-    )
-
-    if og_image is not None:
+    if "og_image" in data:
 
         seo.og_image = clean_string(
-            og_image,
+            data.get("og_image"),
             book.cover_image
         )
 
@@ -426,50 +441,70 @@ def save_book_seo(book, data):
         seo.og_image = book.cover_image
 
     # --------------------------------------------------------
-    # SCHEMA DATA
+    # JSON-LD
     # --------------------------------------------------------
 
-    schema_data = data.get(
-        "schema_data"
-    )
+    if "schema_data" in data:
 
-    if schema_data:
+        schema_data = data.get(
+            "schema_data"
+        )
 
-        if isinstance(
-            schema_data,
-            str
-        ):
+        if schema_data:
 
-            # Validate JSON before saving.
-            try:
+            if isinstance(
+                schema_data,
+                str
+            ):
 
-                json.loads(
-                    schema_data
+                try:
+
+                    parsed_schema = json.loads(
+                        schema_data
+                    )
+
+                except (
+                    ValueError,
+                    TypeError,
+                    json.JSONDecodeError
+                ):
+
+                    raise ValueError(
+                        "Invalid schema_data JSON."
+                    )
+
+                seo.schema_data = json.dumps(
+                    parsed_schema,
+                    ensure_ascii=False
                 )
 
-            except json.JSONDecodeError:
+            elif isinstance(
+                schema_data,
+                (dict, list)
+            ):
+
+                seo.schema_data = json.dumps(
+                    schema_data,
+                    ensure_ascii=False
+                )
+
+            else:
 
                 raise ValueError(
-                    "Invalid schema_data JSON."
+                    "schema_data must be valid JSON."
                 )
-
-            seo.schema_data = schema_data
 
         else:
 
             seo.schema_data = json.dumps(
-                schema_data,
+                build_book_schema(book),
                 ensure_ascii=False
             )
 
     else:
 
-        schema = build_book_schema(
-            book
-        )
-
         seo.schema_data = json.dumps(
-            schema,
+            build_book_schema(book),
             ensure_ascii=False
         )
 
@@ -477,59 +512,138 @@ def save_book_seo(book, data):
 
 
 # ============================================================
+# SEO SERIALIZER
+# ============================================================
+
+def seo_to_dict(seo):
+
+    if not seo:
+        return None
+
+    return {
+
+        "id": seo.id,
+
+        "entity_type":
+            seo.entity_type,
+
+        "entity_id":
+            seo.entity_id,
+
+        "meta_title":
+            seo.meta_title,
+
+        "meta_description":
+            seo.meta_description,
+
+        "focus_keyword":
+            seo.focus_keyword,
+
+        "canonical_url":
+            seo.canonical_url,
+
+        "robots":
+            seo.robots,
+
+        "og_title":
+            seo.og_title,
+
+        "og_description":
+            seo.og_description,
+
+        "og_image":
+            seo.og_image,
+
+        "schema_data":
+            seo.schema_data,
+
+        "created_at": (
+            seo.created_at.isoformat()
+            if seo.created_at
+            else None
+        ),
+
+        "updated_at": (
+            seo.updated_at.isoformat()
+            if seo.updated_at
+            else None
+        )
+    }
+
+
+# ============================================================
+# CATEGORY SERIALIZER
+# ============================================================
+
+def category_to_dict(category):
+
+    return {
+
+        "id":
+            category.id,
+
+        "name":
+            category.name,
+
+        "slug":
+            category.slug,
+
+        "description":
+            category.description,
+
+        "image":
+            category.image,
+
+        "parent_id":
+            category.parent_id
+    }
+
+
+# ============================================================
 # BOOK SERIALIZER
 # ============================================================
 
-def book_data(book):
-    """
-    Convert Book database object into API JSON.
-    """
+def book_to_dict(book):
 
-    seo = SEO.query.filter_by(
-        entity_type="book",
-        entity_id=book.id
-    ).first()
+    categories = []
 
-    seo_data = None
+    try:
 
-    if seo:
+        categories = [
+            category_to_dict(category)
+            for category in book.categories
+        ]
 
-        seo_data = {
+    except Exception:
 
-            "id": seo.id,
+        categories = []
 
-            "entity_type":
-                seo.entity_type,
+    seo = (
+        SEO.query
+        .filter_by(
+            entity_type="book",
+            entity_id=book.id
+        )
+        .first()
+    )
 
-            "entity_id":
-                seo.entity_id,
+    author_data = None
 
-            "meta_title":
-                seo.meta_title,
+    if book.author:
 
-            "meta_description":
-                seo.meta_description,
+        author_data = {
 
-            "focus_keyword":
-                seo.focus_keyword,
+            "id":
+                book.author.id,
 
-            "canonical_url":
-                seo.canonical_url,
+            "name":
+                book.author.name,
 
-            "robots":
-                seo.robots,
+            "slug":
+                book.author.slug,
 
-            "og_title":
-                seo.og_title,
-
-            "og_description":
-                seo.og_description,
-
-            "og_image":
-                seo.og_image,
-
-            "schema_data":
-                seo.schema_data
+            "profile_image":
+                book.author.profile_image
         }
 
     return {
@@ -554,6 +668,9 @@ def book_data(book):
 
         "author_id":
             book.author_id,
+
+        "author":
+            author_data,
 
         "language":
             book.language,
@@ -580,35 +697,71 @@ def book_data(book):
             bool(book.published),
 
         "publish_date": (
-
             book.publish_date.isoformat()
-
             if book.publish_date
-
             else None
         ),
 
+        "categories":
+            categories,
+
+        "category_ids": [
+            category["id"]
+            for category in categories
+        ],
+
+        "seo":
+            seo_to_dict(seo),
+
         "created_at": (
-
             book.created_at.isoformat()
-
             if book.created_at
-
             else None
         ),
 
         "updated_at": (
-
             book.updated_at.isoformat()
-
             if book.updated_at
-
             else None
-        ),
-
-        "seo":
-            seo_data
+        )
     }
+
+
+# ============================================================
+# UPDATE BOOK CATEGORIES
+# ============================================================
+
+def update_book_categories(
+    book,
+    category_ids
+):
+
+    category_ids = normalize_category_ids(
+        category_ids
+    )
+
+    categories = validate_categories(
+        category_ids
+    )
+
+    BookCategory.query.filter_by(
+        book_id=book.id
+    ).delete(
+        synchronize_session=False
+    )
+
+    for category in categories:
+
+        relation = BookCategory(
+            book_id=book.id,
+            category_id=category.id
+        )
+
+        db.session.add(
+            relation
+        )
+
+    return categories
 
 
 # ============================================================
@@ -617,6 +770,10 @@ def book_data(book):
 
 @admin_books_bp.route(
     "",
+    methods=["GET"]
+)
+@admin_books_bp.route(
+    "/",
     methods=["GET"]
 )
 def get_books():
@@ -628,22 +785,117 @@ def get_books():
 
     try:
 
-        books = Book.query.order_by(
-            Book.created_at.desc()
-        ).all()
+        query = Book.query
+
+        # ----------------------------------------------------
+        # SEARCH
+        # ----------------------------------------------------
+
+        search = clean_string(
+            request.args.get("search")
+        )
+
+        if search:
+
+            pattern = f"%{search}%"
+
+            query = query.filter(
+                db.or_(
+                    Book.title.ilike(pattern),
+                    Book.slug.ilike(pattern),
+                    Book.description.ilike(pattern),
+                    Book.short_description.ilike(pattern),
+                    Book.language.ilike(pattern),
+                    Book.tags.ilike(pattern)
+                )
+            )
+
+        # ----------------------------------------------------
+        # STATUS FILTER
+        # ----------------------------------------------------
+
+        status = clean_string(
+            request.args.get("status")
+        )
+
+        if status:
+
+            query = query.filter(
+                Book.status == status
+            )
+
+        # ----------------------------------------------------
+        # PUBLISHED FILTER
+        # ----------------------------------------------------
+
+        if "published" in request.args:
+
+            published = parse_bool(
+                request.args.get(
+                    "published"
+                )
+            )
+
+            query = query.filter(
+                Book.published == published
+            )
+
+        # ----------------------------------------------------
+        # FEATURED FILTER
+        # ----------------------------------------------------
+
+        if "featured" in request.args:
+
+            featured = parse_bool(
+                request.args.get(
+                    "featured"
+                )
+            )
+
+            query = query.filter(
+                Book.featured == featured
+            )
+
+        # ----------------------------------------------------
+        # LIMIT
+        # ----------------------------------------------------
+
+        limit = parse_int(
+            request.args.get(
+                "limit"
+            ),
+            50
+        )
+
+        if limit < 1:
+            limit = 1
+
+        if limit > 200:
+            limit = 200
+
+        books = (
+            query
+            .order_by(
+                Book.created_at.desc()
+            )
+            .limit(limit)
+            .all()
+        )
 
         return jsonify({
 
-            "success": True,
+            "success":
+                True,
 
-            "count": len(books),
+            "count":
+                len(books),
 
             "books": [
-                book_data(book)
+                book_to_dict(book)
                 for book in books
             ]
 
-        })
+        }), 200
 
     except Exception as error:
 
@@ -651,7 +903,8 @@ def get_books():
 
         return jsonify({
 
-            "success": False,
+            "success":
+                False,
 
             "message":
                 "Unable to load books.",
@@ -687,7 +940,8 @@ def get_book(book_id):
 
             return jsonify({
 
-                "success": False,
+                "success":
+                    False,
 
                 "message":
                     "Book not found."
@@ -696,12 +950,13 @@ def get_book(book_id):
 
         return jsonify({
 
-            "success": True,
+            "success":
+                True,
 
             "book":
-                book_data(book)
+                book_to_dict(book)
 
-        })
+        }), 200
 
     except Exception as error:
 
@@ -709,7 +964,8 @@ def get_book(book_id):
 
         return jsonify({
 
-            "success": False,
+            "success":
+                False,
 
             "message":
                 "Unable to load book.",
@@ -728,6 +984,10 @@ def get_book(book_id):
     "",
     methods=["POST"]
 )
+@admin_books_bp.route(
+    "/",
+    methods=["POST"]
+)
 def create_book():
 
     auth_error = admin_required()
@@ -739,150 +999,190 @@ def create_book():
         silent=True
     ) or {}
 
-    title = clean_string(
-        data.get("title")
-    )
-
-    slug = clean_string(
-        data.get("slug")
-    )
-
-    # --------------------------------------------------------
-    # REQUIRED TITLE
-    # --------------------------------------------------------
-
-    if not title:
-
-        return jsonify({
-
-            "success": False,
-
-            "message":
-                "Book title is required."
-
-        }), 400
-
-    # --------------------------------------------------------
-    # REQUIRED SLUG
-    # --------------------------------------------------------
-
-    if not slug:
-
-        return jsonify({
-
-            "success": False,
-
-            "message":
-                "Book slug is required."
-
-        }), 400
-
-    # --------------------------------------------------------
-    # SLUG CHECK
-    # --------------------------------------------------------
-
-    existing_book = Book.query.filter_by(
-        slug=slug
-    ).first()
-
-    if existing_book:
-
-        return jsonify({
-
-            "success": False,
-
-            "message":
-                "Book slug already exists."
-
-        }), 409
-
-    # --------------------------------------------------------
-    # PUBLISH DATE
-    # --------------------------------------------------------
-
     try:
+
+        # ----------------------------------------------------
+        # REQUIRED
+        # ----------------------------------------------------
+
+        title = clean_string(
+            data.get("title")
+        )
+
+        slug = clean_string(
+            data.get("slug")
+        )
+
+        if not title:
+
+            return jsonify({
+
+                "success":
+                    False,
+
+                "message":
+                    "Book title is required."
+
+            }), 400
+
+        if not slug:
+
+            return jsonify({
+
+                "success":
+                    False,
+
+                "message":
+                    "Book slug is required."
+
+            }), 400
+
+        # ----------------------------------------------------
+        # SLUG UNIQUE
+        # ----------------------------------------------------
+
+        existing = (
+            Book.query
+            .filter_by(slug=slug)
+            .first()
+        )
+
+        if existing:
+
+            return jsonify({
+
+                "success":
+                    False,
+
+                "message":
+                    "Book slug already exists."
+
+            }), 409
+
+        # ----------------------------------------------------
+        # AUTHOR
+        # ----------------------------------------------------
+
+        author_id = data.get(
+            "author_id"
+        )
+
+        validate_author(
+            author_id
+        )
+
+        # ----------------------------------------------------
+        # CATEGORIES
+        # ----------------------------------------------------
+
+        category_ids = normalize_category_ids(
+            data.get("category_ids")
+        )
+
+        validate_categories(
+            category_ids
+        )
+
+        # ----------------------------------------------------
+        # PUBLISH DATE
+        # ----------------------------------------------------
 
         publish_date = parse_datetime(
             data.get("publish_date")
         )
 
-    except ValueError as error:
+        # ----------------------------------------------------
+        # STATUS
+        # ----------------------------------------------------
 
-        return jsonify({
-
-            "success": False,
-
-            "message":
-                str(error)
-
-        }), 400
-
-    # --------------------------------------------------------
-    # CREATE BOOK
-    # --------------------------------------------------------
-
-    book = Book(
-
-        title=title,
-
-        slug=slug,
-
-        subtitle=clean_string(
-            data.get("subtitle")
-        ),
-
-        description=clean_string(
-            data.get("description")
-        ),
-
-        short_description=clean_string(
-            data.get("short_description")
-        ),
-
-        author_id=data.get(
-            "author_id"
-        ),
-
-        language=clean_string(
-            data.get("language")
-        ),
-
-        tags=clean_string(
-            data.get("tags")
-        ),
-
-        cover_image=clean_string(
-            data.get("cover_image")
-        ),
-
-        banner_image=clean_string(
-            data.get("banner_image")
-        ),
-
-        featured_image=clean_string(
-            data.get("featured_image")
-        ),
-
-        status=clean_string(
+        status = clean_string(
             data.get("status"),
             "draft"
-        ),
+        )
 
-        featured=parse_bool(
-            data.get("featured"),
-            False
-        ),
+        allowed_statuses = (
+            "draft",
+            "published",
+            "private"
+        )
 
-        published=parse_bool(
+        if status not in allowed_statuses:
+
+            return jsonify({
+
+                "success":
+                    False,
+
+                "message":
+                    "Invalid book status."
+
+            }), 400
+
+        published = parse_bool(
             data.get("published"),
-            False
-        ),
+            status == "published"
+        )
 
-        publish_date=publish_date
+        # ----------------------------------------------------
+        # CREATE
+        # ----------------------------------------------------
 
-    )
+        book = Book(
 
-    try:
+            title=title,
+
+            slug=slug,
+
+            subtitle=clean_string(
+                data.get("subtitle")
+            ),
+
+            description=clean_string(
+                data.get("description")
+            ),
+
+            short_description=clean_string(
+                data.get("short_description")
+            ),
+
+            author_id=(
+                parse_int(author_id)
+                if author_id is not None
+                else None
+            ),
+
+            language=clean_string(
+                data.get("language")
+            ),
+
+            tags=clean_string(
+                data.get("tags")
+            ),
+
+            cover_image=clean_string(
+                data.get("cover_image")
+            ),
+
+            banner_image=clean_string(
+                data.get("banner_image")
+            ),
+
+            featured_image=clean_string(
+                data.get("featured_image")
+            ),
+
+            status=status,
+
+            featured=parse_bool(
+                data.get("featured"),
+                False
+            ),
+
+            published=published,
+
+            publish_date=publish_date
+
+        )
 
         db.session.add(
             book
@@ -891,25 +1191,43 @@ def create_book():
         db.session.flush()
 
         # ----------------------------------------------------
+        # CATEGORIES
+        # ----------------------------------------------------
+
+        update_book_categories(
+            book,
+            category_ids
+        )
+
+        # ----------------------------------------------------
         # SEO
         # ----------------------------------------------------
 
         save_book_seo(
             book,
-            data
+            data.get(
+                "seo",
+                {}
+            )
+            if isinstance(
+                data.get("seo"),
+                dict
+            )
+            else {}
         )
 
         db.session.commit()
 
         return jsonify({
 
-            "success": True,
+            "success":
+                True,
 
             "message":
                 "Book created successfully.",
 
             "book":
-                book_data(book)
+                book_to_dict(book)
 
         }), 201
 
@@ -919,7 +1237,8 @@ def create_book():
 
         return jsonify({
 
-            "success": False,
+            "success":
+                False,
 
             "message":
                 str(error)
@@ -932,7 +1251,8 @@ def create_book():
 
         return jsonify({
 
-            "success": False,
+            "success":
+                False,
 
             "message":
                 "Unable to create book.",
@@ -949,7 +1269,7 @@ def create_book():
 
 @admin_books_bp.route(
     "/<int:book_id>",
-    methods=["PUT"]
+    methods=["PUT", "PATCH"]
 )
 def update_book(book_id):
 
@@ -958,208 +1278,268 @@ def update_book(book_id):
     if auth_error:
         return auth_error
 
-    book = Book.query.get(
-        book_id
-    )
-
-    if not book:
-
-        return jsonify({
-
-            "success": False,
-
-            "message":
-                "Book not found."
-
-        }), 404
-
     data = request.get_json(
         silent=True
     ) or {}
 
-    # --------------------------------------------------------
-    # TITLE
-    # --------------------------------------------------------
-
-    if "title" in data:
-
-        title = clean_string(
-            data.get("title")
-        )
-
-        if not title:
-
-            return jsonify({
-
-                "success": False,
-
-                "message":
-                    "Book title cannot be empty."
-
-            }), 400
-
-        book.title = title
-
-    # --------------------------------------------------------
-    # SLUG
-    # --------------------------------------------------------
-
-    if "slug" in data:
-
-        slug = clean_string(
-            data.get("slug")
-        )
-
-        if not slug:
-
-            return jsonify({
-
-                "success": False,
-
-                "message":
-                    "Book slug cannot be empty."
-
-            }), 400
-
-        existing = Book.query.filter(
-            Book.slug == slug,
-            Book.id != book.id
-        ).first()
-
-        if existing:
-
-            return jsonify({
-
-                "success": False,
-
-                "message":
-                    "Book slug already exists."
-
-            }), 409
-
-        book.slug = slug
-
-    # --------------------------------------------------------
-    # NORMAL FIELDS
-    # --------------------------------------------------------
-
-    fields = [
-
-        "subtitle",
-
-        "description",
-
-        "short_description",
-
-        "author_id",
-
-        "language",
-
-        "tags",
-
-        "cover_image",
-
-        "banner_image",
-
-        "featured_image",
-
-        "status"
-
-    ]
-
-    for field in fields:
-
-        if field in data:
-
-            value = data[field]
-
-            if isinstance(
-                value,
-                str
-            ):
-
-                value = (
-                    value.strip()
-                    or None
-                )
-
-            setattr(
-                book,
-                field,
-                value
-            )
-
-    # --------------------------------------------------------
-    # FEATURED
-    # --------------------------------------------------------
-
-    if "featured" in data:
-
-        book.featured = parse_bool(
-            data.get("featured")
-        )
-
-    # --------------------------------------------------------
-    # PUBLISHED
-    # --------------------------------------------------------
-
-    if "published" in data:
-
-        book.published = parse_bool(
-            data.get("published")
-        )
-
-    # --------------------------------------------------------
-    # PUBLISH DATE
-    # --------------------------------------------------------
-
-    if "publish_date" in data:
-
-        try:
-
-            book.publish_date = (
-                parse_datetime(
-                    data.get(
-                        "publish_date"
-                    )
-                )
-            )
-
-        except ValueError as error:
-
-            return jsonify({
-
-                "success": False,
-
-                "message":
-                    str(error)
-
-            }), 400
-
-    # --------------------------------------------------------
-    # UPDATE SEO
-    # --------------------------------------------------------
-
     try:
 
-        save_book_seo(
-            book,
-            data
+        book = Book.query.get(
+            book_id
         )
+
+        if not book:
+
+            return jsonify({
+
+                "success":
+                    False,
+
+                "message":
+                    "Book not found."
+
+            }), 404
+
+        # ----------------------------------------------------
+        # TITLE
+        # ----------------------------------------------------
+
+        if "title" in data:
+
+            title = clean_string(
+                data.get("title")
+            )
+
+            if not title:
+
+                return jsonify({
+
+                    "success":
+                        False,
+
+                    "message":
+                        "Book title cannot be empty."
+
+                }), 400
+
+            book.title = title
+
+        # ----------------------------------------------------
+        # SLUG
+        # ----------------------------------------------------
+
+        if "slug" in data:
+
+            slug = clean_string(
+                data.get("slug")
+            )
+
+            if not slug:
+
+                return jsonify({
+
+                    "success":
+                        False,
+
+                    "message":
+                        "Book slug cannot be empty."
+
+                }), 400
+
+            existing = (
+                Book.query
+                .filter(
+                    Book.slug == slug,
+                    Book.id != book.id
+                )
+                .first()
+            )
+
+            if existing:
+
+                return jsonify({
+
+                    "success":
+                        False,
+
+                    "message":
+                        "Book slug already exists."
+
+                }), 409
+
+            book.slug = slug
+
+        # ----------------------------------------------------
+        # TEXT FIELDS
+        # ----------------------------------------------------
+
+        fields = [
+
+            "subtitle",
+            "description",
+            "short_description",
+            "language",
+            "tags",
+            "cover_image",
+            "banner_image",
+            "featured_image"
+        ]
+
+        for field in fields:
+
+            if field in data:
+
+                setattr(
+                    book,
+                    field,
+                    clean_string(
+                        data.get(field)
+                    )
+                )
+
+        # ----------------------------------------------------
+        # AUTHOR
+        # ----------------------------------------------------
+
+        if "author_id" in data:
+
+            author_id = data.get(
+                "author_id"
+            )
+
+            validate_author(
+                author_id
+            )
+
+            book.author_id = (
+                parse_int(author_id)
+                if author_id is not None
+                else None
+            )
+
+        # ----------------------------------------------------
+        # STATUS
+        # ----------------------------------------------------
+
+        if "status" in data:
+
+            status = clean_string(
+                data.get("status")
+            )
+
+            allowed_statuses = (
+                "draft",
+                "published",
+                "private"
+            )
+
+            if status not in allowed_statuses:
+
+                return jsonify({
+
+                    "success":
+                        False,
+
+                    "message":
+                        "Invalid book status."
+
+                }), 400
+
+            book.status = status
+
+            if status == "published":
+                book.published = True
+
+            elif status == "draft":
+                book.published = False
+
+            elif status == "private":
+                book.published = False
+
+        # ----------------------------------------------------
+        # PUBLISHED
+        # ----------------------------------------------------
+
+        if "published" in data:
+
+            book.published = parse_bool(
+                data.get("published"),
+                book.published
+            )
+
+            if book.published:
+                book.status = "published"
+
+        # ----------------------------------------------------
+        # FEATURED
+        # ----------------------------------------------------
+
+        if "featured" in data:
+
+            book.featured = parse_bool(
+                data.get("featured"),
+                book.featured
+            )
+
+        # ----------------------------------------------------
+        # PUBLISH DATE
+        # ----------------------------------------------------
+
+        if "publish_date" in data:
+
+            book.publish_date = parse_datetime(
+                data.get("publish_date")
+            )
+
+        # ----------------------------------------------------
+        # CATEGORIES
+        # ----------------------------------------------------
+
+        if "category_ids" in data:
+
+            update_book_categories(
+                book,
+                data.get(
+                    "category_ids"
+                )
+            )
+
+        # ----------------------------------------------------
+        # SEO
+        # ----------------------------------------------------
+
+        seo_data = data.get(
+            "seo"
+        )
+
+        if isinstance(
+            seo_data,
+            dict
+        ):
+
+            save_book_seo(
+                book,
+                seo_data
+            )
+
+        # ----------------------------------------------------
+        # COMMIT
+        # ----------------------------------------------------
 
         db.session.commit()
 
         return jsonify({
 
-            "success": True,
+            "success":
+                True,
 
             "message":
                 "Book updated successfully.",
 
             "book":
-                book_data(book)
+                book_to_dict(book)
 
-        })
+        }), 200
 
     except ValueError as error:
 
@@ -1167,7 +1547,8 @@ def update_book(book_id):
 
         return jsonify({
 
-            "success": False,
+            "success":
+                False,
 
             "message":
                 str(error)
@@ -1180,7 +1561,8 @@ def update_book(book_id):
 
         return jsonify({
 
-            "success": False,
+            "success":
+                False,
 
             "message":
                 "Unable to update book.",
@@ -1206,33 +1588,41 @@ def delete_book(book_id):
     if auth_error:
         return auth_error
 
-    book = Book.query.get(
-        book_id
-    )
-
-    if not book:
-
-        return jsonify({
-
-            "success": False,
-
-            "message":
-                "Book not found."
-
-        }), 404
-
     try:
 
+        book = Book.query.get(
+            book_id
+        )
+
+        if not book:
+
+            return jsonify({
+
+                "success":
+                    False,
+
+                "message":
+                    "Book not found."
+
+            }), 404
+
         # ----------------------------------------------------
-        # DELETE BOOK SEO
+        # DELETE SEO
         # ----------------------------------------------------
 
         SEO.query.filter_by(
-
             entity_type="book",
-
             entity_id=book.id
+        ).delete(
+            synchronize_session=False
+        )
 
+        # ----------------------------------------------------
+        # DELETE CATEGORY RELATIONS
+        # ----------------------------------------------------
+
+        BookCategory.query.filter_by(
+            book_id=book.id
         ).delete(
             synchronize_session=False
         )
@@ -1249,12 +1639,16 @@ def delete_book(book_id):
 
         return jsonify({
 
-            "success": True,
+            "success":
+                True,
 
             "message":
-                "Book deleted successfully."
+                "Book deleted successfully.",
 
-        })
+            "book_id":
+                book_id
+
+        }), 200
 
     except Exception as error:
 
@@ -1262,7 +1656,8 @@ def delete_book(book_id):
 
         return jsonify({
 
-            "success": False,
+            "success":
+                False,
 
             "message":
                 "Unable to delete book.",
@@ -1274,5 +1669,232 @@ def delete_book(book_id):
 
 
 # ============================================================
-# END OF ADMIN BOOK ROUTES
+# PUBLISH BOOK
 # ============================================================
+
+@admin_books_bp.route(
+    "/<int:book_id>/publish",
+    methods=["POST"]
+)
+def publish_book(book_id):
+
+    auth_error = admin_required()
+
+    if auth_error:
+        return auth_error
+
+    try:
+
+        book = Book.query.get(
+            book_id
+        )
+
+        if not book:
+
+            return jsonify({
+
+                "success":
+                    False,
+
+                "message":
+                    "Book not found."
+
+            }), 404
+
+        book.published = True
+        book.status = "published"
+
+        if not book.publish_date:
+
+            book.publish_date = datetime.utcnow()
+
+        save_book_seo(
+            book,
+            {}
+        )
+
+        db.session.commit()
+
+        return jsonify({
+
+            "success":
+                True,
+
+            "message":
+                "Book published successfully.",
+
+            "book":
+                book_to_dict(book)
+
+        }), 200
+
+    except Exception as error:
+
+        db.session.rollback()
+
+        return jsonify({
+
+            "success":
+                False,
+
+            "message":
+                "Unable to publish book.",
+
+            "error":
+                str(error)
+
+        }), 500
+
+
+# ============================================================
+# UNPUBLISH BOOK
+# ============================================================
+
+@admin_books_bp.route(
+    "/<int:book_id>/unpublish",
+    methods=["POST"]
+)
+def unpublish_book(book_id):
+
+    auth_error = admin_required()
+
+    if auth_error:
+        return auth_error
+
+    try:
+
+        book = Book.query.get(
+            book_id
+        )
+
+        if not book:
+
+            return jsonify({
+
+                "success":
+                    False,
+
+                "message":
+                    "Book not found."
+
+            }), 404
+
+        book.published = False
+        book.status = "draft"
+
+        db.session.commit()
+
+        return jsonify({
+
+            "success":
+                True,
+
+            "message":
+                "Book moved to draft.",
+
+            "book":
+                book_to_dict(book)
+
+        }), 200
+
+    except Exception as error:
+
+        db.session.rollback()
+
+        return jsonify({
+
+            "success":
+                False,
+
+            "message":
+                "Unable to unpublish book.",
+
+            "error":
+                str(error)
+
+        }), 500
+
+
+# ============================================================
+# FEATURED BOOK TOGGLE
+# ============================================================
+
+@admin_books_bp.route(
+    "/<int:book_id>/featured",
+    methods=["POST"]
+)
+def toggle_featured(book_id):
+
+    auth_error = admin_required()
+
+    if auth_error:
+        return auth_error
+
+    data = request.get_json(
+        silent=True
+    ) or {}
+
+    try:
+
+        book = Book.query.get(
+            book_id
+        )
+
+        if not book:
+
+            return jsonify({
+
+                "success":
+                    False,
+
+                "message":
+                    "Book not found."
+
+            }), 404
+
+        if "featured" in data:
+
+            book.featured = parse_bool(
+                data.get("featured")
+            )
+
+        else:
+
+            book.featured = not bool(
+                book.featured
+            )
+
+        db.session.commit()
+
+        return jsonify({
+
+            "success":
+                True,
+
+            "message":
+                "Featured status updated.",
+
+            "featured":
+                bool(book.featured),
+
+            "book":
+                book_to_dict(book)
+
+        }), 200
+
+    except Exception as error:
+
+        db.session.rollback()
+
+        return jsonify({
+
+            "success":
+                False,
+
+            "message":
+                "Unable to update featured status.",
+
+            "error":
+                str(error)
+
+        }), 500
