@@ -1,42 +1,17 @@
 # ============================================================
 # RASBHAV BOOKS
-# ADMIN MENU CMS ROUTES / API
+# ADMIN MENU ROUTES
+# Flask + SQLAlchemy
 # ============================================================
-#
-# ADMIN PANEL
-#      ↓
-# MENU CMS API
-#      ↓
-# DATABASE
-#      ↓
-# PUBLIC WEBSITE
-#
-# Features:
-# - Menu CRUD
-# - Search
-# - Location filter
-# - Active / inactive filter
-# - Menu items listing
-# - Activate menu
-# - Deactivate menu
-# - Safe validation
-# - Central admin authentication
-# ============================================================
-
 
 from flask import Blueprint, request, jsonify
+from sqlalchemy import or_
+from sqlalchemy.exc import IntegrityError
 
 from app import db
-
 from app.models.menu import Menu
-from app.models.menu_item import MenuItem
-
 from app.routes.admin import admin_required
 
-
-# ============================================================
-# BLUEPRINT
-# ============================================================
 
 admin_menu_bp = Blueprint(
     "admin_menu",
@@ -46,691 +21,257 @@ admin_menu_bp = Blueprint(
 
 
 # ============================================================
-# ALLOWED LOCATIONS
-# ============================================================
-
-ALLOWED_LOCATIONS = {
-    "header",
-    "footer",
-    "mobile",
-    "sidebar",
-    "custom"
-}
-
-
-# ============================================================
 # HELPERS
 # ============================================================
 
-def clean_string(value, default=None):
-
-    if value is None:
-        return default
-
-    value = str(value).strip()
-
-    if not value:
-        return default
-
-    return value
-
-
-# ============================================================
-# BOOLEAN PARSER
-# ============================================================
-
-def parse_bool(value, default=None):
-
-    if value is None:
-        return default
-
-    if isinstance(value, bool):
-        return value
-
-    if isinstance(value, int):
-        return bool(value)
-
-    value = str(value).strip().lower()
-
-    if value in {
-        "1",
-        "true",
-        "yes",
-        "on",
-        "active",
-        "enabled"
-    }:
-        return True
-
-    if value in {
-        "0",
-        "false",
-        "no",
-        "off",
-        "inactive",
-        "disabled"
-    }:
-        return False
-
-    return default
-
-
-# ============================================================
-# INTEGER PARSER
-# ============================================================
-
-def parse_int(value, default=None):
-
-    if value is None:
-        return default
-
-    try:
-        return int(value)
-
-    except (
-        TypeError,
-        ValueError
-    ):
-        return default
-
-
-# ============================================================
-# MENU ITEM SERIALIZER
-# ============================================================
-
-def menu_item_to_dict(item):
-
+def serialize_menu(menu):
     return {
-
-        "id":
-            item.id,
-
-        "menu_id":
-            item.menu_id,
-
-        "name":
-            item.name,
-
-        "item_type":
-            item.item_type,
-
-        "url":
-            item.url,
-
-        "page_id":
-            item.page_id,
-
-        "book_id":
-            item.book_id,
-
-        "category_id":
-            item.category_id,
-
-        "open_new_tab":
-            bool(item.open_new_tab),
-
-        "position":
-            item.position,
-
-        "is_active":
-            bool(item.is_active),
-
-        "page": (
-            {
-                "id": item.page.id,
-                "title": item.page.title,
-                "slug": item.page.slug
-            }
-            if item.page
-            else None
-        ),
-
-        "book": (
-            {
-                "id": item.book.id,
-                "title": item.book.title,
-                "slug": item.book.slug
-            }
-            if item.book
-            else None
-        ),
-
-        "category": (
-            {
-                "id": item.category.id,
-                "name": item.category.name,
-                "slug": item.category.slug
-            }
-            if item.category
-            else None
-        ),
-
-        "created_at": (
-            item.created_at.isoformat()
-            if item.created_at
-            else None
-        ),
-
-        "updated_at": (
-            item.updated_at.isoformat()
-            if item.updated_at
-            else None
-        )
-    }
-
-
-# ============================================================
-# MENU SERIALIZER
-# ============================================================
-
-def menu_to_dict(
-    menu,
-    include_items=True
-):
-
-    data = {
-
-        "id":
-            menu.id,
-
-        "name":
-            menu.get_name(),
-
-        "location":
-            menu.get_location(),
-
-        "is_active":
-            bool(menu.is_active),
-
-        "description":
-            menu.description,
-
-        "has_description":
-            menu.has_description(),
-
+        "id": menu.id,
+        "name": menu.name,
+        "location": menu.location,
+        "description": menu.description,
+        "is_active": menu.is_active,
         "created_at": (
             menu.created_at.isoformat()
-            if menu.created_at
-            else None
+            if menu.created_at else None
         ),
-
         "updated_at": (
             menu.updated_at.isoformat()
-            if menu.updated_at
-            else None
-        )
+            if menu.updated_at else None
+        ),
     }
 
-    # --------------------------------------------------------
-    # ITEMS
-    # --------------------------------------------------------
 
-    if include_items:
-
-        try:
-
-            items = (
-                MenuItem.query
-                .filter_by(
-                    menu_id=menu.id
-                )
-                .order_by(
-                    MenuItem.position.asc(),
-                    MenuItem.id.asc()
-                )
-                .all()
-            )
-
-            data["items"] = [
-                menu_item_to_dict(item)
-                for item in items
-            ]
-
-            data["item_count"] = len(items)
-
-            data["active_item_count"] = sum(
-                1
-                for item in items
-                if item.is_active
-            )
-
-        except Exception:
-
-            data["items"] = []
-
-            data["item_count"] = 0
-
-            data["active_item_count"] = 0
-
-    return data
+def get_json_data():
+    return request.get_json(silent=True) or {}
 
 
 # ============================================================
 # GET ALL MENUS
 # ============================================================
 
-@admin_menu_bp.route(
-    "",
-    methods=["GET"]
-)
-@admin_menu_bp.route(
-    "/",
-    methods=["GET"]
-)
+@admin_menu_bp.route("", methods=["GET"])
+@admin_required
 def get_menus():
 
-    auth_error = admin_required()
+    search = request.args.get("search", "").strip()
+    location = request.args.get("location", "").strip()
+    active = request.args.get("active", "").strip().lower()
 
-    if auth_error:
-        return auth_error
+    query = Menu.query
 
-    try:
+    # --------------------------------------------------------
+    # SEARCH
+    # --------------------------------------------------------
 
-        query = Menu.query
+    if search:
+        search_pattern = f"%{search}%"
 
-        # ----------------------------------------------------
-        # SEARCH
-        # ----------------------------------------------------
-
-        search = clean_string(
-            request.args.get("search")
-        )
-
-        if search:
-
-            pattern = f"%{search}%"
-
-            query = query.filter(
-                db.or_(
-                    Menu.name.ilike(pattern),
-                    Menu.location.ilike(pattern),
-                    Menu.description.ilike(pattern)
-                )
+        query = query.filter(
+            or_(
+                Menu.name.ilike(search_pattern),
+                Menu.location.ilike(search_pattern),
+                Menu.description.ilike(search_pattern)
             )
-
-        # ----------------------------------------------------
-        # LOCATION
-        # ----------------------------------------------------
-
-        location = clean_string(
-            request.args.get("location")
         )
 
-        if location:
+    # --------------------------------------------------------
+    # LOCATION FILTER
+    # --------------------------------------------------------
 
-            location = location.lower()
-
-            query = query.filter(
-                Menu.location == location
-            )
-
-        # ----------------------------------------------------
-        # ACTIVE FILTER
-        # ----------------------------------------------------
-
-        is_active = parse_bool(
-            request.args.get("is_active")
+    if location:
+        query = query.filter(
+            Menu.location == location
         )
 
-        if is_active is not None:
+    # --------------------------------------------------------
+    # ACTIVE FILTER
+    # --------------------------------------------------------
 
-            query = query.filter(
-                Menu.is_active == is_active
-            )
-
-        # ----------------------------------------------------
-        # ORDER
-        # ----------------------------------------------------
-
-        menus = (
-            query
-            .order_by(
-                Menu.name.asc(),
-                Menu.id.asc()
-            )
-            .all()
+    if active in ("1", "true", "yes"):
+        query = query.filter(
+            Menu.is_active.is_(True)
         )
 
-        # ----------------------------------------------------
-        # LIMIT
-        # ----------------------------------------------------
-
-        limit = parse_int(
-            request.args.get("limit"),
-            100
+    elif active in ("0", "false", "no"):
+        query = query.filter(
+            Menu.is_active.is_(False)
         )
 
-        if limit is None or limit < 1:
-            limit = 1
+    # --------------------------------------------------------
+    # ORDER
+    # --------------------------------------------------------
 
-        if limit > 500:
-            limit = 500
+    menus = query.order_by(
+        Menu.id.asc()
+    ).all()
 
-        menus = menus[:limit]
-
-        return jsonify({
-
-            "success":
-                True,
-
-            "count":
-                len(menus),
-
-            "menus":
-                [
-                    menu_to_dict(menu)
-                    for menu in menus
-                ]
-
-        }), 200
-
-    except Exception as error:
-
-        return jsonify({
-
-            "success":
-                False,
-
-            "message":
-                "Unable to load menus.",
-
-            "error":
-                str(error)
-
-        }), 500
+    return jsonify({
+        "success": True,
+        "count": len(menus),
+        "menus": [
+            serialize_menu(menu)
+            for menu in menus
+        ]
+    }), 200
 
 
 # ============================================================
 # GET SINGLE MENU
 # ============================================================
 
-@admin_menu_bp.route(
-    "/<int:menu_id>",
-    methods=["GET"]
-)
+@admin_menu_bp.route("/<int:menu_id>", methods=["GET"])
+@admin_required
 def get_menu(menu_id):
-
-    auth_error = admin_required()
-
-    if auth_error:
-        return auth_error
 
     menu = Menu.query.get(menu_id)
 
     if not menu:
-
         return jsonify({
-
-            "success":
-                False,
-
-            "message":
-                "Menu not found."
-
+            "success": False,
+            "message": "Menu not found"
         }), 404
 
     return jsonify({
-
-        "success":
-            True,
-
-        "menu":
-            menu_to_dict(menu)
-
+        "success": True,
+        "menu": serialize_menu(menu)
     }), 200
-
-
-# ============================================================
-# GET MENU ITEMS
-# ============================================================
-
-@admin_menu_bp.route(
-    "/<int:menu_id>/items",
-    methods=["GET"]
-)
-def get_menu_items(menu_id):
-
-    auth_error = admin_required()
-
-    if auth_error:
-        return auth_error
-
-    menu = Menu.query.get(menu_id)
-
-    if not menu:
-
-        return jsonify({
-
-            "success":
-                False,
-
-            "message":
-                "Menu not found."
-
-        }), 404
-
-    try:
-
-        items = (
-            MenuItem.query
-            .filter_by(
-                menu_id=menu.id
-            )
-            .order_by(
-                MenuItem.position.asc(),
-                MenuItem.id.asc()
-            )
-            .all()
-        )
-
-        return jsonify({
-
-            "success":
-                True,
-
-            "menu":
-                {
-                    "id": menu.id,
-                    "name": menu.name,
-                    "location": menu.location
-                },
-
-            "count":
-                len(items),
-
-            "items":
-                [
-                    menu_item_to_dict(item)
-                    for item in items
-                ]
-
-        }), 200
-
-    except Exception as error:
-
-        return jsonify({
-
-            "success":
-                False,
-
-            "message":
-                "Unable to load menu items.",
-
-            "error":
-                str(error)
-
-        }), 500
 
 
 # ============================================================
 # CREATE MENU
 # ============================================================
 
-@admin_menu_bp.route(
-    "",
-    methods=["POST"]
-)
-@admin_menu_bp.route(
-    "/",
-    methods=["POST"]
-)
+@admin_menu_bp.route("", methods=["POST"])
+@admin_required
 def create_menu():
 
-    auth_error = admin_required()
+    data = get_json_data()
 
-    if auth_error:
-        return auth_error
+    name = str(
+        data.get("name", "")
+    ).strip()
 
-    data = (
-        request.get_json(
-            silent=True
-        )
-        or {}
-    )
+    location = str(
+        data.get("location", "")
+    ).strip()
+
+    description = str(
+        data.get("description", "")
+    ).strip()
 
     # --------------------------------------------------------
-    # NAME
+    # VALIDATION
     # --------------------------------------------------------
-
-    name = clean_string(
-        data.get("name")
-    )
 
     if not name:
-
         return jsonify({
+            "success": False,
+            "message": "Menu name is required"
+        }), 400
 
-            "success":
-                False,
+    if len(name) > 150:
+        return jsonify({
+            "success": False,
+            "message": "Menu name is too long"
+        }), 400
 
-            "message":
-                "Menu name is required."
+    if not location:
+        return jsonify({
+            "success": False,
+            "message": "Menu location is required"
+        }), 400
 
+    if len(location) > 100:
+        return jsonify({
+            "success": False,
+            "message": "Menu location is too long"
         }), 400
 
     # --------------------------------------------------------
-    # LOCATION
+    # DUPLICATE CHECK
     # --------------------------------------------------------
 
-    location = clean_string(
-        data.get("location"),
-        "custom"
-    ).lower()
+    existing = Menu.query.filter(
+        or_(
+            Menu.name == name,
+            Menu.location == location
+        )
+    ).first()
 
-    if location not in ALLOWED_LOCATIONS:
-
+    if existing:
         return jsonify({
-
-            "success":
-                False,
-
-            "message":
-                (
-                    "Invalid menu location. "
-                    "Allowed values: "
-                    "header, footer, mobile, sidebar, custom."
-                )
-
-        }), 400
+            "success": False,
+            "message": "A menu with the same name or location already exists"
+        }), 409
 
     # --------------------------------------------------------
-    # ACTIVE
+    # ACTIVE STATUS
     # --------------------------------------------------------
 
-    is_active = parse_bool(
-        data.get("is_active"),
+    is_active = data.get(
+        "is_active",
         True
     )
+
+    if not isinstance(is_active, bool):
+        is_active = bool(is_active)
 
     # --------------------------------------------------------
     # CREATE
     # --------------------------------------------------------
 
     menu = Menu(
-
         name=name,
-
         location=location,
-
-        is_active=is_active,
-
-        description=clean_string(
-            data.get("description")
-        )
+        description=description or None,
+        is_active=is_active
     )
 
     try:
-
         db.session.add(menu)
-
         db.session.commit()
 
-        return jsonify({
-
-            "success":
-                True,
-
-            "message":
-                "Menu created successfully.",
-
-            "menu":
-                menu_to_dict(menu)
-
-        }), 201
-
-    except Exception as error:
-
+    except IntegrityError:
         db.session.rollback()
 
         return jsonify({
+            "success": False,
+            "message": "Menu could not be created because of a database conflict"
+        }), 409
 
-            "success":
-                False,
+    except Exception:
+        db.session.rollback()
 
-            "message":
-                "Unable to create menu.",
-
-            "error":
-                str(error)
-
+        return jsonify({
+            "success": False,
+            "message": "Failed to create menu"
         }), 500
+
+    return jsonify({
+        "success": True,
+        "message": "Menu created successfully",
+        "menu": serialize_menu(menu)
+    }), 201
 
 
 # ============================================================
 # UPDATE MENU
 # ============================================================
 
-@admin_menu_bp.route(
-    "/<int:menu_id>",
-    methods=["PUT", "PATCH"]
-)
+@admin_menu_bp.route("/<int:menu_id>", methods=["PUT", "PATCH"])
+@admin_required
 def update_menu(menu_id):
-
-    auth_error = admin_required()
-
-    if auth_error:
-        return auth_error
 
     menu = Menu.query.get(menu_id)
 
     if not menu:
-
         return jsonify({
-
-            "success":
-                False,
-
-            "message":
-                "Menu not found."
-
+            "success": False,
+            "message": "Menu not found"
         }), 404
 
-    data = (
-        request.get_json(
-            silent=True
-        )
-        or {}
-    )
+    data = get_json_data()
 
     # --------------------------------------------------------
     # NAME
@@ -738,21 +279,32 @@ def update_menu(menu_id):
 
     if "name" in data:
 
-        name = clean_string(
-            data.get("name")
-        )
+        name = str(
+            data.get("name", "")
+        ).strip()
 
         if not name:
-
             return jsonify({
-
-                "success":
-                    False,
-
-                "message":
-                    "Menu name cannot be empty."
-
+                "success": False,
+                "message": "Menu name cannot be empty"
             }), 400
+
+        if len(name) > 150:
+            return jsonify({
+                "success": False,
+                "message": "Menu name is too long"
+            }), 400
+
+        duplicate = Menu.query.filter(
+            Menu.id != menu.id,
+            Menu.name == name
+        ).first()
+
+        if duplicate:
+            return jsonify({
+                "success": False,
+                "message": "Another menu already uses this name"
+            }), 409
 
         menu.name = name
 
@@ -762,40 +314,32 @@ def update_menu(menu_id):
 
     if "location" in data:
 
-        location = clean_string(
-            data.get("location")
-        )
+        location = str(
+            data.get("location", "")
+        ).strip()
 
         if not location:
-
             return jsonify({
-
-                "success":
-                    False,
-
-                "message":
-                    "Menu location cannot be empty."
-
+                "success": False,
+                "message": "Menu location cannot be empty"
             }), 400
 
-        location = location.lower()
-
-        if location not in ALLOWED_LOCATIONS:
-
+        if len(location) > 100:
             return jsonify({
-
-                "success":
-                    False,
-
-                "message":
-                    (
-                        "Invalid menu location. "
-                        "Allowed values: "
-                        "header, footer, mobile, "
-                        "sidebar, custom."
-                    )
-
+                "success": False,
+                "message": "Menu location is too long"
             }), 400
+
+        duplicate = Menu.query.filter(
+            Menu.id != menu.id,
+            Menu.location == location
+        ).first()
+
+        if duplicate:
+            return jsonify({
+                "success": False,
+                "message": "Another menu already uses this location"
+            }), 409
 
         menu.location = location
 
@@ -805,31 +349,28 @@ def update_menu(menu_id):
 
     if "description" in data:
 
-        menu.description = clean_string(
-            data.get("description")
+        description = str(
+            data.get("description", "")
+        ).strip()
+
+        menu.description = (
+            description
+            if description
+            else None
         )
 
     # --------------------------------------------------------
-    # ACTIVE
+    # ACTIVE STATUS
     # --------------------------------------------------------
 
     if "is_active" in data:
 
-        is_active = parse_bool(
-            data.get("is_active")
+        is_active = data.get(
+            "is_active"
         )
 
-        if is_active is None:
-
-            return jsonify({
-
-                "success":
-                    False,
-
-                "message":
-                    "Invalid is_active value."
-
-            }), 400
+        if not isinstance(is_active, bool):
+            is_active = bool(is_active)
 
         menu.is_active = is_active
 
@@ -838,315 +379,141 @@ def update_menu(menu_id):
     # --------------------------------------------------------
 
     try:
-
         db.session.commit()
 
-        return jsonify({
-
-            "success":
-                True,
-
-            "message":
-                "Menu updated successfully.",
-
-            "menu":
-                menu_to_dict(menu)
-
-        }), 200
-
-    except Exception as error:
-
+    except IntegrityError:
         db.session.rollback()
 
         return jsonify({
+            "success": False,
+            "message": "Menu could not be updated because of a database conflict"
+        }), 409
 
-            "success":
-                False,
-
-            "message":
-                "Unable to update menu.",
-
-            "error":
-                str(error)
-
-        }), 500
-
-
-# ============================================================
-# DELETE MENU
-# ============================================================
-
-@admin_menu_bp.route(
-    "/<int:menu_id>",
-    methods=["DELETE"]
-)
-def delete_menu(menu_id):
-
-    auth_error = admin_required()
-
-    if auth_error:
-        return auth_error
-
-    menu = Menu.query.get(menu_id)
-
-    if not menu:
-
-        return jsonify({
-
-            "success":
-                False,
-
-            "message":
-                "Menu not found."
-
-        }), 404
-
-    try:
-
-        # ----------------------------------------------------
-        # DELETE MENU ITEMS FIRST
-        # ----------------------------------------------------
-
-        MenuItem.query.filter_by(
-            menu_id=menu.id
-        ).delete(
-            synchronize_session=False
-        )
-
-        # ----------------------------------------------------
-        # DELETE MENU
-        # ----------------------------------------------------
-
-        db.session.delete(menu)
-
-        db.session.commit()
-
-        return jsonify({
-
-            "success":
-                True,
-
-            "message":
-                "Menu and its items deleted successfully."
-
-        }), 200
-
-    except Exception as error:
-
+    except Exception:
         db.session.rollback()
 
         return jsonify({
-
-            "success":
-                False,
-
-            "message":
-                "Unable to delete menu.",
-
-            "error":
-                str(error)
-
+            "success": False,
+            "message": "Failed to update menu"
         }), 500
+
+    return jsonify({
+        "success": True,
+        "message": "Menu updated successfully",
+        "menu": serialize_menu(menu)
+    }), 200
 
 
 # ============================================================
 # ACTIVATE MENU
 # ============================================================
 
-@admin_menu_bp.route(
-    "/<int:menu_id>/activate",
-    methods=["POST"]
-)
+@admin_menu_bp.route("/<int:menu_id>/activate", methods=["POST"])
+@admin_required
 def activate_menu(menu_id):
-
-    auth_error = admin_required()
-
-    if auth_error:
-        return auth_error
 
     menu = Menu.query.get(menu_id)
 
     if not menu:
-
         return jsonify({
-
-            "success":
-                False,
-
-            "message":
-                "Menu not found."
-
+            "success": False,
+            "message": "Menu not found"
         }), 404
 
+    menu.is_active = True
+
     try:
-
-        menu.activate()
-
         db.session.commit()
 
-        return jsonify({
-
-            "success":
-                True,
-
-            "message":
-                "Menu activated successfully.",
-
-            "menu":
-                menu_to_dict(menu)
-
-        }), 200
-
-    except Exception as error:
-
+    except Exception:
         db.session.rollback()
 
         return jsonify({
-
-            "success":
-                False,
-
-            "message":
-                "Unable to activate menu.",
-
-            "error":
-                str(error)
-
+            "success": False,
+            "message": "Failed to activate menu"
         }), 500
+
+    return jsonify({
+        "success": True,
+        "message": "Menu activated successfully",
+        "menu": serialize_menu(menu)
+    }), 200
 
 
 # ============================================================
 # DEACTIVATE MENU
 # ============================================================
 
-@admin_menu_bp.route(
-    "/<int:menu_id>/deactivate",
-    methods=["POST"]
-)
+@admin_menu_bp.route("/<int:menu_id>/deactivate", methods=["POST"])
+@admin_required
 def deactivate_menu(menu_id):
-
-    auth_error = admin_required()
-
-    if auth_error:
-        return auth_error
 
     menu = Menu.query.get(menu_id)
 
     if not menu:
+        return jsonify({
+            "success": False,
+            "message": "Menu not found"
+        }), 404
+
+    menu.is_active = False
+
+    try:
+        db.session.commit()
+
+    except Exception:
+        db.session.rollback()
 
         return jsonify({
+            "success": False,
+            "message": "Failed to deactivate menu"
+        }), 500
 
-            "success":
-                False,
+    return jsonify({
+        "success": True,
+        "message": "Menu deactivated successfully",
+        "menu": serialize_menu(menu)
+    }), 200
 
-            "message":
-                "Menu not found."
 
+# ============================================================
+# DELETE MENU
+# ============================================================
+
+@admin_menu_bp.route("/<int:menu_id>", methods=["DELETE"])
+@admin_required
+def delete_menu(menu_id):
+
+    menu = Menu.query.get(menu_id)
+
+    if not menu:
+        return jsonify({
+            "success": False,
+            "message": "Menu not found"
         }), 404
 
     try:
 
-        menu.deactivate()
-
+        db.session.delete(menu)
         db.session.commit()
 
-        return jsonify({
-
-            "success":
-                True,
-
-            "message":
-                "Menu deactivated successfully.",
-
-            "menu":
-                menu_to_dict(menu)
-
-        }), 200
-
-    except Exception as error:
-
+    except IntegrityError:
         db.session.rollback()
 
         return jsonify({
+            "success": False,
+            "message": "Menu cannot be deleted because it is still being used"
+        }), 409
 
-            "success":
-                False,
-
-            "message":
-                "Unable to deactivate menu.",
-
-            "error":
-                str(error)
-
-        }), 500
-
-
-# ============================================================
-# MENU SUMMARY
-# ============================================================
-
-@admin_menu_bp.route(
-    "/summary",
-    methods=["GET"]
-)
-def menu_summary():
-
-    auth_error = admin_required()
-
-    if auth_error:
-        return auth_error
-
-    try:
-
-        total = Menu.query.count()
-
-        active = (
-            Menu.query
-            .filter(
-                Menu.is_active.is_(True)
-            )
-            .count()
-        )
-
-        inactive = (
-            Menu.query
-            .filter(
-                Menu.is_active.is_(False)
-            )
-            .count()
-        )
+    except Exception:
+        db.session.rollback()
 
         return jsonify({
-
-            "success":
-                True,
-
-            "summary":
-                {
-
-                    "total":
-                        total,
-
-                    "active":
-                        active,
-
-                    "inactive":
-                        inactive
-                }
-
-        }), 200
-
-    except Exception as error:
-
-        return jsonify({
-
-            "success":
-                False,
-
-            "message":
-                "Unable to load menu summary.",
-
-            "error":
-                str(error)
-
+            "success": False,
+            "message": "Failed to delete menu"
         }), 500
+
+    return jsonify({
+        "success": True,
+        "message": "Menu deleted successfully"
+    }), 200
