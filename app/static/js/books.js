@@ -1,802 +1,719 @@
+/* =========================================================
+   RASBHAV BOOKS
+   PUBLIC BOOK JAVASCRIPT
+   ========================================================= */
+
 "use strict";
 
-
 /* =========================================================
-   GLOBAL
-========================================================= */
+   API CONFIG
+   ========================================================= */
 
-let currentBook = null;
-let currentChapters = [];
-
-
-/* =========================================================
-   API
-========================================================= */
-
-const BOOK_API_URL = `/api/books/${encodeURIComponent(BOOK_SLUG)}`;
-
-const CHAPTER_API_URL =
-    `/api/books/${encodeURIComponent(BOOK_SLUG)}/chapters`;
+const BOOK_API_URL = "/api/books/";
+const READER_API_URL = "/api/reader/";
 
 
 /* =========================================================
-   DOM READY
-========================================================= */
-
-document.addEventListener("DOMContentLoaded", () => {
-
-    loadBook();
-
-    document.getElementById("currentYear").textContent =
-        new Date().getFullYear();
-
-});
-
-
-/* =========================================================
-   LOAD BOOK
-========================================================= */
-
-async function loadBook() {
-
-    try {
-
-        const response = await fetch(
-            BOOK_API_URL,
-            {
-                method: "GET",
-                credentials: "same-origin"
-            }
-        );
-
-
-        const data = await response.json();
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                data.message || "Book not found."
-            );
-
-        }
-
-
-        currentBook = data.book || data;
-
-
-        renderBook(currentBook);
-
-        await loadChapters();
-
-    } catch (error) {
-
-        console.error(error);
-
-        showBookError();
-
-    }
-
-}
-
-
-/* =========================================================
-   RENDER BOOK
-========================================================= */
-
-function renderBook(book) {
-
-    document.getElementById("bookLoading")
-        .style.display = "none";
-
-    document.getElementById("bookContent")
-        .style.display = "block";
-
-
-    const title =
-        book.title || "Rasbhav Books";
-
-
-    const description =
-        book.short_description ||
-        book.description ||
-        `Read ${title} online on Rasbhav Books.`;
-
-
-    /* TITLE */
-
-    document.title =
-        `${title} | Rasbhav Books`;
-
-
-    /* META DESCRIPTION */
-
-    setMeta(
-        "metaDescription",
-        "content",
-        description.substring(0, 160)
-    );
-
-
-    /* ROBOTS */
-
-    setMeta(
-        "metaRobots",
-        "content",
-        "index, follow"
-    );
-
-
-    /* CANONICAL */
-
-    const canonical =
-        `${window.location.origin}/books/${encodeURIComponent(book.slug)}`;
-
-
-    document.getElementById("canonicalUrl")
-        .href = canonical;
-
-
-    /* OG */
-
-    setMeta(
-        "ogTitle",
-        "content",
-        title
-    );
-
-    setMeta(
-        "ogDescription",
-        "content",
-        description.substring(0, 200)
-    );
-
-
-    if (book.cover_image) {
-
-        setMeta(
-            "ogImage",
-            "content",
-            makeAbsoluteUrl(book.cover_image)
-        );
-
-    }
-
-
-    /* BREADCRUMB */
-
-    setText(
-        "breadcrumbTitle",
-        title
-    );
-
-
-    /* TITLE */
-
-    setText(
-        "bookTitle",
-        title
-    );
-
-
-    /* SUBTITLE */
-
-    const subtitle =
-        document.getElementById("bookSubtitle");
-
-
-    if (book.subtitle) {
-
-        subtitle.textContent =
-            book.subtitle;
-
-        subtitle.style.display =
-            "block";
-
-    } else {
-
-        subtitle.style.display =
-            "none";
-
-    }
-
-
-    /* COVER */
-
-    const cover =
-        document.getElementById("bookCover");
-
-
-    if (book.cover_image) {
-
-        cover.src =
-            makeAbsoluteUrl(book.cover_image);
-
-        cover.alt =
-            `${title} book cover`;
-
-    } else {
-
-        cover.style.display =
-            "none";
-
-    }
-
-
-    /* LANGUAGE */
-
-    setText(
-        "bookLanguage",
-        formatLanguage(book.language)
-    );
-
-
-    setText(
-        "infoLanguage",
-        formatLanguage(book.language)
-    );
-
-
-    /* STATUS */
-
-    setText(
-        "bookStatus",
-        formatStatus(book.status)
-    );
-
-
-    setText(
-        "infoStatus",
-        formatStatus(book.status)
-    );
-
-
-    /* SHORT DESCRIPTION */
-
-    setText(
-        "bookShortDescription",
-        book.short_description || ""
-    );
-
-
-    /* DESCRIPTION */
-
-    const descriptionElement =
-        document.getElementById("bookDescription");
-
-
-    if (book.description) {
-
-        descriptionElement.innerHTML =
-            safeTextToHtml(book.description);
-
-    } else {
-
-        descriptionElement.innerHTML =
-            "<p>No description available.</p>";
-
-    }
-
-
-    /* AUTHOR */
-
-    setText(
-        "infoAuthor",
-        book.author_name ||
-        book.author ||
-        (
-            book.author_id
-                ? `Author #${book.author_id}`
-                : "Unknown"
-        )
-    );
-
-
-    /* PUBLISH DATE */
-
-    setText(
-        "infoPublishDate",
-        formatDate(book.publish_date)
-    );
-
-
-    /* TAGS */
-
-    renderTags(book.tags);
-
-
-    /* BANNER */
-
-    renderBanner(book);
-
-
-    /* READ BUTTON */
-
-    const readButton =
-        document.getElementById("readBookButton");
-
-
-    readButton.href =
-        `/reader/${encodeURIComponent(book.slug)}`;
-
-}
-
-
-/* =========================================================
-   LOAD CHAPTERS
-========================================================= */
-
-async function loadChapters() {
-
-    const loading =
-        document.getElementById("chaptersLoading");
-
-    const empty =
-        document.getElementById("chaptersEmpty");
-
-    const list =
-        document.getElementById("chaptersList");
-
-
-    try {
-
-        loading.style.display =
-            "block";
-
-        empty.style.display =
-            "none";
-
-        list.innerHTML =
-            "";
-
-
-        const response =
-            await fetch(
-                CHAPTER_API_URL,
-                {
-                    method: "GET",
-                    credentials: "same-origin"
-                }
-            );
-
-
-        const data =
-            await response.json();
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                data.message ||
-                "Unable to load chapters."
-            );
-
-        }
-
-
-        currentChapters =
-            data.chapters || data || [];
-
-
-        loading.style.display =
-            "none";
-
-
-        document.getElementById(
-            "chapterCount"
-        ).textContent =
-            `${currentChapters.length} ${
-                currentChapters.length === 1
-                    ? "Chapter"
-                    : "Chapters"
-            }`;
-
-
-        if (!currentChapters.length) {
-
-            empty.style.display =
-                "block";
-
-            return;
-
-        }
-
-
-        renderChapters(currentChapters);
-
-    } catch (error) {
-
-        console.error(error);
-
-        loading.style.display =
-            "none";
-
-        empty.textContent =
-            "Unable to load chapters.";
-
-        empty.style.display =
-            "block";
-
-    }
-
-}
-
-
-/* =========================================================
-   RENDER CHAPTERS
-========================================================= */
-
-function renderChapters(chapters) {
-
-    const list =
-        document.getElementById("chaptersList");
-
-
-    list.innerHTML =
-        chapters.map((chapter, index) => {
-
-            const number =
-                chapter.chapter_number ||
-                index + 1;
-
-
-            const title =
-                chapter.title ||
-                chapter.chapter_title ||
-                `Chapter ${number}`;
-
-
-            const slug =
-                chapter.slug ||
-                "";
-
-
-            const readerUrl =
-                `/reader/${encodeURIComponent(
-                    BOOK_SLUG
-                )}?chapter=${encodeURIComponent(slug)}`;
-
-
-            return `
-
-                <a
-                    href="${escapeAttribute(readerUrl)}"
-                    class="chapter-card"
-                >
-
-                    <span class="chapter-number">
-                        ${number}
-                    </span>
-
-                    <span class="chapter-content">
-
-                        <strong>
-                            ${escapeHtml(title)}
-                        </strong>
-
-                        ${
-                            chapter.short_description
-                                ? `
-                                    <small>
-                                        ${escapeHtml(
-                                            chapter.short_description
-                                        )}
-                                    </small>
-                                  `
-                                : ""
-                        }
-
-                    </span>
-
-                    <span class="chapter-arrow">
-                        →
-                    </span>
-
-                </a>
-
-            `;
-
-        }).join("");
-
-}
-
-
-/* =========================================================
-   TAGS
-========================================================= */
-
-function renderTags(tags) {
-
-    const section =
-        document.getElementById("tagsSection");
-
-    const container =
-        document.getElementById("bookTags");
-
-
-    if (!tags) {
-
-        section.style.display =
-            "none";
-
-        return;
-
-    }
-
-
-    let tagList = [];
-
-
-    if (Array.isArray(tags)) {
-
-        tagList = tags;
-
-    } else {
-
-        tagList =
-            String(tags)
-                .split(",")
-                .map(tag => tag.trim())
-                .filter(Boolean);
-
-    }
-
-
-    if (!tagList.length) {
-
-        section.style.display =
-            "none";
-
-        return;
-
-    }
-
-
-    container.innerHTML =
-        tagList.map(tag => {
-
-            return `
-                <span class="book-tag">
-                    ${escapeHtml(tag)}
-                </span>
-            `;
-
-        }).join("");
-
-
-    section.style.display =
-        "block";
-
-}
-
-
-/* =========================================================
-   BANNER
-========================================================= */
-
-function renderBanner(book) {
-
-    const section =
-        document.getElementById(
-            "bookBannerSection"
-        );
-
-    const image =
-        document.getElementById(
-            "bookBanner"
-        );
-
-
-    const banner =
-        book.banner_image ||
-        book.featured_image;
-
-
-    if (!banner) {
-
-        section.style.display =
-            "none";
-
-        return;
-
-    }
-
-
-    image.src =
-        makeAbsoluteUrl(banner);
-
-
-    image.alt =
-        `${book.title || "Book"} banner`;
-
-
-    section.style.display =
-        "block";
-
-}
-
-
-/* =========================================================
-   ERROR
-========================================================= */
-
-function showBookError() {
-
-    document.getElementById(
-        "bookLoading"
-    ).style.display = "none";
-
-
-    document.getElementById(
-        "bookContent"
-    ).style.display = "none";
-
-
-    document.getElementById(
-        "bookError"
-    ).style.display = "block";
-
-}
+   GLOBAL STATE
+   ========================================================= */
+
+const BooksState = {
+    currentBook: null,
+    chapters: [],
+    currentChapter: null
+};
 
 
 /* =========================================================
    HELPERS
-========================================================= */
+   ========================================================= */
 
-function setText(id, value) {
-
-    const element =
-        document.getElementById(id);
-
-
-    if (element) {
-
-        element.textContent =
-            value || "—";
-
-    }
-
-}
-
-
-function setMeta(id, attribute, value) {
-
-    const element =
-        document.getElementById(id);
-
-
-    if (element) {
-
-        element.setAttribute(
-            attribute,
-            value || ""
-        );
-
-    }
-
-}
-
-
-function formatLanguage(language) {
-
-    if (!language) {
-        return "—";
-    }
-
-
-    const languages = {
-
-        gujarati: "Gujarati",
-
-        hindi: "Hindi",
-
-        english: "English"
-
-    };
-
-
-    return languages[
-        String(language).toLowerCase()
-    ] || language;
-
-}
-
-
-function formatStatus(status) {
-
-    if (!status) {
-        return "—";
-    }
-
-
-    return String(status)
-        .charAt(0)
-        .toUpperCase()
-        +
-        String(status)
-            .slice(1);
-
-}
-
-
-function formatDate(value) {
-
-    if (!value) {
-        return "—";
-    }
-
-
-    const date =
-        new Date(value);
-
-
-    if (Number.isNaN(date.getTime())) {
-
-        return value;
-
-    }
-
-
-    return date.toLocaleDateString(
-        "en-IN",
-        {
-            day: "numeric",
-            month: "long",
-            year: "numeric"
-        }
-    );
-
-}
-
-
-function makeAbsoluteUrl(url) {
-
-    if (!url) {
+function escapeHTML(value) {
+    if (value === null || value === undefined) {
         return "";
     }
 
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+
+function getSlugFromURL() {
+    const parts = window.location.pathname.split("/").filter(Boolean);
+
+    if (parts.length >= 2 && parts[0] === "books") {
+        return decodeURIComponent(parts[1]);
+    }
+
+    if (parts.length >= 2 && parts[0] === "reader") {
+        return decodeURIComponent(parts[1]);
+    }
+
+    return null;
+}
+
+
+function showLoading(element) {
+    if (!element) return;
+
+    element.innerHTML = `
+        <div class="loading-state">
+            <div class="loader"></div>
+            <p>Loading...</p>
+        </div>
+    `;
+}
+
+
+function showError(element, message = "Something went wrong.") {
+    if (!element) return;
+
+    element.innerHTML = `
+        <div class="error-state">
+            <h3>Unable to load</h3>
+            <p>${escapeHTML(message)}</p>
+        </div>
+    `;
+}
+
+
+/* =========================================================
+   FETCH BOOK
+   ========================================================= */
+
+async function loadBook(slug) {
+
+    if (!slug) {
+        console.error("Book slug not found.");
+        return null;
+    }
 
     try {
 
-        return new URL(
-            url,
-            window.location.origin
-        ).href;
+        const response = await fetch(
+            `${BOOK_API_URL}${encodeURIComponent(slug)}`,
+            {
+                method: "GET",
+                headers: {
+                    "Accept": "application/json"
+                }
+            }
+        );
 
-    } catch {
+        if (!response.ok) {
+            throw new Error(`Book API error: ${response.status}`);
+        }
 
-        return url;
+        const data = await response.json();
 
+        BooksState.currentBook = data;
+
+        return data;
+
+    } catch (error) {
+
+        console.error("loadBook():", error);
+
+        return null;
+    }
+}
+
+
+/* =========================================================
+   FETCH CHAPTERS
+   IMPORTANT:
+   Chapters come from /api/reader/
+   ========================================================= */
+
+async function loadChapters(slug) {
+
+    if (!slug) {
+        console.error("Book slug not found.");
+        return [];
     }
 
+    try {
+
+        const response = await fetch(
+            `${READER_API_URL}${encodeURIComponent(slug)}/chapters`,
+            {
+                method: "GET",
+                headers: {
+                    "Accept": "application/json"
+                }
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error(`Chapter API error: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        let chapters = [];
+
+        if (Array.isArray(data)) {
+            chapters = data;
+        } else if (Array.isArray(data.chapters)) {
+            chapters = data.chapters;
+        } else if (Array.isArray(data.data)) {
+            chapters = data.data;
+        }
+
+        BooksState.chapters = chapters;
+
+        return chapters;
+
+    } catch (error) {
+
+        console.error("loadChapters():", error);
+
+        BooksState.chapters = [];
+
+        return [];
+    }
 }
 
 
-function safeTextToHtml(text) {
+/* =========================================================
+   UPDATE SEO
+   ========================================================= */
 
-    return escapeHtml(text)
-        .replace(/\n\n+/g, "</p><p>")
-        .replace(/\n/g, "<br>")
-        .replace(/^/, "<p>")
-        .replace(/$/, "</p>");
+function updateMetaTag(attribute, value, content) {
 
+    if (!value || !content) {
+        return;
+    }
+
+    let element = document.head.querySelector(
+        `meta[${attribute}="${CSS.escape(value)}"]`
+    );
+
+    if (!element) {
+
+        element = document.createElement("meta");
+
+        element.setAttribute(attribute, value);
+
+        document.head.appendChild(element);
+    }
+
+    element.setAttribute("content", content);
 }
 
 
-function escapeHtml(value) {
+function updateSEO(book) {
 
-    return String(value)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
+    if (!book) {
+        return;
+    }
 
+    const title =
+        book.meta_title ||
+        book.seo_title ||
+        book.title ||
+        "Rasbhav Books";
+
+    const description =
+        book.meta_description ||
+        book.seo_description ||
+        book.short_description ||
+        book.description ||
+        "";
+
+    document.title = title;
+
+    updateMetaTag(
+        "name",
+        "description",
+        description
+    );
+
+    if (book.robots) {
+
+        updateMetaTag(
+            "name",
+            "robots",
+            book.robots
+        );
+    }
+
+    if (book.canonical_url) {
+
+        let canonical =
+            document.head.querySelector(
+                'link[rel="canonical"]'
+            );
+
+        if (!canonical) {
+
+            canonical = document.createElement("link");
+
+            canonical.rel = "canonical";
+
+            document.head.appendChild(canonical);
+        }
+
+        canonical.href = book.canonical_url;
+    }
+
+    updateMetaTag(
+        "property",
+        "og:title",
+        book.og_title || title
+    );
+
+    updateMetaTag(
+        "property",
+        "og:description",
+        book.og_description || description
+    );
+
+    if (book.og_image) {
+
+        updateMetaTag(
+            "property",
+            "og:image",
+            book.og_image
+        );
+    }
 }
 
 
-function escapeAttribute(value) {
+/* =========================================================
+   RENDER CHAPTER LIST
+   ========================================================= */
 
-    return escapeHtml(value);
+function renderChapters(chapters, container) {
 
+    if (!container) {
+        return;
+    }
+
+    if (!Array.isArray(chapters) || chapters.length === 0) {
+
+        container.innerHTML = `
+            <div class="empty-state">
+                <p>No chapters available.</p>
+            </div>
+        `;
+
+        return;
+    }
+
+    container.innerHTML = chapters.map((chapter, index) => {
+
+        const chapterId =
+            chapter.id !== undefined
+                ? chapter.id
+                : "";
+
+        const number =
+            chapter.chapter_number ||
+            index + 1;
+
+        const title =
+            chapter.title ||
+            `Chapter ${number}`;
+
+        return `
+            <article class="chapter-item"
+                     data-chapter-id="${escapeHTML(chapterId)}">
+
+                <div class="chapter-number">
+                    ${escapeHTML(number)}
+                </div>
+
+                <div class="chapter-info">
+
+                    <h3>
+                        ${escapeHTML(title)}
+                    </h3>
+
+                    ${
+                        chapter.short_description
+                            ? `<p>${escapeHTML(chapter.short_description)}</p>`
+                            : ""
+                    }
+
+                </div>
+
+                <a
+                    class="chapter-read-btn"
+                    href="/reader/${encodeURIComponent(
+                        getSlugFromURL() || ""
+                    )}?chapter=${encodeURIComponent(chapterId)}"
+                >
+                    Read
+                </a>
+
+            </article>
+        `;
+
+    }).join("");
 }
+
+
+/* =========================================================
+   BOOK DETAIL PAGE
+   ========================================================= */
+
+async function initBookDetailPage() {
+
+    const slug = getSlugFromURL();
+
+    if (!slug) {
+        return;
+    }
+
+    const chaptersContainer =
+        document.querySelector("#chapters-container") ||
+        document.querySelector(".chapters-list") ||
+        document.querySelector("[data-chapters]");
+
+    if (chaptersContainer) {
+        showLoading(chaptersContainer);
+    }
+
+    const book = await loadBook(slug);
+
+    if (book) {
+        updateSEO(book);
+    }
+
+    const chapters = await loadChapters(slug);
+
+    if (chaptersContainer) {
+        renderChapters(
+            chapters,
+            chaptersContainer
+        );
+    }
+}
+
+
+/* =========================================================
+   FAVORITES
+   ========================================================= */
+
+function getFavorites() {
+
+    try {
+
+        const data =
+            localStorage.getItem("rasbhav_favorites");
+
+        return data
+            ? JSON.parse(data)
+            : [];
+
+    } catch (error) {
+
+        console.error(error);
+
+        return [];
+    }
+}
+
+
+function saveFavorites(favorites) {
+
+    localStorage.setItem(
+        "rasbhav_favorites",
+        JSON.stringify(favorites)
+    );
+}
+
+
+function toggleFavorite(bookId) {
+
+    if (!bookId) {
+        return false;
+    }
+
+    const favorites = getFavorites();
+
+    const index =
+        favorites.indexOf(bookId);
+
+    let active = false;
+
+    if (index === -1) {
+
+        favorites.push(bookId);
+
+        active = true;
+
+    } else {
+
+        favorites.splice(index, 1);
+    }
+
+    saveFavorites(favorites);
+
+    return active;
+}
+
+
+function isFavorite(bookId) {
+
+    return getFavorites().includes(bookId);
+}
+
+
+/* =========================================================
+   BOOKMARKS
+   ========================================================= */
+
+function getBookmarks() {
+
+    try {
+
+        const data =
+            localStorage.getItem("rasbhav_bookmarks");
+
+        return data
+            ? JSON.parse(data)
+            : [];
+
+    } catch (error) {
+
+        console.error(error);
+
+        return [];
+    }
+}
+
+
+function saveBookmarks(bookmarks) {
+
+    localStorage.setItem(
+        "rasbhav_bookmarks",
+        JSON.stringify(bookmarks)
+    );
+}
+
+
+function toggleBookmark(bookId, chapterId = null) {
+
+    if (!bookId) {
+        return false;
+    }
+
+    const bookmarks = getBookmarks();
+
+    const existingIndex =
+        bookmarks.findIndex(item =>
+            String(item.book_id) === String(bookId) &&
+            String(item.chapter_id || "") ===
+            String(chapterId || "")
+        );
+
+    let active = false;
+
+    if (existingIndex === -1) {
+
+        bookmarks.push({
+            book_id: bookId,
+            chapter_id: chapterId,
+            created_at: new Date().toISOString()
+        });
+
+        active = true;
+
+    } else {
+
+        bookmarks.splice(
+            existingIndex,
+            1
+        );
+    }
+
+    saveBookmarks(bookmarks);
+
+    return active;
+}
+
+
+/* =========================================================
+   READING PROGRESS
+   ========================================================= */
+
+function getReadingProgress() {
+
+    try {
+
+        const data =
+            localStorage.getItem(
+                "rasbhav_reading_progress"
+            );
+
+        return data
+            ? JSON.parse(data)
+            : {};
+
+    } catch (error) {
+
+        console.error(error);
+
+        return {};
+    }
+}
+
+
+function saveReadingProgress(
+    bookId,
+    chapterId,
+    progress = 0
+) {
+
+    if (!bookId) {
+        return;
+    }
+
+    const data =
+        getReadingProgress();
+
+    data[String(bookId)] = {
+
+        chapter_id: chapterId,
+
+        progress: Math.max(
+            0,
+            Math.min(100, Number(progress) || 0)
+        ),
+
+        updated_at:
+            new Date().toISOString()
+    };
+
+    localStorage.setItem(
+        "rasbhav_reading_progress",
+        JSON.stringify(data)
+    );
+}
+
+
+/* =========================================================
+   BUTTON EVENTS
+   ========================================================= */
+
+document.addEventListener(
+    "click",
+    function (event) {
+
+        const favoriteButton =
+            event.target.closest(
+                "[data-favorite-book]"
+            );
+
+        if (favoriteButton) {
+
+            const bookId =
+                favoriteButton.dataset.favoriteBook;
+
+            const active =
+                toggleFavorite(bookId);
+
+            favoriteButton.classList.toggle(
+                "active",
+                active
+            );
+
+            favoriteButton.setAttribute(
+                "aria-pressed",
+                active ? "true" : "false"
+            );
+
+            return;
+        }
+
+
+        const bookmarkButton =
+            event.target.closest(
+                "[data-bookmark-book]"
+            );
+
+        if (bookmarkButton) {
+
+            const bookId =
+                bookmarkButton.dataset.bookmarkBook;
+
+            const chapterId =
+                bookmarkButton.dataset.chapterId ||
+                null;
+
+            const active =
+                toggleBookmark(
+                    bookId,
+                    chapterId
+                );
+
+            bookmarkButton.classList.toggle(
+                "active",
+                active
+            );
+
+            bookmarkButton.setAttribute(
+                "aria-pressed",
+                active ? "true" : "false"
+            );
+        }
+
+    }
+);
+
+
+/* =========================================================
+   INITIALIZE
+   ========================================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        const isBookDetail =
+            document.body.classList.contains(
+                "book-detail-page"
+            ) ||
+            document.querySelector(
+                ".book-detail-section"
+            );
+
+        if (isBookDetail) {
+
+            initBookDetailPage();
+        }
+
+    }
+);
+
+
+/* =========================================================
+   GLOBAL EXPORT
+   ========================================================= */
+
+window.RasbhavBooks = {
+
+    loadBook,
+    loadChapters,
+
+    updateSEO,
+
+    getFavorites,
+    saveFavorites,
+    toggleFavorite,
+    isFavorite,
+
+    getBookmarks,
+    saveBookmarks,
+    toggleBookmark,
+
+    getReadingProgress,
+    saveReadingProgress
+
+};
