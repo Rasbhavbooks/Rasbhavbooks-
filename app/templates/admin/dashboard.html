@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
 
     <meta
@@ -8,596 +10,2347 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Rasbhav Books - Admin Dashboard</title>
+    <meta
+        name="robots"
+        content="noindex,nofollow"
+    >
+
+    <title>
+        Rasbhav Books — Admin Dashboard
+    </title>
+
 
     <style>
+
+        /* =====================================================
+           RESET
+        ===================================================== */
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
-        body {
-            font-family: Arial, sans-serif;
-            background: #f5f6fa;
-            color: #222;
+
+        html {
+            scroll-behavior: smooth;
         }
 
-        .dashboard {
+
+        body {
+            font-family:
+                Inter,
+                system-ui,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
+
+            background: #f4f6f9;
+
+            color: #172033;
+
             min-height: 100vh;
         }
 
-        /* =====================================================
-           HEADER
-        ===================================================== */
 
-        .topbar {
-            height: 65px;
-            background: #111827;
-            color: #fff;
-
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-
-            padding: 0 25px;
+        button,
+        input,
+        select,
+        textarea {
+            font: inherit;
         }
 
-        .logo {
-            font-size: 22px;
+
+        button {
+            cursor: pointer;
+        }
+
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+
+        /* =====================================================
+           APP
+        ===================================================== */
+
+        .admin-app {
+            min-height: 100vh;
+
+            display: flex;
+        }
+
+
+        /* =====================================================
+           SIDEBAR
+        ===================================================== */
+
+        .sidebar {
+
+            width: 260px;
+
+            min-height: 100vh;
+
+            background: #111827;
+
+            color: #ffffff;
+
+            position: fixed;
+
+            left: 0;
+            top: 0;
+            bottom: 0;
+
+            z-index: 1000;
+
+            overflow-y: auto;
+        }
+
+
+        .sidebar-brand {
+
+            height: 72px;
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 12px;
+
+            padding: 0 22px;
+
+            border-bottom:
+                1px solid
+                rgba(255,255,255,0.08);
+        }
+
+
+        .brand-icon {
+
+            width: 38px;
+            height: 38px;
+
+            border-radius: 10px;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            background: #d4af37;
+
+            color: #111827;
+
+            font-size: 18px;
+
+            font-weight: 800;
+        }
+
+
+        .brand-text {
+
+            font-size: 18px;
+
+            font-weight: 700;
+
+            letter-spacing: .2px;
+        }
+
+
+        .brand-subtitle {
+
+            font-size: 10px;
+
+            color: #9ca3af;
+
+            margin-top: 2px;
+
+            text-transform: uppercase;
+
+            letter-spacing: 1px;
+        }
+
+
+        /* =====================================================
+           NAVIGATION
+        ===================================================== */
+
+        .sidebar-nav {
+
+            padding: 18px 12px 30px;
+        }
+
+
+        .nav-label {
+
+            color: #6b7280;
+
+            font-size: 10px;
+
+            font-weight: 700;
+
+            text-transform: uppercase;
+
+            letter-spacing: 1.2px;
+
+            padding: 12px 12px 7px;
+        }
+
+
+        .nav-item {
+
+            width: 100%;
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 12px;
+
+            padding: 11px 12px;
+
+            margin-bottom: 3px;
+
+            border: 0;
+
+            border-radius: 8px;
+
+            background: transparent;
+
+            color: #d1d5db;
+
+            font-size: 14px;
+
+            text-align: left;
+
+            transition:
+                background .2s ease,
+                color .2s ease;
+        }
+
+
+        .nav-item:hover {
+
+            background:
+                rgba(255,255,255,0.07);
+
+            color: #ffffff;
+        }
+
+
+        .nav-item.active {
+
+            background: #d4af37;
+
+            color: #111827;
+
             font-weight: 700;
         }
 
-        .admin-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
+
+        .nav-icon {
+
+            width: 24px;
+
+            text-align: center;
+
+            font-size: 16px;
         }
 
-        .admin-name {
-            font-size: 14px;
-            color: #d1d5db;
-        }
-
-        .logout-btn {
-            border: 0;
-            background: #dc2626;
-            color: #fff;
-
-            padding: 9px 15px;
-            border-radius: 6px;
-
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .logout-btn:hover {
-            opacity: 0.9;
-        }
 
         /* =====================================================
-           MAIN
+           MAIN AREA
         ===================================================== */
 
-        .main {
-            padding: 30px;
+        .main-area {
+
+            width: calc(100% - 260px);
+
+            margin-left: 260px;
+
+            min-height: 100vh;
         }
 
-        .page-title {
+
+        /* =====================================================
+           TOPBAR
+        ===================================================== */
+
+        .topbar {
+
+            height: 72px;
+
+            background: #ffffff;
+
+            border-bottom:
+                1px solid #e5e7eb;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            padding: 0 28px;
+
+            position: sticky;
+
+            top: 0;
+
+            z-index: 900;
+        }
+
+
+        .mobile-menu-btn {
+
+            display: none;
+
+            border: 0;
+
+            background: #f3f4f6;
+
+            width: 40px;
+            height: 40px;
+
+            border-radius: 8px;
+
+            font-size: 18px;
+        }
+
+
+        .topbar-title {
+
+            font-size: 19px;
+
+            font-weight: 700;
+        }
+
+
+        .topbar-right {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 16px;
+        }
+
+
+        .admin-user {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 10px;
+        }
+
+
+        .admin-avatar {
+
+            width: 38px;
+            height: 38px;
+
+            border-radius: 50%;
+
+            background: #111827;
+
+            color: #ffffff;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            font-weight: 700;
+        }
+
+
+        .admin-user-info {
+
+            line-height: 1.2;
+        }
+
+
+        .admin-user-name {
+
+            font-size: 13px;
+
+            font-weight: 700;
+        }
+
+
+        .admin-role {
+
+            font-size: 11px;
+
+            color: #6b7280;
+
+            margin-top: 3px;
+        }
+
+
+        .logout-btn {
+
+            border: 0;
+
+            background: #fee2e2;
+
+            color: #b91c1c;
+
+            padding: 9px 14px;
+
+            border-radius: 7px;
+
+            font-size: 13px;
+
+            font-weight: 600;
+        }
+
+
+        .logout-btn:hover {
+
+            background: #fecaca;
+        }
+
+
+        /* =====================================================
+           CONTENT
+        ===================================================== */
+
+        .content {
+
+            padding: 28px;
+        }
+
+
+        .page-header {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: flex-start;
+
             margin-bottom: 25px;
         }
 
-        .page-title h1 {
-            font-size: 30px;
-            margin-bottom: 6px;
+
+        .page-header h1 {
+
+            font-size: 28px;
+
+            margin-bottom: 5px;
         }
 
-        .page-title p {
+
+        .page-header p {
+
             color: #6b7280;
+
             font-size: 14px;
         }
+
+
+        .refresh-btn {
+
+            border: 1px solid #d1d5db;
+
+            background: #ffffff;
+
+            color: #374151;
+
+            padding: 9px 15px;
+
+            border-radius: 7px;
+
+            font-size: 13px;
+
+            font-weight: 600;
+        }
+
+
+        .refresh-btn:hover {
+
+            background: #f9fafb;
+        }
+
+
+        /* =====================================================
+           ERROR
+        ===================================================== */
+
+        .error-message {
+
+            display: none;
+
+            background: #fee2e2;
+
+            color: #991b1b;
+
+            border: 1px solid #fecaca;
+
+            padding: 14px 16px;
+
+            border-radius: 8px;
+
+            margin-bottom: 20px;
+
+            font-size: 14px;
+        }
+
 
         /* =====================================================
            STATS
         ===================================================== */
 
         .stats-grid {
+
             display: grid;
 
             grid-template-columns:
                 repeat(4, minmax(0, 1fr));
 
-            gap: 20px;
+            gap: 18px;
 
-            margin-bottom: 30px;
+            margin-bottom: 25px;
         }
+
 
         .stat-card {
-            background: #fff;
 
-            border-radius: 10px;
+            background: #ffffff;
 
-            padding: 22px;
+            border:
+                1px solid #e5e7eb;
+
+            border-radius: 12px;
+
+            padding: 20px;
+
+            position: relative;
+
+            overflow: hidden;
+
+            transition:
+                transform .2s ease,
+                box-shadow .2s ease;
+        }
+
+
+        .stat-card:hover {
+
+            transform: translateY(-2px);
 
             box-shadow:
-                0 2px 10px rgba(0, 0, 0, 0.06);
+                0 8px 25px
+                rgba(0,0,0,.06);
         }
 
-        .stat-card h3 {
-            color: #6b7280;
-            font-size: 14px;
-            font-weight: 500;
 
-            margin-bottom: 12px;
-        }
+        .stat-top {
 
-        .stat-number {
-            font-size: 30px;
-            font-weight: 700;
-        }
-
-        /* =====================================================
-           CONTENT
-        ===================================================== */
-
-        .content-card {
-            background: #fff;
-
-            border-radius: 10px;
-
-            padding: 25px;
-
-            box-shadow:
-                0 2px 10px rgba(0, 0, 0, 0.06);
-        }
-
-        .content-header {
             display: flex;
 
             justify-content: space-between;
+
             align-items: center;
 
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
-        .content-header h2 {
-            font-size: 20px;
+
+        .stat-title {
+
+            color: #6b7280;
+
+            font-size: 13px;
+
+            font-weight: 600;
         }
 
-        .refresh-btn {
-            border: 1px solid #d1d5db;
-            background: #fff;
 
-            padding: 8px 14px;
+        .stat-icon {
 
-            border-radius: 6px;
+            width: 38px;
+            height: 38px;
 
-            cursor: pointer;
-        }
+            border-radius: 9px;
 
-        .refresh-btn:hover {
             background: #f3f4f6;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            font-size: 17px;
         }
+
+
+        .stat-number {
+
+            font-size: 29px;
+
+            line-height: 1;
+
+            font-weight: 800;
+
+            color: #111827;
+        }
+
+
+        .stat-description {
+
+            margin-top: 9px;
+
+            color: #9ca3af;
+
+            font-size: 11px;
+        }
+
 
         /* =====================================================
-           TABLE
+           QUICK ACTIONS
         ===================================================== */
 
-        .table-wrapper {
-            width: 100%;
-            overflow-x: auto;
+        .section-title {
+
+            font-size: 18px;
+
+            font-weight: 700;
+
+            margin-bottom: 15px;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
+
+        .quick-actions {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(4, minmax(0, 1fr));
+
+            gap: 15px;
+
+            margin-bottom: 28px;
         }
 
-        th,
-        td {
-            padding: 14px 12px;
 
-            text-align: left;
+        .quick-action {
+
+            background: #ffffff;
+
+            border:
+                1px solid #e5e7eb;
+
+            border-radius: 10px;
+
+            padding: 17px;
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 13px;
+
+            transition: all .2s ease;
+        }
+
+
+        .quick-action:hover {
+
+            border-color: #d4af37;
+
+            transform: translateY(-2px);
+
+            box-shadow:
+                0 7px 20px
+                rgba(0,0,0,.05);
+        }
+
+
+        .quick-icon {
+
+            width: 42px;
+            height: 42px;
+
+            border-radius: 9px;
+
+            background: #f9f4df;
+
+            color: #8a6d14;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            font-size: 18px;
+        }
+
+
+        .quick-text strong {
+
+            display: block;
+
+            font-size: 13px;
+
+            margin-bottom: 3px;
+        }
+
+
+        .quick-text span {
+
+            color: #9ca3af;
+
+            font-size: 11px;
+        }
+
+
+        /* =====================================================
+           BOTTOM GRID
+        ===================================================== */
+
+        .dashboard-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                minmax(0, 1.8fr)
+                minmax(280px, 1fr);
+
+            gap: 20px;
+        }
+
+
+        .panel {
+
+            background: #ffffff;
+
+            border:
+                1px solid #e5e7eb;
+
+            border-radius: 12px;
+
+            overflow: hidden;
+        }
+
+
+        .panel-header {
+
+            padding: 18px 20px;
 
             border-bottom:
                 1px solid #e5e7eb;
 
-            font-size: 14px;
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
         }
 
-        th {
-            background: #f9fafb;
-            color: #374151;
+
+        .panel-header h2 {
+
+            font-size: 16px;
         }
 
-        .book-title {
+
+        .panel-link {
+
+            color: #8a6d14;
+
+            font-size: 12px;
+
             font-weight: 600;
         }
 
-        .language {
-            color: #6b7280;
+
+        .table-wrapper {
+
+            overflow-x: auto;
         }
 
+
+        table {
+
+            width: 100%;
+
+            border-collapse: collapse;
+        }
+
+
+        th,
+        td {
+
+            padding: 13px 18px;
+
+            border-bottom:
+                1px solid #f0f1f3;
+
+            text-align: left;
+
+            font-size: 13px;
+        }
+
+
+        th {
+
+            color: #6b7280;
+
+            background: #fafafa;
+
+            font-size: 11px;
+
+            text-transform: uppercase;
+
+            letter-spacing: .4px;
+        }
+
+
+        td {
+
+            color: #374151;
+        }
+
+
+        .book-name {
+
+            font-weight: 700;
+
+            color: #111827;
+        }
+
+
+        .book-slug {
+
+            color: #9ca3af;
+
+            font-size: 11px;
+
+            margin-top: 3px;
+        }
+
+
         .status {
+
             display: inline-block;
 
             padding: 5px 9px;
 
             border-radius: 20px;
 
-            font-size: 12px;
-            font-weight: 600;
+            font-size: 10px;
+
+            font-weight: 700;
         }
 
-        .published {
+
+        .status.published {
+
             background: #dcfce7;
+
             color: #166534;
         }
 
-        .draft {
+
+        .status.draft {
+
             background: #fef3c7;
+
             color: #92400e;
         }
 
+
+        .status.private {
+
+            background: #f3f4f6;
+
+            color: #374151;
+        }
+
+
         /* =====================================================
-           LOADING / ERROR
+           MODULE LIST
+        ===================================================== */
+
+        .module-list {
+
+            padding: 8px 0;
+        }
+
+
+        .module-item {
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            padding: 12px 20px;
+
+            border-bottom:
+                1px solid #f0f1f3;
+        }
+
+
+        .module-item:last-child {
+
+            border-bottom: 0;
+        }
+
+
+        .module-left {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 11px;
+        }
+
+
+        .module-icon {
+
+            width: 34px;
+            height: 34px;
+
+            background: #f3f4f6;
+
+            border-radius: 8px;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            font-size: 14px;
+        }
+
+
+        .module-name {
+
+            font-size: 13px;
+
+            font-weight: 600;
+        }
+
+
+        .module-count {
+
+            font-size: 11px;
+
+            color: #9ca3af;
+
+            margin-top: 2px;
+        }
+
+
+        .module-arrow {
+
+            color: #9ca3af;
+
+            font-size: 15px;
+        }
+
+
+        /* =====================================================
+           EMPTY / LOADING
         ===================================================== */
 
         .loading {
+
             text-align: center;
 
-            padding: 30px;
+            padding: 35px;
 
-            color: #6b7280;
+            color: #9ca3af;
         }
 
-        .error {
-            background: #fee2e2;
-            color: #991b1b;
-
-            padding: 15px;
-
-            border-radius: 7px;
-
-            margin-bottom: 20px;
-
-            display: none;
-        }
 
         .empty {
+
             text-align: center;
 
-            padding: 30px;
+            padding: 35px;
 
-            color: #6b7280;
+            color: #9ca3af;
         }
+
+
+        /* =====================================================
+           OVERLAY
+        ===================================================== */
+
+        .sidebar-overlay {
+
+            display: none;
+
+            position: fixed;
+
+            inset: 0;
+
+            background:
+                rgba(0,0,0,.45);
+
+            z-index: 999;
+        }
+
 
         /* =====================================================
            RESPONSIVE
         ===================================================== */
 
-        @media (max-width: 1000px) {
+        @media (max-width: 1200px) {
 
             .stats-grid {
+
                 grid-template-columns:
                     repeat(2, minmax(0, 1fr));
             }
+
+
+            .quick-actions {
+
+                grid-template-columns:
+                    repeat(2, minmax(0, 1fr));
+            }
+
         }
 
-        @media (max-width: 600px) {
+
+        @media (max-width: 900px) {
+
+            .sidebar {
+
+                transform:
+                    translateX(-100%);
+
+                transition:
+                    transform .25s ease;
+            }
+
+
+            .sidebar.open {
+
+                transform:
+                    translateX(0);
+            }
+
+
+            .sidebar-overlay.open {
+
+                display: block;
+            }
+
+
+            .main-area {
+
+                width: 100%;
+
+                margin-left: 0;
+            }
+
+
+            .mobile-menu-btn {
+
+                display: block;
+            }
+
 
             .topbar {
-                padding: 0 15px;
+
+                padding: 0 18px;
+
+                gap: 12px;
             }
 
-            .logo {
-                font-size: 18px;
+
+            .topbar-title {
+
+                flex: 1;
+
+                font-size: 16px;
             }
 
-            .admin-name {
+
+            .admin-user-info {
+
                 display: none;
             }
 
-            .main {
-                padding: 20px 15px;
+        }
+
+
+        @media (max-width: 700px) {
+
+            .content {
+
+                padding: 18px 14px;
             }
 
-            .page-title h1 {
-                font-size: 24px;
+
+            .page-header {
+
+                align-items: center;
             }
+
+
+            .page-header h1 {
+
+                font-size: 23px;
+            }
+
+
+            .page-header p {
+
+                font-size: 12px;
+            }
+
 
             .stats-grid {
-                grid-template-columns: 1fr;
+
+                grid-template-columns: 1fr 1fr;
+
+                gap: 11px;
             }
 
-            .content-card {
+
+            .stat-card {
+
                 padding: 15px;
             }
 
-            th,
-            td {
-                white-space: nowrap;
+
+            .stat-number {
+
+                font-size: 24px;
             }
+
+
+            .quick-actions {
+
+                grid-template-columns: 1fr 1fr;
+
+                gap: 10px;
+            }
+
+
+            .quick-action {
+
+                padding: 13px;
+
+                gap: 9px;
+            }
+
+
+            .quick-icon {
+
+                width: 36px;
+                height: 36px;
+            }
+
+
+            .dashboard-grid {
+
+                grid-template-columns: 1fr;
+            }
+
+
+            .logout-btn {
+
+                padding: 8px 10px;
+
+                font-size: 11px;
+            }
+
         }
+
+
+        @media (max-width: 480px) {
+
+            .topbar {
+
+                height: 62px;
+            }
+
+
+            .admin-avatar {
+
+                width: 34px;
+                height: 34px;
+            }
+
+
+            .stats-grid {
+
+                grid-template-columns: 1fr 1fr;
+            }
+
+
+            .stat-title {
+
+                font-size: 11px;
+            }
+
+
+            .stat-number {
+
+                font-size: 22px;
+            }
+
+
+            .quick-text span {
+
+                display: none;
+            }
+
+
+            .quick-text strong {
+
+                font-size: 11px;
+            }
+
+        }
+
     </style>
+
 </head>
+
 
 <body>
 
-<div class="dashboard">
+
+<div class="admin-app">
+
 
     <!-- =====================================================
-         TOP BAR
+         SIDEBAR
     ===================================================== -->
 
-    <header class="topbar">
+    <aside
+        class="sidebar"
+        id="sidebar"
+    >
 
-        <div class="logo">
-            Rasbhav Books
+
+        <div class="sidebar-brand">
+
+            <div class="brand-icon">
+                R
+            </div>
+
+            <div>
+
+                <div class="brand-text">
+                    Rasbhav Books
+                </div>
+
+                <div class="brand-subtitle">
+                    Admin CMS
+                </div>
+
+            </div>
+
         </div>
 
-        <div class="admin-info">
 
-            <span
-                class="admin-name"
-                id="adminName"
-            >
-                Admin
-            </span>
+        <nav class="sidebar-nav">
+
+
+            <div class="nav-label">
+                Main
+            </div>
+
 
             <button
-                class="logout-btn"
-                id="logoutBtn"
+                class="nav-item active"
+                data-section="dashboard"
             >
-                Logout
+
+                <span class="nav-icon">
+                    📊
+                </span>
+
+                Dashboard
+
             </button>
 
-        </div>
 
-    </header>
+            <button
+                class="nav-item"
+                data-section="books"
+            >
+
+                <span class="nav-icon">
+                    📚
+                </span>
+
+                Books
+
+            </button>
+
+
+            <button
+                class="nav-item"
+                data-section="chapters"
+            >
+
+                <span class="nav-icon">
+                    📖
+                </span>
+
+                Chapters
+
+            </button>
+
+
+            <div class="nav-label">
+                Content
+            </div>
+
+
+            <button
+                class="nav-item"
+                data-section="authors"
+            >
+
+                <span class="nav-icon">
+                    ✍️
+                </span>
+
+                Authors
+
+            </button>
+
+
+            <button
+                class="nav-item"
+                data-section="categories"
+            >
+
+                <span class="nav-icon">
+                    🗂️
+                </span>
+
+                Categories
+
+            </button>
+
+
+            <button
+                class="nav-item"
+                data-section="pages"
+            >
+
+                <span class="nav-icon">
+                    📄
+                </span>
+
+                Pages
+
+            </button>
+
+
+            <button
+                class="nav-item"
+                data-section="media"
+            >
+
+                <span class="nav-icon">
+                    🖼️
+                </span>
+
+                Media
+
+            </button>
+
+
+            <div class="nav-label">
+                Website
+            </div>
+
+
+            <button
+                class="nav-item"
+                data-section="menus"
+            >
+
+                <span class="nav-icon">
+                    ☰
+                </span>
+
+                Menus
+
+            </button>
+
+
+            <button
+                class="nav-item"
+                data-section="widgets"
+            >
+
+                <span class="nav-icon">
+                    🧩
+                </span>
+
+                Widgets
+
+            </button>
+
+
+            <button
+                class="nav-item"
+                data-section="layout"
+            >
+
+                <span class="nav-icon">
+                    🎨
+                </span>
+
+                Layout
+
+            </button>
+
+
+            <div class="nav-label">
+                Optimization
+            </div>
+
+
+            <button
+                class="nav-item"
+                data-section="seo"
+            >
+
+                <span class="nav-icon">
+                    🔎
+                </span>
+
+                SEO
+
+            </button>
+
+
+            <button
+                class="nav-item"
+                data-section="settings"
+            >
+
+                <span class="nav-icon">
+                    ⚙️
+                </span>
+
+                Settings
+
+            </button>
+
+
+            <div class="nav-label">
+                Users
+            </div>
+
+
+            <button
+                class="nav-item"
+                data-section="users"
+            >
+
+                <span class="nav-icon">
+                    👥
+                </span>
+
+                Users
+
+            </button>
+
+
+            <button
+                class="nav-item"
+                data-section="admin-users"
+            >
+
+                <span class="nav-icon">
+                    🛡️
+                </span>
+
+                Admin Users
+
+            </button>
+
+
+        </nav>
+
+    </aside>
+
+
+    <div
+        class="sidebar-overlay"
+        id="sidebarOverlay"
+    ></div>
 
 
     <!-- =====================================================
-         MAIN
+         MAIN AREA
     ===================================================== -->
 
-    <main class="main">
+    <div class="main-area">
 
-        <div class="page-title">
 
-            <h1>
+        <!-- =================================================
+             TOPBAR
+        ================================================= -->
+
+        <header class="topbar">
+
+
+            <button
+                class="mobile-menu-btn"
+                id="mobileMenuBtn"
+                aria-label="Open menu"
+            >
+                ☰
+            </button>
+
+
+            <div
+                class="topbar-title"
+                id="topbarTitle"
+            >
                 Dashboard
-            </h1>
-
-            <p>
-                Welcome to Rasbhav Books Admin Panel
-            </p>
-
-        </div>
+            </div>
 
 
-        <!-- ERROR -->
+            <div class="topbar-right">
 
-        <div
-            class="error"
-            id="errorMessage"
-        ></div>
+
+                <div class="admin-user">
+
+
+                    <div
+                        class="admin-avatar"
+                        id="adminAvatar"
+                    >
+                        A
+                    </div>
+
+
+                    <div class="admin-user-info">
+
+                        <div
+                            class="admin-user-name"
+                            id="adminName"
+                        >
+                            Admin
+                        </div>
+
+                        <div
+                            class="admin-role"
+                            id="adminRole"
+                        >
+                            Administrator
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+
+                <button
+                    class="logout-btn"
+                    id="logoutBtn"
+                >
+                    Logout
+                </button>
+
+
+            </div>
+
+
+        </header>
 
 
         <!-- =================================================
-             STATISTICS
+             CONTENT
         ================================================= -->
 
-        <section class="stats-grid">
+        <main class="content">
 
-            <div class="stat-card">
 
-                <h3>
-                    Total Books
-                </h3>
+            <div class="page-header">
 
-                <div
-                    class="stat-number"
-                    id="totalBooks"
-                >
-                    0
+
+                <div>
+
+                    <h1>
+                        Dashboard
+                    </h1>
+
+                    <p>
+                        Manage your entire Rasbhav Books
+                        platform from one place.
+                    </p>
+
                 </div>
 
-            </div>
-
-
-            <div class="stat-card">
-
-                <h3>
-                    Published Books
-                </h3>
-
-                <div
-                    class="stat-number"
-                    id="publishedBooks"
-                >
-                    0
-                </div>
-
-            </div>
-
-
-            <div class="stat-card">
-
-                <h3>
-                    Draft Books
-                </h3>
-
-                <div
-                    class="stat-number"
-                    id="draftBooks"
-                >
-                    0
-                </div>
-
-            </div>
-
-
-            <div class="stat-card">
-
-                <h3>
-                    Total Chapters
-                </h3>
-
-                <div
-                    class="stat-number"
-                    id="totalChapters"
-                >
-                    0
-                </div>
-
-            </div>
-
-
-            <div class="stat-card">
-
-                <h3>
-                    Published Chapters
-                </h3>
-
-                <div
-                    class="stat-number"
-                    id="publishedChapters"
-                >
-                    0
-                </div>
-
-            </div>
-
-
-            <div class="stat-card">
-
-                <h3>
-                    Total Users
-                </h3>
-
-                <div
-                    class="stat-number"
-                    id="totalUsers"
-                >
-                    0
-                </div>
-
-            </div>
-
-
-            <div class="stat-card">
-
-                <h3>
-                    Total Authors
-                </h3>
-
-                <div
-                    class="stat-number"
-                    id="totalAuthors"
-                >
-                    0
-                </div>
-
-            </div>
-
-
-            <div class="stat-card">
-
-                <h3>
-                    Total Categories
-                </h3>
-
-                <div
-                    class="stat-number"
-                    id="totalCategories"
-                >
-                    0
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- =================================================
-             RECENT BOOKS
-        ================================================= -->
-
-        <section class="content-card">
-
-            <div class="content-header">
-
-                <h2>
-                    Recent Books
-                </h2>
 
                 <button
                     class="refresh-btn"
                     id="refreshBtn"
                 >
-                    Refresh
+                    ↻ Refresh
                 </button>
 
+
             </div>
 
 
-            <div class="table-wrapper">
+            <div
+                class="error-message"
+                id="errorMessage"
+            ></div>
 
-                <table>
 
-                    <thead>
+            <!-- =================================================
+                 STATS
+            ================================================= -->
 
-                        <tr>
+            <section class="stats-grid">
 
-                            <th>
-                                ID
-                            </th>
 
-                            <th>
-                                Book
-                            </th>
+                <div class="stat-card">
 
-                            <th>
-                                Language
-                            </th>
+                    <div class="stat-top">
 
-                            <th>
-                                Status
-                            </th>
+                        <span class="stat-title">
+                            Total Books
+                        </span>
 
-                            <th>
-                                Created
-                            </th>
+                        <span class="stat-icon">
+                            📚
+                        </span>
 
-                        </tr>
+                    </div>
 
-                    </thead>
-
-                    <tbody
-                        id="booksTable"
+                    <div
+                        class="stat-number"
+                        id="totalBooks"
                     >
+                        0
+                    </div>
 
-                        <tr>
+                    <div class="stat-description">
+                        All books in database
+                    </div>
 
-                            <td
-                                colspan="5"
-                                class="loading"
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-top">
+
+                        <span class="stat-title">
+                            Published Books
+                        </span>
+
+                        <span class="stat-icon">
+                            ✅
+                        </span>
+
+                    </div>
+
+                    <div
+                        class="stat-number"
+                        id="publishedBooks"
+                    >
+                        0
+                    </div>
+
+                    <div class="stat-description">
+                        Visible on public website
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-top">
+
+                        <span class="stat-title">
+                            Chapters
+                        </span>
+
+                        <span class="stat-icon">
+                            📖
+                        </span>
+
+                    </div>
+
+                    <div
+                        class="stat-number"
+                        id="totalChapters"
+                    >
+                        0
+                    </div>
+
+                    <div class="stat-description">
+                        Total chapters
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-top">
+
+                        <span class="stat-title">
+                            Users
+                        </span>
+
+                        <span class="stat-icon">
+                            👥
+                        </span>
+
+                    </div>
+
+                    <div
+                        class="stat-number"
+                        id="totalUsers"
+                    >
+                        0
+                    </div>
+
+                    <div class="stat-description">
+                        Registered readers
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-top">
+
+                        <span class="stat-title">
+                            Authors
+                        </span>
+
+                        <span class="stat-icon">
+                            ✍️
+                        </span>
+
+                    </div>
+
+                    <div
+                        class="stat-number"
+                        id="totalAuthors"
+                    >
+                        0
+                    </div>
+
+                    <div class="stat-description">
+                        Book authors
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-top">
+
+                        <span class="stat-title">
+                            Categories
+                        </span>
+
+                        <span class="stat-icon">
+                            🗂️
+                        </span>
+
+                    </div>
+
+                    <div
+                        class="stat-number"
+                        id="totalCategories"
+                    >
+                        0
+                    </div>
+
+                    <div class="stat-description">
+                        Content categories
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-top">
+
+                        <span class="stat-title">
+                            Media
+                        </span>
+
+                        <span class="stat-icon">
+                            🖼️
+                        </span>
+
+                    </div>
+
+                    <div
+                        class="stat-number"
+                        id="totalMedia"
+                    >
+                        0
+                    </div>
+
+                    <div class="stat-description">
+                        Uploaded media
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-top">
+
+                        <span class="stat-title">
+                            Pages
+                        </span>
+
+                        <span class="stat-icon">
+                            📄
+                        </span>
+
+                    </div>
+
+                    <div
+                        class="stat-number"
+                        id="totalPages"
+                    >
+                        0
+                    </div>
+
+                    <div class="stat-description">
+                        Website pages
+                    </div>
+
+                </div>
+
+
+            </section>
+
+
+            <!-- =================================================
+                 QUICK ACTIONS
+            ================================================= -->
+
+            <h2 class="section-title">
+                Quick Actions
+            </h2>
+
+
+            <section class="quick-actions">
+
+
+                <button
+                    class="quick-action"
+                    data-section="books"
+                >
+
+                    <div class="quick-icon">
+                        ➕
+                    </div>
+
+                    <div class="quick-text">
+
+                        <strong>
+                            Add Book
+                        </strong>
+
+                        <span>
+                            Create a new book
+                        </span>
+
+                    </div>
+
+                </button>
+
+
+                <button
+                    class="quick-action"
+                    data-section="chapters"
+                >
+
+                    <div class="quick-icon">
+                        📖
+                    </div>
+
+                    <div class="quick-text">
+
+                        <strong>
+                            Add Chapter
+                        </strong>
+
+                        <span>
+                            Add book chapter
+                        </span>
+
+                    </div>
+
+                </button>
+
+
+                <button
+                    class="quick-action"
+                    data-section="authors"
+                >
+
+                    <div class="quick-icon">
+                        ✍️
+                    </div>
+
+                    <div class="quick-text">
+
+                        <strong>
+                            Add Author
+                        </strong>
+
+                        <span>
+                            Create author profile
+                        </span>
+
+                    </div>
+
+                </button>
+
+
+                <button
+                    class="quick-action"
+                    data-section="categories"
+                >
+
+                    <div class="quick-icon">
+                        🗂️
+                    </div>
+
+                    <div class="quick-text">
+
+                        <strong>
+                            Add Category
+                        </strong>
+
+                        <span>
+                            Organize your books
+                        </span>
+
+                    </div>
+
+                </button>
+
+
+            </section>
+
+
+            <!-- =================================================
+                 DASHBOARD GRID
+            ================================================= -->
+
+            <section class="dashboard-grid">
+
+
+                <!-- =================================================
+                     RECENT BOOKS
+                ================================================= -->
+
+                <div class="panel">
+
+
+                    <div class="panel-header">
+
+                        <h2>
+                            Recent Books
+                        </h2>
+
+                        <button
+                            class="panel-link"
+                            data-section="books"
+                        >
+                            View All
+                        </button>
+
+                    </div>
+
+
+                    <div class="table-wrapper">
+
+                        <table>
+
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>
+                                        Book
+                                    </th>
+
+                                    <th>
+                                        Language
+                                    </th>
+
+                                    <th>
+                                        Status
+                                    </th>
+
+                                    <th>
+                                        Created
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody
+                                id="booksTable"
                             >
-                                Loading...
-                            </td>
 
-                        </tr>
+                                <tr>
 
-                    </tbody>
+                                    <td
+                                        colspan="4"
+                                        class="loading"
+                                    >
+                                        Loading...
+                                    </td>
 
-                </table>
+                                </tr>
 
-            </div>
+                            </tbody>
 
-        </section>
 
-    </main>
+                        </table>
+
+                    </div>
+
+
+                </div>
+
+
+                <!-- =================================================
+                     MODULES
+                ================================================= -->
+
+                <div class="panel">
+
+
+                    <div class="panel-header">
+
+                        <h2>
+                            CMS Modules
+                        </h2>
+
+                    </div>
+
+
+                    <div class="module-list">
+
+
+                        <button
+                            class="module-item"
+                            data-section="books"
+                        >
+
+                            <span class="module-left">
+
+                                <span class="module-icon">
+                                    📚
+                                </span>
+
+                                <span>
+
+                                    <span class="module-name">
+                                        Books
+                                    </span>
+
+                                    <span
+                                        class="module-count"
+                                        id="moduleBooks"
+                                    >
+                                        0 books
+                                    </span>
+
+                                </span>
+
+                            </span>
+
+                            <span class="module-arrow">
+                                ›
+                            </span>
+
+                        </button>
+
+
+                        <button
+                            class="module-item"
+                            data-section="chapters"
+                        >
+
+                            <span class="module-left">
+
+                                <span class="module-icon">
+                                    📖
+                                </span>
+
+                                <span>
+
+                                    <span class="module-name">
+                                        Chapters
+                                    </span>
+
+                                    <span
+                                        class="module-count"
+                                        id="moduleChapters"
+                                    >
+                                        0 chapters
+                                    </span>
+
+                                </span>
+
+                            </span>
+
+                            <span class="module-arrow">
+                                ›
+                            </span>
+
+                        </button>
+
+
+                        <button
+                            class="module-item"
+                            data-section="authors"
+                        >
+
+                            <span class="module-left">
+
+                                <span class="module-icon">
+                                    ✍️
+                                </span>
+
+                                <span>
+
+                                    <span class="module-name">
+                                        Authors
+                                    </span>
+
+                                    <span
+                                        class="module-count"
+                                        id="moduleAuthors"
+                                    >
+                                        0 authors
+                                    </span>
+
+                                </span>
+
+                            </span>
+
+                            <span class="module-arrow">
+                                ›
+                            </span>
+
+                        </button>
+
+
+                        <button
+                            class="module-item"
+                            data-section="categories"
+                        >
+
+                            <span class="module-left">
+
+                                <span class="module-icon">
+                                    🗂️
+                                </span>
+
+                                <span>
+
+                                    <span class="module-name">
+                                        Categories
+                                    </span>
+
+                                    <span
+                                        class="module-count"
+                                        id="moduleCategories"
+                                    >
+                                        0 categories
+                                    </span>
+
+                                </span>
+
+                            </span>
+
+                            <span class="module-arrow">
+                                ›
+                            </span>
+
+                        </button>
+
+
+                        <button
+                            class="module-item"
+                            data-section="pages"
+                        >
+
+                            <span class="module-left">
+
+                                <span class="module-icon">
+                                    📄
+                                </span>
+
+                                <span>
+
+                                    <span class="module-name">
+                                        Pages
+                                    </span>
+
+                                    <span
+                                        class="module-count"
+                                        id="modulePages"
+                                    >
+                                        0 pages
+                                    </span>
+
+                                </span>
+
+                            </span>
+
+                            <span class="module-arrow">
+                                ›
+                            </span>
+
+                        </button>
+
+
+                        <button
+                            class="module-item"
+                            data-section="menus"
+                        >
+
+                            <span class="module-left">
+
+                                <span class="module-icon">
+                                    ☰
+                                </span>
+
+                                <span>
+
+                                    <span class="module-name">
+                                        Menus
+                                    </span>
+
+                                    <span class="module-count">
+                                        Navigation management
+                                    </span>
+
+                                </span>
+
+                            </span>
+
+                            <span class="module-arrow">
+                                ›
+                            </span>
+
+                        </button>
+
+
+                        <button
+                            class="module-item"
+                            data-section="seo"
+                        >
+
+                            <span class="module-left">
+
+                                <span class="module-icon">
+                                    🔎
+                                </span>
+
+                                <span>
+
+                                    <span class="module-name">
+                                        SEO
+                                    </span>
+
+                                    <span class="module-count">
+                                        Search optimization
+                                    </span>
+
+                                </span>
+
+                            </span>
+
+                            <span class="module-arrow">
+                                ›
+                            </span>
+
+                        </button>
+
+
+                        <button
+                            class="module-item"
+                            data-section="settings"
+                        >
+
+                            <span class="module-left">
+
+                                <span class="module-icon">
+                                    ⚙️
+                                </span>
+
+                                <span>
+
+                                    <span class="module-name">
+                                        Settings
+                                    </span>
+
+                                    <span class="module-count">
+                                        Website configuration
+                                    </span>
+
+                                </span>
+
+                            </span>
+
+                            <span class="module-arrow">
+                                ›
+                            </span>
+
+                        </button>
+
+
+                    </div>
+
+                </div>
+
+
+            </section>
+
+
+        </main>
+
+    </div>
 
 </div>
 
@@ -608,47 +2361,81 @@
 
 
 /* =========================================================
-   ELEMENTS
+   STATE
 ========================================================= */
 
-const totalBooks =
-    document.getElementById("totalBooks");
+const AdminDashboardState = {
 
-const publishedBooks =
-    document.getElementById("publishedBooks");
+    dashboard: null,
 
-const draftBooks =
-    document.getElementById("draftBooks");
+    loading: false
 
-const totalChapters =
-    document.getElementById("totalChapters");
+};
 
-const publishedChapters =
-    document.getElementById("publishedChapters");
 
-const totalUsers =
-    document.getElementById("totalUsers");
+/* =========================================================
+   DOM
+========================================================= */
 
-const totalAuthors =
-    document.getElementById("totalAuthors");
+const sidebar =
+    document.getElementById("sidebar");
 
-const totalCategories =
-    document.getElementById("totalCategories");
+const sidebarOverlay =
+    document.getElementById("sidebarOverlay");
 
-const booksTable =
-    document.getElementById("booksTable");
-
-const errorMessage =
-    document.getElementById("errorMessage");
-
-const adminName =
-    document.getElementById("adminName");
+const mobileMenuBtn =
+    document.getElementById("mobileMenuBtn");
 
 const refreshBtn =
     document.getElementById("refreshBtn");
 
 const logoutBtn =
     document.getElementById("logoutBtn");
+
+const errorMessage =
+    document.getElementById("errorMessage");
+
+
+/* =========================================================
+   ESCAPE HTML
+========================================================= */
+
+function escapeHtml(value) {
+
+    if (
+        value === null ||
+        value === undefined
+    ) {
+        return "";
+    }
+
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+
+/* =========================================================
+   FORMAT DATE
+========================================================= */
+
+function formatDate(value) {
+
+    if (!value) {
+        return "-";
+    }
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+        return "-";
+    }
+
+    return date.toLocaleDateString();
+}
 
 
 /* =========================================================
@@ -657,9 +2444,11 @@ const logoutBtn =
 
 function showError(message) {
 
-    errorMessage.textContent = message;
+    errorMessage.textContent =
+        message || "Something went wrong.";
 
-    errorMessage.style.display = "block";
+    errorMessage.style.display =
+        "block";
 }
 
 
@@ -671,24 +2460,24 @@ function hideError() {
 
     errorMessage.textContent = "";
 
-    errorMessage.style.display = "none";
+    errorMessage.style.display =
+        "none";
 }
 
 
 /* =========================================================
-   FORMAT DATE
+   SET TEXT
 ========================================================= */
 
-function formatDate(dateString) {
+function setText(id, value) {
 
-    if (!dateString) {
-        return "-";
-    }
+    const element =
+        document.getElementById(id);
 
-    const date =
-        new Date(dateString);
+    if (!element) return;
 
-    return date.toLocaleDateString();
+    element.textContent =
+        value ?? 0;
 }
 
 
@@ -698,18 +2487,31 @@ function formatDate(dateString) {
 
 async function loadDashboard() {
 
+    if (AdminDashboardState.loading) {
+        return;
+    }
+
+    AdminDashboardState.loading = true;
+
     hideError();
 
-    booksTable.innerHTML = `
-        <tr>
-            <td
-                colspan="5"
-                class="loading"
-            >
-                Loading...
-            </td>
-        </tr>
-    `;
+    const table =
+        document.getElementById("booksTable");
+
+    if (table) {
+
+        table.innerHTML = `
+            <tr>
+                <td
+                    colspan="4"
+                    class="loading"
+                >
+                    Loading dashboard...
+                </td>
+            </tr>
+        `;
+    }
+
 
     try {
 
@@ -718,16 +2520,45 @@ async function loadDashboard() {
                 "/api/admin/dashboard",
                 {
                     method: "GET",
-                    credentials: "same-origin"
+
+                    credentials: "same-origin",
+
+                    headers: {
+                        "Accept":
+                            "application/json"
+                    }
                 }
             );
 
 
-        const data =
-            await response.json();
+        let data = null;
 
 
-        if (!response.ok || !data.success) {
+        try {
+
+            data =
+                await response.json();
+
+        } catch (jsonError) {
+
+            throw new Error(
+                "Invalid server response."
+            );
+        }
+
+
+        if (!response.ok) {
+
+            if (
+                response.status === 401 ||
+                response.status === 403
+            ) {
+
+                window.location.href =
+                    "/api/admin/panel";
+
+                return;
+            }
 
             throw new Error(
                 data.message ||
@@ -736,87 +2567,262 @@ async function loadDashboard() {
         }
 
 
-        /* =================================================
-           STATS
-        ================================================= */
+        if (!data.success) {
 
-        const stats =
-            data.stats || {};
-
-
-        totalBooks.textContent =
-            stats.total_books || 0;
-
-        publishedBooks.textContent =
-            stats.published_books || 0;
-
-        draftBooks.textContent =
-            stats.draft_books || 0;
-
-        totalChapters.textContent =
-            stats.total_chapters || 0;
-
-        publishedChapters.textContent =
-            stats.published_chapters || 0;
-
-        totalUsers.textContent =
-            stats.total_users || 0;
-
-        totalAuthors.textContent =
-            stats.total_authors || 0;
-
-        totalCategories.textContent =
-            stats.total_categories || 0;
-
-
-        /* =================================================
-           ADMIN
-        ================================================= */
-
-        if (data.admin) {
-
-            adminName.textContent =
-                data.admin.full_name ||
-                data.admin.username ||
-                "Admin";
+            throw new Error(
+                data.message ||
+                "Dashboard request failed."
+            );
         }
 
 
-        /* =================================================
-           RECENT BOOKS
-        ================================================= */
-
-        const books =
-            data.recent_books || [];
+        AdminDashboardState.dashboard =
+            data;
 
 
-        if (books.length === 0) {
+        renderDashboard(data);
 
-            booksTable.innerHTML = `
+
+    } catch (error) {
+
+        console.error(
+            "Dashboard Error:",
+            error
+        );
+
+        showError(
+            error.message ||
+            "Unable to load dashboard."
+        );
+
+
+        if (table) {
+
+            table.innerHTML = `
                 <tr>
                     <td
-                        colspan="5"
+                        colspan="4"
                         class="empty"
                     >
-                        No books found.
+                        Unable to load books.
                     </td>
                 </tr>
             `;
-
-            return;
         }
 
 
-        booksTable.innerHTML =
-            books.map(book => {
+    } finally {
+
+        AdminDashboardState.loading =
+            false;
+    }
+
+}
+
+
+/* =========================================================
+   RENDER DASHBOARD
+========================================================= */
+
+function renderDashboard(data) {
+
+    const stats =
+        data.stats || {};
+
+
+    /* -----------------------------------------------------
+       MAIN STATS
+    ----------------------------------------------------- */
+
+    setText(
+        "totalBooks",
+        stats.total_books || 0
+    );
+
+
+    setText(
+        "publishedBooks",
+        stats.published_books || 0
+    );
+
+
+    setText(
+        "totalChapters",
+        stats.total_chapters || 0
+    );
+
+
+    setText(
+        "totalUsers",
+        stats.total_users || 0
+    );
+
+
+    setText(
+        "totalAuthors",
+        stats.total_authors || 0
+    );
+
+
+    setText(
+        "totalCategories",
+        stats.total_categories || 0
+    );
+
+
+    setText(
+        "totalMedia",
+        stats.total_media || 0
+    );
+
+
+    setText(
+        "totalPages",
+        stats.total_pages || 0
+    );
+
+
+    /* -----------------------------------------------------
+       MODULE COUNTS
+    ----------------------------------------------------- */
+
+    setText(
+        "moduleBooks",
+        `${stats.total_books || 0} books`
+    );
+
+
+    setText(
+        "moduleChapters",
+        `${stats.total_chapters || 0} chapters`
+    );
+
+
+    setText(
+        "moduleAuthors",
+        `${stats.total_authors || 0} authors`
+    );
+
+
+    setText(
+        "moduleCategories",
+        `${stats.total_categories || 0} categories`
+    );
+
+
+    setText(
+        "modulePages",
+        `${stats.total_pages || 0} pages`
+    );
+
+
+    /* -----------------------------------------------------
+       ADMIN
+    ----------------------------------------------------- */
+
+    if (data.admin) {
+
+        const name =
+            data.admin.full_name ||
+            data.admin.username ||
+            "Admin";
+
+
+        setText(
+            "adminName",
+            name
+        );
+
+
+        setText(
+            "adminRole",
+            data.admin.is_super_admin
+                ? "Super Administrator"
+                : "Administrator"
+        );
+
+
+        const avatar =
+            document.getElementById(
+                "adminAvatar"
+            );
+
+
+        if (avatar) {
+
+            avatar.textContent =
+                name
+                    .charAt(0)
+                    .toUpperCase();
+        }
+
+    }
+
+
+    /* -----------------------------------------------------
+       RECENT BOOKS
+    ----------------------------------------------------- */
+
+    renderRecentBooks(
+        data.recent_books || []
+    );
+
+}
+
+
+/* =========================================================
+   RENDER RECENT BOOKS
+========================================================= */
+
+function renderRecentBooks(books) {
+
+    const table =
+        document.getElementById(
+            "booksTable"
+        );
+
+
+    if (!table) {
+        return;
+    }
+
+
+    if (!Array.isArray(books) || !books.length) {
+
+        table.innerHTML = `
+            <tr>
+                <td
+                    colspan="4"
+                    class="empty"
+                >
+                    No books found.
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+
+    table.innerHTML =
+        books
+            .slice(0, 10)
+            .map(book => {
+
+                const published =
+                    Boolean(
+                        book.published
+                    );
+
 
                 const statusClass =
-                    book.published
+                    published
                         ? "published"
                         : "draft";
 
+
                 const statusText =
-                    book.published
+                    published
                         ? "Published"
                         : "Draft";
 
@@ -825,149 +2831,49 @@ async function loadDashboard() {
                     <tr>
 
                         <td>
-                            ${book.id}
-                        </td>
 
-                        <td>
-                            <div class="book-title">
+                            <div class="book-name">
                                 ${escapeHtml(
-                                    book.title || "-"
+                                    book.title ||
+                                    "Untitled"
                                 )}
                             </div>
+
+                            ${
+                                book.slug
+                                ? `
+                                    <div class="book-slug">
+                                        ${escapeHtml(
+                                            book.slug
+                                        )}
+                                    </div>
+                                `
+                                : ""
+                            }
+
                         </td>
 
-                        <td>
-                            <span class="language">
-                                ${escapeHtml(
-                                    book.language || "-"
-                                )}
-                            </span>
-                        </td>
 
                         <td>
-                            <span
-                                class="status ${statusClass}"
-                            >
-                                ${statusText}
-                            </span>
-                        </td>
-
-                        <td>
-                            ${formatDate(
-                                book.created_at
+                            ${escapeHtml(
+                                book.language ||
+                                "-"
                             )}
                         </td>
 
-                    </tr>
-                `;
 
-            }).join("");
+                        <td>
 
+                            <span
+                                class="
+                                    status
+                                    ${statusClass}
+                                "
+                            >
+                                ${statusText}
+                            </span>
 
-    } catch (error) {
-
-        console.error(
-            "Dashboard error:",
-            error
-        );
-
-        showError(
-            error.message ||
-            "Something went wrong."
-        );
-
-        booksTable.innerHTML = `
-            <tr>
-                <td
-                    colspan="5"
-                    class="empty"
-                >
-                    Unable to load data.
-                </td>
-            </tr>
-        `;
-    }
-}
+                        </td>
 
 
-/* =========================================================
-   HTML ESCAPE
-========================================================= */
-
-function escapeHtml(value) {
-
-    const div =
-        document.createElement("div");
-
-    div.textContent =
-        value;
-
-    return div.innerHTML;
-}
-
-
-/* =========================================================
-   REFRESH
-========================================================= */
-
-refreshBtn.addEventListener(
-    "click",
-    loadDashboard
-);
-
-
-/* =========================================================
-   LOGOUT
-========================================================= */
-
-logoutBtn.addEventListener(
-    "click",
-    async function () {
-
-        try {
-
-            const response =
-                await fetch(
-                    "/api/auth/logout",
-                    {
-                        method: "POST",
-                        credentials: "same-origin"
-                    }
-                );
-
-
-            const data =
-                await response.json();
-
-
-            if (response.ok && data.success) {
-
-                window.location.href =
-                    "/admin";
-            }
-
-        } catch (error) {
-
-            console.error(
-                "Logout error:",
-                error
-            );
-
-            window.location.href =
-                "/admin";
-        }
-
-    }
-);
-
-
-/* =========================================================
-   INITIAL LOAD
-========================================================= */
-
-loadDashboard();
-
-</script>
-
-</body>
-</html>
+                        <td
