@@ -49,6 +49,7 @@ def create_app():
 
     from app import models
 
+
     # =====================================================
     # PUBLIC ROUTES
     # =====================================================
@@ -93,6 +94,8 @@ def create_app():
     from app.routes.admin_seo import admin_seo_bp
 
     from app.routes.admin_media import admin_media_bp
+
+    from app.routes.admin_pages import admin_pages_bp
 
 
     # =====================================================
@@ -139,6 +142,8 @@ def create_app():
     app.register_blueprint(admin_seo_bp)
 
     app.register_blueprint(admin_media_bp)
+
+    app.register_blueprint(admin_pages_bp)
 
 
     # =====================================================
