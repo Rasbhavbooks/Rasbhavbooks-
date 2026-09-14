@@ -21,12 +21,16 @@
 # - Category image
 # - Book mapping
 # - Category hierarchy
+# - Safe delete protection
+# - Strict validation
 # - Safe JSON responses
 # - Database rollback
 # ============================================================
 
 
 from flask import Blueprint, request, jsonify
+from sqlalchemy import or_
+from sqlalchemy.exc import IntegrityError
 
 from app import db
 
@@ -53,6 +57,11 @@ admin_categories_bp = Blueprint(
 # ============================================================
 
 def clean_string(value, default=None):
+    """
+    Convert a value into a trimmed string.
+
+    Empty values return default.
+    """
 
     if value is None:
         return default
@@ -66,6 +75,9 @@ def clean_string(value, default=None):
 
 
 def parse_int(value, default=None):
+    """
+    Safely convert value to integer.
+    """
 
     if value is None:
         return default
@@ -76,11 +88,52 @@ def parse_int(value, default=None):
         return default
 
 
+def parse_optional_parent_id(value):
+    """
+    Parse parent_id safely.
+
+    Allowed:
+    - None
+    - ""
+    - whitespace
+    - integer
+    - numeric string
+
+    Invalid non-empty values raise ValueError.
+    """
+
+    if value is None:
+        return None
+
+    if isinstance(value, str):
+        value = value.strip()
+
+        if not value:
+            return None
+
+    parsed = parse_int(value)
+
+    if parsed is None:
+        raise ValueError(
+            "Invalid parent_id."
+        )
+
+    if parsed < 1:
+        raise ValueError(
+            "Invalid parent_id."
+        )
+
+    return parsed
+
+
 # ============================================================
 # CATEGORY SERIALIZER
 # ============================================================
 
 def category_to_dict(category, include_books=False):
+    """
+    Convert Category model into safe JSON dictionary.
+    """
 
     parent_data = None
 
@@ -94,7 +147,12 @@ def category_to_dict(category, include_books=False):
 
     children = []
 
-    for child in category.children:
+    for child in sorted(
+        category.children,
+        key=lambda item: (
+            item.name or ""
+        ).lower()
+    ):
 
         children.append({
             "id": child.id,
@@ -151,6 +209,10 @@ def category_to_dict(category, include_books=False):
         )
     }
 
+    # --------------------------------------------------------
+    # BOOKS
+    # --------------------------------------------------------
+
     if include_books:
 
         books = (
@@ -204,7 +266,48 @@ def category_to_dict(category, include_books=False):
 # CATEGORY HIERARCHY SERIALIZER
 # ============================================================
 
-def hierarchy_item(category):
+def hierarchy_item(category, visited=None):
+    """
+    Recursively serialize category hierarchy.
+
+    visited prevents infinite recursion if bad database
+    data somehow exists.
+    """
+
+    if visited is None:
+        visited = set()
+
+    if category.id in visited:
+
+        return {
+            "id": category.id,
+            "name": category.name,
+            "slug": category.slug,
+            "description": category.description,
+            "image": category.image,
+            "parent_id": category.parent_id,
+            "children": []
+        }
+
+    visited = visited | {
+        category.id
+    }
+
+    children = []
+
+    for child in sorted(
+        category.children,
+        key=lambda item: (
+            item.name or ""
+        ).lower()
+    ):
+
+        children.append(
+            hierarchy_item(
+                child,
+                visited
+            )
+        )
 
     return {
 
@@ -226,15 +329,8 @@ def hierarchy_item(category):
         "parent_id":
             category.parent_id,
 
-        "children": [
-            hierarchy_item(child)
-            for child in sorted(
-                category.children,
-                key=lambda item: (
-                    item.name or ""
-                ).lower()
-            )
-        ]
+        "children":
+            children
     }
 
 
@@ -246,6 +342,10 @@ def creates_circular_relation(
     category,
     parent_id
 ):
+    """
+    Check whether assigning parent_id would create
+    a circular hierarchy.
+    """
 
     if parent_id is None:
         return False
@@ -289,19 +389,19 @@ def validate_parent(
     parent_id,
     category=None
 ):
+    """
+    Validate parent category.
 
-    if parent_id is None:
-        return None
+    Returns:
+        Category object or None
+    """
 
-    parent_id = parse_int(
+    parent_id = parse_optional_parent_id(
         parent_id
     )
 
     if parent_id is None:
-
-        raise ValueError(
-            "Invalid parent_id."
-        )
+        return None
 
     if category:
 
@@ -338,14 +438,20 @@ def validate_parent(
 # ============================================================
 
 def normalize_book_ids(value):
+    """
+    Convert book IDs into a unique integer list.
+
+    Supported:
+        [1, 2, 3]
+        "1,2,3"
+        1
+        "1"
+    """
 
     if value is None:
         return []
 
-    if isinstance(
-        value,
-        str
-    ):
+    if isinstance(value, str):
 
         value = value.strip()
 
@@ -355,26 +461,40 @@ def normalize_book_ids(value):
         value = [
             item.strip()
             for item in value.split(",")
-            if item.strip()
         ]
 
-    if not isinstance(
-        value,
-        list
-    ):
+    if not isinstance(value, list):
 
-        value = [value]
+        value = [
+            value
+        ]
 
     result = []
 
     for item in value:
+
+        if isinstance(item, str):
+
+            item = item.strip()
+
+            if not item:
+                continue
 
         book_id = parse_int(
             item
         )
 
         if book_id is None:
-            continue
+
+            raise ValueError(
+                f"Invalid book_id: {item}"
+            )
+
+        if book_id < 1:
+
+            raise ValueError(
+                f"Invalid book_id: {item}"
+            )
 
         if book_id not in result:
 
@@ -390,6 +510,9 @@ def normalize_book_ids(value):
 # ============================================================
 
 def validate_books(book_ids):
+    """
+    Make sure every requested book exists.
+    """
 
     if not book_ids:
         return []
@@ -437,6 +560,9 @@ def update_category_books(
     category,
     book_ids
 ):
+    """
+    Replace complete book mapping for a category.
+    """
 
     book_ids = normalize_book_ids(
         book_ids
@@ -446,11 +572,19 @@ def update_category_books(
         book_ids
     )
 
+    # --------------------------------------------------------
+    # REMOVE OLD RELATIONS
+    # --------------------------------------------------------
+
     BookCategory.query.filter_by(
         category_id=category.id
     ).delete(
         synchronize_session=False
     )
+
+    # --------------------------------------------------------
+    # CREATE NEW RELATIONS
+    # --------------------------------------------------------
 
     for book_id in book_ids:
 
@@ -505,7 +639,7 @@ def get_categories():
             pattern = f"%{search}%"
 
             query = query.filter(
-                db.or_(
+                or_(
                     Category.name.ilike(
                         pattern
                     ),
@@ -524,10 +658,12 @@ def get_categories():
 
         if "parent_id" in request.args:
 
-            parent_id = parse_int(
-                request.args.get(
-                    "parent_id"
-                )
+            raw_parent_id = request.args.get(
+                "parent_id"
+            )
+
+            parent_id = parse_optional_parent_id(
+                raw_parent_id
             )
 
             if parent_id is None:
@@ -553,11 +689,18 @@ def get_categories():
             200
         )
 
+        if limit is None:
+            limit = 200
+
         if limit < 1:
             limit = 1
 
         if limit > 500:
             limit = 500
+
+        # ----------------------------------------------------
+        # LOAD
+        # ----------------------------------------------------
 
         categories = (
             query
@@ -586,6 +729,20 @@ def get_categories():
             ]
 
         }), 200
+
+    except ValueError as error:
+
+        db.session.rollback()
+
+        return jsonify({
+
+            "success":
+                False,
+
+            "message":
+                str(error)
+
+        }), 400
 
     except Exception as error:
 
@@ -936,18 +1093,12 @@ def create_category():
         # PARENT
         # ----------------------------------------------------
 
-        parent_id = data.get(
-            "parent_id"
+        parent_id = parse_optional_parent_id(
+            data.get("parent_id")
         )
 
         validate_parent(
             parent_id
-        )
-
-        parent_id = (
-            parse_int(parent_id)
-            if parent_id is not None
-            else None
         )
 
         # ----------------------------------------------------
@@ -1039,6 +1190,20 @@ def create_category():
                 str(error)
 
         }), 404
+
+    except IntegrityError:
+
+        db.session.rollback()
+
+        return jsonify({
+
+            "success":
+                False,
+
+            "message":
+                "Category could not be created because of a database constraint."
+
+        }), 409
 
     except Exception as error:
 
@@ -1170,11 +1335,9 @@ def update_category(category_id):
 
         if "description" in data:
 
-            category.description = (
-                clean_string(
-                    data.get(
-                        "description"
-                    )
+            category.description = clean_string(
+                data.get(
+                    "description"
                 )
             )
 
@@ -1184,11 +1347,9 @@ def update_category(category_id):
 
         if "image" in data:
 
-            category.image = (
-                clean_string(
-                    data.get(
-                        "image"
-                    )
+            category.image = clean_string(
+                data.get(
+                    "image"
                 )
             )
 
@@ -1198,8 +1359,10 @@ def update_category(category_id):
 
         if "parent_id" in data:
 
-            parent_id = data.get(
-                "parent_id"
+            parent_id = parse_optional_parent_id(
+                data.get(
+                    "parent_id"
+                )
             )
 
             validate_parent(
@@ -1207,16 +1370,7 @@ def update_category(category_id):
                 category
             )
 
-            category.parent_id = (
-
-                parse_int(
-                    parent_id
-                )
-
-                if parent_id is not None
-
-                else None
-            )
+            category.parent_id = parent_id
 
         # ----------------------------------------------------
         # BOOKS
@@ -1277,6 +1431,20 @@ def update_category(category_id):
 
         }), 404
 
+    except IntegrityError:
+
+        db.session.rollback()
+
+        return jsonify({
+
+            "success":
+                False,
+
+            "message":
+                "Category could not be updated because of a database constraint."
+
+        }), 409
+
     except Exception as error:
 
         db.session.rollback()
@@ -1329,7 +1497,15 @@ def delete_category(category_id):
             }), 404
 
         # ----------------------------------------------------
-        # MOVE CHILDREN TO ROOT
+        # SAFE CHILD CHECK
+        # ----------------------------------------------------
+        #
+        # IMPORTANT:
+        # Category model has delete-orphan cascade on children.
+        # Therefore we DO NOT delete a parent category while
+        # children exist.
+        #
+        # This prevents accidental deletion of the hierarchy.
         # ----------------------------------------------------
 
         children = (
@@ -1340,9 +1516,37 @@ def delete_category(category_id):
             .all()
         )
 
-        for child in children:
+        if children:
 
-            child.parent_id = None
+            return jsonify({
+
+                "success":
+                    False,
+
+                "message":
+                    "Cannot delete this category because it has child categories.",
+
+                "child_count":
+                    len(children),
+
+                "children": [
+
+                    {
+                        "id":
+                            child.id,
+
+                        "name":
+                            child.name,
+
+                        "slug":
+                            child.slug
+
+                    }
+
+                    for child in children
+                ]
+
+            }), 409
 
         # ----------------------------------------------------
         # DELETE BOOK RELATIONS
@@ -1459,6 +1663,20 @@ def set_category_books(category_id):
                 )
 
         }), 200
+
+    except ValueError as error:
+
+        db.session.rollback()
+
+        return jsonify({
+
+            "success":
+                False,
+
+            "message":
+                str(error)
+
+        }), 400
 
     except LookupError as error:
 
