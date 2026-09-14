@@ -8,6 +8,7 @@ from flask import Blueprint, jsonify
 
 from app.models.category import Category
 from app.models.book import Book
+from app.models.book_category import BookCategory
 
 
 # =========================================================
@@ -22,7 +23,7 @@ category_bp = Blueprint(
 
 
 # =========================================================
-# HELPER
+# HELPERS
 # =========================================================
 
 def category_to_dict(category):
@@ -50,11 +51,22 @@ def book_to_dict(book):
         "cover_image": book.cover_image,
         "banner_image": book.banner_image,
         "featured_image": book.featured_image,
+        "status": book.status,
         "featured": bool(book.featured),
         "published": bool(book.published),
         "publish_date": (
             book.publish_date.isoformat()
             if book.publish_date
+            else None
+        ),
+        "created_at": (
+            book.created_at.isoformat()
+            if book.created_at
+            else None
+        ),
+        "updated_at": (
+            book.updated_at.isoformat()
+            if book.updated_at
             else None
         )
     }
@@ -88,15 +100,21 @@ def get_category(slug):
         slug=slug
     ).first_or_404()
 
-    books = Book.query.filter(
-        Book.published.is_(True)
-    ).filter(
-        Book.categories.any(
-            Category.id == category.id
+    books = (
+        Book.query
+        .join(
+            BookCategory,
+            BookCategory.book_id == Book.id
         )
-    ).order_by(
-        Book.created_at.desc()
-    ).all()
+        .filter(
+            BookCategory.category_id == category.id,
+            Book.published.is_(True)
+        )
+        .order_by(
+            Book.created_at.desc()
+        )
+        .all()
+    )
 
     return jsonify({
         **category_to_dict(category),
@@ -121,15 +139,21 @@ def get_category_books(slug):
         slug=slug
     ).first_or_404()
 
-    books = Book.query.filter(
-        Book.published.is_(True)
-    ).filter(
-        Book.categories.any(
-            Category.id == category.id
+    books = (
+        Book.query
+        .join(
+            BookCategory,
+            BookCategory.book_id == Book.id
         )
-    ).order_by(
-        Book.created_at.desc()
-    ).all()
+        .filter(
+            BookCategory.category_id == category.id,
+            Book.published.is_(True)
+        )
+        .order_by(
+            Book.created_at.desc()
+        )
+        .all()
+    )
 
     return jsonify({
         "category": category_to_dict(category),
