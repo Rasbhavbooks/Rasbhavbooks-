@@ -1,6 +1,6 @@
 # =========================================================
 # RASBHAV BOOKS
-# PUBLIC AUTHOR ROUTES
+# PUBLIC AUTHOR API ROUTES
 # Flask + SQLite
 # =========================================================
 
@@ -38,6 +38,47 @@ def author_to_dict(author):
 
 
 # =========================================================
+# SEO SERIALIZER
+# =========================================================
+
+def seo_to_dict(seo):
+
+    if not seo:
+        return None
+
+    return {
+        "id": seo.id,
+        "entity_type": seo.entity_type,
+        "entity_id": seo.entity_id,
+
+        "meta_title": seo.meta_title,
+        "meta_description": seo.meta_description,
+        "focus_keyword": seo.focus_keyword,
+
+        "canonical_url": seo.canonical_url,
+        "robots": seo.robots,
+
+        "og_title": seo.og_title,
+        "og_description": seo.og_description,
+        "og_image": seo.og_image,
+
+        "schema_data": seo.schema_data,
+
+        "created_at": (
+            seo.created_at.isoformat()
+            if seo.created_at
+            else None
+        ),
+
+        "updated_at": (
+            seo.updated_at.isoformat()
+            if seo.updated_at
+            else None
+        )
+    }
+
+
+# =========================================================
 # BOOK SERIALIZER
 # =========================================================
 
@@ -45,18 +86,44 @@ def author_book_to_dict(book):
 
     return {
         "id": book.id,
+
         "title": book.title,
         "slug": book.slug,
         "subtitle": book.subtitle,
+
+        "description": book.description,
         "short_description": book.short_description,
+
+        "author_id": book.author_id,
+
         "language": book.language,
+
+        "tags": book.tags,
+
         "cover_image": book.cover_image,
+        "banner_image": book.banner_image,
         "featured_image": book.featured_image,
+
+        "status": book.status,
+
         "featured": bool(book.featured),
         "published": bool(book.published),
+
         "publish_date": (
             book.publish_date.isoformat()
             if book.publish_date
+            else None
+        ),
+
+        "created_at": (
+            book.created_at.isoformat()
+            if book.created_at
+            else None
+        ),
+
+        "updated_at": (
+            book.updated_at.isoformat()
+            if book.updated_at
             else None
         )
     }
@@ -78,30 +145,29 @@ def get_authors():
     query = Author.query
 
     # -----------------------------------------------------
-    # SEARCH AUTHOR
+    # SEARCH
     # -----------------------------------------------------
 
     if search:
 
         query = query.filter(
-            Author.name.ilike(f"%{search}%")
+            Author.name.ilike(
+                f"%{search}%"
+            )
         )
 
     # -----------------------------------------------------
-    # GET AUTHORS
+    # AUTHORS
     # -----------------------------------------------------
 
     authors = query.order_by(
         Author.name.asc()
     ).all()
 
-    results = []
-
-    for author in authors:
-
-        results.append(
-            author_to_dict(author)
-        )
+    results = [
+        author_to_dict(author)
+        for author in authors
+    ]
 
     return jsonify({
         "success": True,
@@ -122,15 +188,20 @@ def get_author(slug):
     ).first_or_404()
 
     # -----------------------------------------------------
-    # GET PUBLISHED BOOKS
+    # PUBLISHED BOOKS
     # -----------------------------------------------------
 
-    books = Book.query.filter_by(
-        author_id=author.id,
-        published=True
-    ).order_by(
-        Book.created_at.desc()
-    ).all()
+    books = (
+        Book.query
+        .filter(
+            Book.author_id == author.id,
+            Book.published.is_(True)
+        )
+        .order_by(
+            Book.created_at.desc()
+        )
+        .all()
+    )
 
     # -----------------------------------------------------
     # SEO
@@ -140,29 +211,6 @@ def get_author(slug):
         entity_type="author",
         entity_id=author.id
     ).first()
-
-    seo_data = None
-
-    if seo:
-
-        seo_data = {
-            "id": seo.id,
-            "entity_type": seo.entity_type,
-            "entity_id": seo.entity_id,
-
-            "meta_title": seo.meta_title,
-            "meta_description": seo.meta_description,
-            "focus_keyword": seo.focus_keyword,
-
-            "canonical_url": seo.canonical_url,
-            "robots": seo.robots,
-
-            "og_title": seo.og_title,
-            "og_description": seo.og_description,
-            "og_image": seo.og_image,
-
-            "schema_data": seo.schema_data
-        }
 
     # -----------------------------------------------------
     # RESPONSE
@@ -181,7 +229,7 @@ def get_author(slug):
 
         "book_count": len(books),
 
-        "seo": seo_data
+        "seo": seo_to_dict(seo)
     })
 
 
@@ -196,12 +244,17 @@ def get_author_books(slug):
         slug=slug
     ).first_or_404()
 
-    books = Book.query.filter_by(
-        author_id=author.id,
-        published=True
-    ).order_by(
-        Book.created_at.desc()
-    ).all()
+    books = (
+        Book.query
+        .filter(
+            Book.author_id == author.id,
+            Book.published.is_(True)
+        )
+        .order_by(
+            Book.created_at.desc()
+        )
+        .all()
+    )
 
     return jsonify({
 
