@@ -10,2191 +10,710 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Books Management - Rasbhav Admin</title>
+    <meta
+        name="robots"
+        content="noindex, nofollow"
+    >
+
+    <title>
+        Books Management | Rasbhav Admin
+    </title>
+
+    <!-- =====================================================
+         ADMIN MASTER CSS
+    ====================================================== -->
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/admin.css') }}"
+    >
 
 </head>
 
+
 <body>
 
-<div class="container">
 
-    <!-- =====================================================
-         HEADER
-    ====================================================== -->
-
-    <div class="header">
-
-        <div>
-
-            <h1>📚 Books</h1>
-
-            <p>
-                Manage all Rasbhav Books from Admin Panel
-            </p>
-
-        </div>
-
-        <button
-            class="btn-primary"
-            onclick="openAddBook()"
-        >
-            + Add Book
-        </button>
-
-    </div>
+<div class="admin-page">
 
 
     <!-- =====================================================
-         TOOLBAR
+         ADMIN APP
     ====================================================== -->
 
-    <div class="toolbar">
+    <div class="admin-app">
 
-        <input
-            type="search"
-            id="searchInput"
-            class="search"
-            placeholder="Search books..."
-            oninput="filterBooks()"
+
+        <!-- =================================================
+             SIDEBAR
+        ================================================== -->
+
+        <aside
+            class="admin-sidebar"
+            id="adminSidebar"
         >
 
-        <button
-            class="btn-secondary"
-            onclick="loadBooks()"
-        >
-            ↻ Refresh
-        </button>
+            <div class="admin-sidebar-header">
 
-    </div>
+                <div class="admin-logo">
+                    R
+                </div>
+
+                <div>
+
+                    <div class="admin-logo-text">
+                        Rasbhav Books
+                    </div>
+
+                    <span class="admin-logo-subtitle">
+                        Admin Panel
+                    </span>
+
+                </div>
+
+            </div>
 
 
-    <!-- =====================================================
-         MESSAGE
-    ====================================================== -->
+            <!-- =============================================
+                 NAVIGATION
+            ============================================== -->
 
-    <div
-        id="message"
-        class="message"
-    ></div>
+            <nav class="admin-nav">
 
 
-    <!-- =====================================================
-         BOOKS TABLE
-    ====================================================== -->
+                <div class="admin-nav-section">
+                    Main
+                </div>
 
-    <div class="table-wrapper">
 
-        <table>
+                <a
+                    href="/admin/dashboard"
+                    class="admin-nav-item"
+                >
 
-            <thead>
+                    <span class="admin-nav-icon">
+                        ⌂
+                    </span>
 
-                <tr>
+                    <span class="admin-nav-label">
+                        Dashboard
+                    </span>
 
-                    <th>Cover</th>
+                </a>
 
-                    <th>Title</th>
 
-                    <th>Author ID</th>
+                <a
+                    href="/admin/books"
+                    class="admin-nav-item active"
+                >
 
-                    <th>Language</th>
+                    <span class="admin-nav-icon">
+                        📚
+                    </span>
 
-                    <th>Status</th>
+                    <span class="admin-nav-label">
+                        Books
+                    </span>
 
-                    <th>Featured</th>
+                </a>
 
-                    <th>Actions</th>
 
-                </tr>
+                <a
+                    href="/admin/authors"
+                    class="admin-nav-item"
+                >
 
-            </thead>
+                    <span class="admin-nav-icon">
+                        ✍
+                    </span>
 
-            <tbody id="booksTableBody">
+                    <span class="admin-nav-label">
+                        Authors
+                    </span>
 
-                <tr>
+                </a>
 
-                    <td
-                        colspan="7"
-                        class="loading"
+
+                <a
+                    href="/admin/categories"
+                    class="admin-nav-item"
+                >
+
+                    <span class="admin-nav-icon">
+                        🗂
+                    </span>
+
+                    <span class="admin-nav-label">
+                        Categories
+                    </span>
+
+                </a>
+
+
+                <a
+                    href="/admin/chapters"
+                    class="admin-nav-item"
+                >
+
+                    <span class="admin-nav-icon">
+                        📖
+                    </span>
+
+                    <span class="admin-nav-label">
+                        Chapters
+                    </span>
+
+                </a>
+
+
+                <div class="admin-nav-section">
+                    Website
+                </div>
+
+
+                <a
+                    href="/admin/pages"
+                    class="admin-nav-item"
+                >
+
+                    <span class="admin-nav-icon">
+                        📄
+                    </span>
+
+                    <span class="admin-nav-label">
+                        Pages
+                    </span>
+
+                </a>
+
+
+                <a
+                    href="/admin/menus"
+                    class="admin-nav-item"
+                >
+
+                    <span class="admin-nav-icon">
+                        ☰
+                    </span>
+
+                    <span class="admin-nav-label">
+                        Menus
+                    </span>
+
+                </a>
+
+
+                <a
+                    href="/admin/media"
+                    class="admin-nav-item"
+                >
+
+                    <span class="admin-nav-icon">
+                        🖼
+                    </span>
+
+                    <span class="admin-nav-label">
+                        Media
+                    </span>
+
+                </a>
+
+
+                <div class="admin-nav-section">
+                    Management
+                </div>
+
+
+                <a
+                    href="/admin/users"
+                    class="admin-nav-item"
+                >
+
+                    <span class="admin-nav-icon">
+                        👥
+                    </span>
+
+                    <span class="admin-nav-label">
+                        Users
+                    </span>
+
+                </a>
+
+
+                <a
+                    href="/admin/seo"
+                    class="admin-nav-item"
+                >
+
+                    <span class="admin-nav-icon">
+                        🔍
+                    </span>
+
+                    <span class="admin-nav-label">
+                        SEO
+                    </span>
+
+                </a>
+
+
+                <a
+                    href="/admin/settings"
+                    class="admin-nav-item"
+                >
+
+                    <span class="admin-nav-icon">
+                        ⚙
+                    </span>
+
+                    <span class="admin-nav-label">
+                        Settings
+                    </span>
+
+                </a>
+
+            </nav>
+
+
+            <!-- =============================================
+                 SIDEBAR FOOTER
+            ============================================== -->
+
+            <div class="admin-sidebar-footer">
+
+                <div class="admin-user-mini">
+
+                    <div
+                        class="admin-user-avatar"
+                        id="adminUserAvatar"
                     >
-                        Loading books...
-                    </td>
+                        A
+                    </div>
 
-                </tr>
+                    <div>
 
-            </tbody>
+                        <div
+                            class="admin-user-name"
+                            id="adminUserName"
+                        >
+                            Admin
+                        </div>
 
-        </table>
+                        <div
+                            class="admin-user-role"
+                            id="adminUserRole"
+                        >
+                            Administrator
+                        </div>
 
-    </div>
+                    </div>
 
-</div>
+                </div>
 
+            </div>
 
-<!-- =========================================================
-     BOOK MODAL
-========================================================= -->
-
-<div
-    id="bookModal"
-    class="modal"
->
-
-    <div class="modal-box">
-
-        <div class="modal-header">
-
-            <h2 id="modalTitle">
-                Add Book
-            </h2>
-
-            <button
-                class="close"
-                onclick="closeBookModal()"
-            >
-                ×
-            </button>
-
-        </div>
+        </aside>
 
 
-        <form id="bookForm">
 
-            <input
-                type="hidden"
-                id="bookId"
-            >
+        <!-- =================================================
+             MAIN
+        ================================================== -->
 
-
-            <div class="form-grid">
+        <main class="admin-main">
 
 
-                <!-- =================================================
-                     BASIC BOOK INFORMATION
-                ================================================== -->
+            <!-- =============================================
+                 TOPBAR
+            ============================================== -->
+
+            <header class="admin-topbar">
+
+                <div class="admin-topbar-left">
+
+                    <button
+                        type="button"
+                        class="admin-btn admin-btn-secondary admin-btn-sm"
+                        id="adminSidebarToggle"
+                        aria-label="Toggle menu"
+                    >
+                        ☰
+                    </button>
+
+                    <h1 class="admin-topbar-title">
+                        Books
+                    </h1>
+
+                </div>
 
 
-                <div class="form-group">
+                <div class="admin-topbar-right">
 
-                    <label>
-                        Book Title *
-                    </label>
+                    <a
+                        href="/"
+                        target="_blank"
+                        rel="noopener"
+                        class="admin-btn admin-btn-secondary admin-btn-sm"
+                    >
+                        View Website
+                    </a>
 
-                    <input
-                        type="text"
-                        id="title"
-                        required
+                </div>
+
+            </header>
+
+
+
+            <!-- =============================================
+                 CONTENT
+            ============================================== -->
+
+            <div class="admin-content">
+
+
+                <!-- =========================================
+                     PAGE HEADER
+                ========================================== -->
+
+                <div class="admin-page-header">
+
+                    <div class="admin-page-header-left">
+
+                        <h2 class="admin-page-title">
+                            Books Management
+                        </h2>
+
+                        <p class="admin-page-description">
+                            Create, edit, publish and manage
+                            all books from the Rasbhav admin panel.
+                        </p>
+
+                    </div>
+
+
+                    <div
+                        class="admin-page-header-actions"
                     >
 
-                </div>
-
-
-                <div class="form-group">
-
-                    <label>
-                        Slug *
-                    </label>
-
-                    <input
-                        type="text"
-                        id="slug"
-                        required
-                    >
-
-                </div>
-
-
-                <div class="form-group full">
-
-                    <label>
-                        Subtitle
-                    </label>
-
-                    <input
-                        type="text"
-                        id="subtitle"
-                    >
-
-                </div>
-
-
-                <div class="form-group full">
-
-                    <label>
-                        Short Description
-                    </label>
-
-                    <textarea
-                        id="short_description"
-                    ></textarea>
-
-                </div>
-
-
-                <div class="form-group full">
-
-                    <label>
-                        Description
-                    </label>
-
-                    <textarea
-                        id="description"
-                    ></textarea>
-
-                </div>
-
-
-                <!-- =================================================
-                     AUTHOR / LANGUAGE
-                ================================================== -->
-
-
-                <div class="form-group">
-
-                    <label>
-                        Author ID
-                    </label>
-
-                    <input
-                        type="number"
-                        id="author_id"
-                    >
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label>
-                        Language
-                    </label>
-
-                    <select id="language">
-
-                        <option value="">
-                            Select Language
-                        </option>
-
-                        <option value="gujarati">
-                            Gujarati
-                        </option>
-
-                        <option value="hindi">
-                            Hindi
-                        </option>
-
-                        <option value="english">
-                            English
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                <div class="form-group full">
-
-                    <label>
-                        Tags
-                    </label>
-
-                    <input
-                        type="text"
-                        id="tags"
-                        placeholder="love, novel, gujarati"
-                    >
-
-                </div>
-
-
-                <!-- =================================================
-                     IMAGES
-                ================================================== -->
-
-
-                <div class="form-group">
-
-                    <label>
-                        Cover Image
-                    </label>
-
-                    <input
-                        type="text"
-                        id="cover_image"
-                        placeholder="/static/uploads/cover.jpg"
-                    >
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label>
-                        Banner Image
-                    </label>
-
-                    <input
-                        type="text"
-                        id="banner_image"
-                        placeholder="/static/uploads/banner.jpg"
-                    >
-
-                </div>
-
-
-                <div class="form-group full">
-
-                    <label>
-                        Featured Image
-                    </label>
-
-                    <input
-                        type="text"
-                        id="featured_image"
-                        placeholder="/static/uploads/featured.jpg"
-                    >
-
-                </div>
-
-
-                <!-- =================================================
-                     STATUS
-                ================================================== -->
-
-
-                <div class="form-group">
-
-                    <label>
-                        Status
-                    </label>
-
-                    <select id="status">
-
-                        <option value="draft">
-                            Draft
-                        </option>
-
-                        <option value="published">
-                            Published
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label>
-                        Publish Date
-                    </label>
-
-                    <input
-                        type="datetime-local"
-                        id="publish_date"
-                    >
-
-                </div>
-
-
-                <div class="form-group full">
-
-                    <div class="checkbox-row">
-
-                        <label>
-
-                            <input
-                                type="checkbox"
-                                id="featured"
-                            >
-
-                            Featured Book
-
-                        </label>
-
-
-                        <label>
-
-                            <input
-                                type="checkbox"
-                                id="published"
-                            >
-
-                            Published
-
-                        </label>
+                        <button
+                            type="button"
+                            id="addBookBtn"
+                            class="admin-btn admin-btn-primary"
+                        >
+                            + Add Book
+                        </button>
 
                     </div>
 
                 </div>
 
 
-                <!-- =================================================
-                     BOOK SEO
-                ================================================== -->
 
-                <div class="form-group full">
+                <!-- =========================================
+                     STAT
+                ========================================== -->
 
-                    <h3>
-                        🔍 Book SEO
-                    </h3>
+                <div
+                    class="admin-stats-grid"
+                    style="margin-bottom:16px;"
+                >
 
-                </div>
+                    <div class="admin-stat-card">
 
+                        <div class="admin-stat-top">
 
-                <div class="form-group full">
+                            <span class="admin-stat-label">
+                                Total Books
+                            </span>
 
-                    <label>
-                        Meta Title
-                    </label>
+                            <span class="admin-stat-icon">
+                                📚
+                            </span>
 
-                    <input
-                        type="text"
-                        id="meta_title"
-                        maxlength="255"
-                        placeholder="SEO title for this book"
-                    >
+                        </div>
 
-                </div>
+                        <div
+                            class="admin-stat-value"
+                            data-books-count
+                        >
+                            0
+                        </div>
 
+                        <div class="admin-stat-meta">
+                            Books in database
+                        </div>
 
-                <div class="form-group full">
-
-                    <label>
-                        Meta Description
-                    </label>
-
-                    <textarea
-                        id="meta_description"
-                        placeholder="SEO description for this book"
-                    ></textarea>
+                    </div>
 
                 </div>
 
 
-                <div class="form-group">
 
-                    <label>
-                        Focus Keyword
-                    </label>
+                <!-- =========================================
+                     TOOLBAR
+                ========================================== -->
 
-                    <input
-                        type="text"
-                        id="focus_keyword"
-                        placeholder="gujarati novel"
-                    >
-
-                </div>
+                <div class="admin-toolbar">
 
 
-                <div class="form-group">
+                    <div class="admin-toolbar-left">
 
-                    <label>
-                        Robots
-                    </label>
+                        <div class="admin-search">
 
-                    <input
-                        type="text"
-                        id="robots"
-                        value="index, follow"
-                        placeholder="index, follow"
-                    >
+                            <span
+                                class="admin-search-icon"
+                            >
+                                🔍
+                            </span>
 
-                </div>
+                            <input
+                                type="search"
+                                id="bookSearch"
+                                placeholder="Search books by title, slug, language..."
+                                autocomplete="off"
+                            >
 
+                        </div>
 
-                <div class="form-group full">
-
-                    <label>
-                        Canonical URL
-                    </label>
-
-                    <input
-                        type="text"
-                        id="canonical_url"
-                        placeholder="https://example.com/books/book-slug"
-                    >
-
-                </div>
+                    </div>
 
 
-                <!-- =================================================
-                     OPEN GRAPH
-                ================================================== -->
+                    <div class="admin-toolbar-right">
 
 
-                <div class="form-group full">
+                        <select
+                            id="bookStatusFilter"
+                            class="admin-select"
+                        >
 
-                    <h3>
-                        📱 Open Graph
-                    </h3>
+                            <option value="">
+                                All Status
+                            </option>
 
-                </div>
+                            <option value="draft">
+                                Draft
+                            </option>
 
+                            <option value="published">
+                                Published
+                            </option>
 
-                <div class="form-group">
+                            <option value="archived">
+                                Archived
+                            </option>
 
-                    <label>
-                        OG Title
-                    </label>
-
-                    <input
-                        type="text"
-                        id="og_title"
-                    >
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label>
-                        OG Image
-                    </label>
-
-                    <input
-                        type="text"
-                        id="og_image"
-                        placeholder="/static/uploads/og-book.jpg"
-                    >
-
-                </div>
+                        </select>
 
 
-                <div class="form-group full">
+                        <select
+                            id="bookPublishedFilter"
+                            class="admin-select"
+                        >
 
-                    <label>
-                        OG Description
-                    </label>
+                            <option value="">
+                                All Publishing
+                            </option>
 
-                    <textarea
-                        id="og_description"
-                    ></textarea>
+                            <option value="true">
+                                Published
+                            </option>
 
-                </div>
+                            <option value="false">
+                                Unpublished
+                            </option>
+
+                        </select>
 
 
-                <!-- =================================================
-                     STRUCTURED DATA
-                ================================================== -->
+                        <select
+                            id="bookFeaturedFilter"
+                            class="admin-select"
+                        >
+
+                            <option value="">
+                                All Featured
+                            </option>
+
+                            <option value="true">
+                                Featured
+                            </option>
+
+                            <option value="false">
+                                Normal
+                            </option>
+
+                        </select>
 
 
-                <div class="form-group full">
+                        <button
+                            type="button"
+                            class="admin-btn admin-btn-secondary"
+                            onclick="loadAdminBooks()"
+                        >
+                            ↻ Refresh
+                        </button>
 
-                    <h3>
-                        📊 Schema Data
-                    </h3>
+                    </div>
 
                 </div>
 
 
-                <div class="form-group full">
 
-                    <label>
-                        Schema JSON
-                    </label>
+                <!-- =========================================
+                     LOADING
+                ========================================== -->
 
-                    <textarea
-                        id="schema_data"
-                        placeholder='{"@context":"https://schema.org","@type":"Book"}'
-                    ></textarea>
+                <div
+                    id="booksLoading"
+                    class="admin-loading admin-hidden"
+                >
+
+                    <span class="admin-spinner"></span>
+
+                    Loading books...
 
                 </div>
+
+
+
+                <!-- =========================================
+                     BOOKS TABLE
+                ========================================== -->
+
+                <div class="admin-table-wrapper">
+
+                    <table class="admin-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Book
+                                </th>
+
+                                <th>
+                                    Author
+                                </th>
+
+                                <th>
+                                    Language
+                                </th>
+
+                                <th>
+                                    Publishing
+                                </th>
+
+                                <th>
+                                    Featured
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th>
+                                    Actions
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody
+                            id="booksTableBody"
+                        >
+
+                            <tr>
+
+                                <td colspan="7">
+
+                                    <div class="admin-loading">
+
+                                        <span
+                                            class="admin-spinner"
+                                        ></span>
+
+                                        Loading books...
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
 
             </div>
 
-
-            <!-- =================================================
-                 FORM ACTIONS
-            ================================================== -->
-
-            <div class="form-actions">
-
-                <button
-                    type="button"
-                    class="btn-secondary"
-                    onclick="closeBookModal()"
-                >
-                    Cancel
-                </button>
-
-                <button
-                    type="submit"
-                    class="btn-primary"
-                >
-                    Save Book
-                </button>
-
-            </div>
-
-        </form>
+        </main>
 
     </div>
 
 </div>
 
 
-<script>
 
-"use strict";
+<!-- =========================================================
+     ADMIN BOOKS JAVASCRIPT
+========================================================= -->
 
+<script
+    src="{{ url_for('static', filename='js/admin-books.js') }}"
+    defer
+></script>
 
-/* =========================================================
-   GLOBAL STATE
-========================================================= */
 
-let books = [];
+<!-- =========================================================
+     SMALL SIDEBAR FUNCTION
+========================================================= -->
 
-let editingBookId = null;
-
-
-/* =========================================================
-   API URL
-========================================================= */
-
-const API_URL = "/api/admin/books";
-
-const SEO_API_URL = "/api/admin/seo";
-
-
-/* =========================================================
-   LOAD BOOKS
-========================================================= */
-
-async function loadBooks() {
-
-    const tbody =
-        document.getElementById(
-            "booksTableBody"
-        );
-
-
-    tbody.innerHTML = `
-        <tr>
-            <td
-                colspan="7"
-                class="loading"
-            >
-                Loading books...
-            </td>
-        </tr>
-    `;
-
-
-    try {
-
-        const response = await fetch(
-            API_URL,
-            {
-                method: "GET",
-                credentials: "same-origin"
-            }
-        );
-
-
-        const data =
-            await response.json();
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                data.message ||
-                "Unable to load books."
-            );
-
-        }
-
-
-        books =
-            data.books || [];
-
-
-        renderBooks(books);
-
-
-    } catch (error) {
-
-        tbody.innerHTML = `
-            <tr>
-                <td
-                    colspan="7"
-                    class="empty"
-                >
-                    ${escapeHtml(error.message)}
-                </td>
-            </tr>
-        `;
-
-    }
-
-}
-
-
-/* =========================================================
-   RENDER BOOKS
-========================================================= */
-
-function renderBooks(list) {
-
-    const tbody =
-        document.getElementById(
-            "booksTableBody"
-        );
-
-
-    if (!list.length) {
-
-        tbody.innerHTML = `
-            <tr>
-                <td
-                    colspan="7"
-                    class="empty"
-                >
-                    No books found.
-                </td>
-            </tr>
-        `;
-
-        return;
-    }
-
-
-    tbody.innerHTML =
-        list.map(book => {
-
-            const cover =
-                book.cover_image
-
-                ? `
-                    <img
-                        src="${escapeAttribute(
-                            book.cover_image
-                        )}"
-                        class="cover"
-                        alt="${escapeAttribute(
-                            book.title ||
-                            "Book"
-                        )}"
-                    >
-                  `
-
-                : `
-                    <div class="cover"></div>
-                  `;
-
-
-            return `
-
-                <tr>
-
-                    <td>
-                        ${cover}
-                    </td>
-
-                    <td>
-
-                        <strong>
-                            ${escapeHtml(
-                                book.title ||
-                                "-"
-                            )}
-                        </strong>
-
-                        <br>
-
-                        <small>
-                            ${escapeHtml(
-                                book.slug ||
-                                ""
-                            )}
-                        </small>
-
-                    </td>
-
-                    <td>
-                        ${book.author_id ?? "-"}
-                    </td>
-
-                    <td>
-                        ${escapeHtml(
-                            book.language ||
-                            "-"
-                        )}
-                    </td>
-
-                    <td>
-
-                        <span class="status">
-
-                            ${escapeHtml(
-                                book.status ||
-                                "draft"
-                            )}
-
-                        </span>
-
-                    </td>
-
-                    <td>
-
-                        ${
-                            book.featured
-                                ? "⭐ Yes"
-                                : "No"
-                        }
-
-                    </td>
-
-                    <td>
-
-                        <div class="actions">
-
-                            <button
-                                class="btn-secondary"
-                                onclick="editBook(
-                                    ${book.id}
-                                )"
-                            >
-                                Edit
-                            </button>
-
-                            <button
-                                class="btn-danger"
-                                onclick="deleteBook(
-                                    ${book.id}
-                                )"
-                            >
-                                Delete
-                            </button>
-
-                        </div>
-
-                    </td>
-
-                </tr>
-
-            `;
-
-        }).join("");
-
-}
-
-
-/* =========================================================
-   SEARCH
-========================================================= */
-
-function filterBooks() {
-
-    const keyword =
-        document
-            .getElementById(
-                "searchInput"
-            )
-            .value
-            .toLowerCase()
-            .trim();
-
-
-    if (!keyword) {
-
-        renderBooks(books);
-
-        return;
-    }
-
-
-    const filtered =
-        books.filter(book => {
-
-            return (
-
-                String(
-                    book.title || ""
-                )
-                .toLowerCase()
-                .includes(keyword)
-
-                ||
-
-                String(
-                    book.slug || ""
-                )
-                .toLowerCase()
-                .includes(keyword)
-
-                ||
-
-                String(
-                    book.language || ""
-                )
-                .toLowerCase()
-                .includes(keyword)
-
-                ||
-
-                String(
-                    book.tags || ""
-                )
-                .toLowerCase()
-                .includes(keyword)
-
-            );
-
-        });
-
-
-    renderBooks(filtered);
-
-}
-
-
-/* =========================================================
-   OPEN ADD BOOK
-========================================================= */
-
-function openAddBook() {
-
-    editingBookId = null;
-
-
-    document
-        .getElementById(
-            "modalTitle"
-        )
-        .textContent =
-        "Add Book";
-
-
-    document
-        .getElementById(
-            "bookForm"
-        )
-        .reset();
-
-
-    document
-        .getElementById(
-            "bookId"
-        )
-        .value = "";
-
-
-    document
-        .getElementById(
-            "robots"
-        )
-        .value =
-        "index, follow";
-
-
-    document
-        .getElementById(
-            "bookModal"
-        )
-        .classList
-        .add("active");
-
-}
-
-
-/* =========================================================
-   CLOSE MODAL
-========================================================= */
-
-function closeBookModal() {
-
-    document
-        .getElementById(
-            "bookModal"
-        )
-        .classList
-        .remove("active");
-
-}
-
-
-/* =========================================================
-   EDIT BOOK
-========================================================= */
-
-async function editBook(bookId) {
-
-    try {
-
-        const response =
-            await fetch(
-                `${API_URL}/${bookId}`,
-                {
-                    method: "GET",
-                    credentials: "same-origin"
-                }
-            );
-
-
-        const data =
-            await response.json();
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                data.message ||
-                "Unable to load book."
-            );
-
-        }
-
-
-        const book =
-            data.book;
-
-
-        editingBookId =
-            book.id;
-
-
-        document
-            .getElementById(
-                "modalTitle"
-            )
-            .textContent =
-            "Edit Book";
-
-
-        document
-            .getElementById(
-                "bookId"
-            )
-            .value =
-            book.id || "";
-
-
-        document
-            .getElementById(
-                "title"
-            )
-            .value =
-            book.title || "";
-
-
-        document
-            .getElementById(
-                "slug"
-            )
-            .value =
-            book.slug || "";
-
-
-        document
-            .getElementById(
-                "subtitle"
-            )
-            .value =
-            book.subtitle || "";
-
-
-        document
-            .getElementById(
-                "description"
-            )
-            .value =
-            book.description || "";
-
-
-        document
-            .getElementById(
-                "short_description"
-            )
-            .value =
-            book.short_description || "";
-
-
-        document
-            .getElementById(
-                "author_id"
-            )
-            .value =
-            book.author_id || "";
-
-
-        document
-            .getElementById(
-                "language"
-            )
-            .value =
-            book.language || "";
-
-
-        document
-            .getElementById(
-                "tags"
-            )
-            .value =
-            book.tags || "";
-
-
-        document
-            .getElementById(
-                "cover_image"
-            )
-            .value =
-            book.cover_image || "";
-
-
-        document
-            .getElementById(
-                "banner_image"
-            )
-            .value =
-            book.banner_image || "";
-
-
-        document
-            .getElementById(
-                "featured_image"
-            )
-            .value =
-            book.featured_image || "";
-
-
-        document
-            .getElementById(
-                "status"
-            )
-            .value =
-            book.status || "draft";
-
-
-        document
-            .getElementById(
-                "featured"
-            )
-            .checked =
-            Boolean(
-                book.featured
-            );
-
-
-        document
-            .getElementById(
-                "published"
-            )
-            .checked =
-            Boolean(
-                book.published
-            );
-
-
-        if (book.publish_date) {
-
-            document
-                .getElementById(
-                    "publish_date"
-                )
-                .value =
-                formatDateTimeLocal(
-                    book.publish_date
-                );
-
-        } else {
-
-            document
-                .getElementById(
-                    "publish_date"
-                )
-                .value = "";
-
-        }
-
-
-        /* =====================================================
-           LOAD BOOK SEO
-        ===================================================== */
-
-        await loadBookSEO(
-            book.id
-        );
-
-
-        document
-            .getElementById(
-                "bookModal"
-            )
-            .classList
-            .add("active");
-
-
-    } catch (error) {
-
-        showMessage(
-            error.message,
-            true
-        );
-
-    }
-
-}
-
-
-/* =========================================================
-   LOAD BOOK SEO
-========================================================= */
-
-async function loadBookSEO(bookId) {
-
-    clearSEOFields();
-
-
-    try {
-
-        const response =
-            await fetch(
-                `${SEO_API_URL}?entity_type=book&entity_id=${bookId}`,
-                {
-                    method: "GET",
-                    credentials: "same-origin"
-                }
-            );
-
-
-        const data =
-            await response.json();
-
-
-        if (!response.ok) {
-            return;
-        }
-
-
-        const seoList =
-            data.seo_settings || [];
-
-
-        if (!seoList.length) {
-            return;
-        }
-
-
-        const seo =
-            seoList[0];
-
-
-        document
-            .getElementById(
-                "meta_title"
-            )
-            .value =
-            seo.meta_title || "";
-
-
-        document
-            .getElementById(
-                "meta_description"
-            )
-            .value =
-            seo.meta_description || "";
-
-
-        document
-            .getElementById(
-                "focus_keyword"
-            )
-            .value =
-            seo.focus_keyword || "";
-
-
-        document
-            .getElementById(
-                "canonical_url"
-            )
-            .value =
-            seo.canonical_url || "";
-
-
-        document
-            .getElementById(
-                "robots"
-            )
-            .value =
-            seo.robots ||
-            "index, follow";
-
-
-        document
-            .getElementById(
-                "og_title"
-            )
-            .value =
-            seo.og_title || "";
-
-
-        document
-            .getElementById(
-                "og_description"
-            )
-            .value =
-            seo.og_description || "";
-
-
-        document
-            .getElementById(
-                "og_image"
-            )
-            .value =
-            seo.og_image || "";
-
-
-        document
-            .getElementById(
-                "schema_data"
-            )
-            .value =
-            seo.schema_data || "";
-
-
-    } catch (error) {
-
-        console.warn(
-            "SEO load failed:",
-            error
-        );
-
-    }
-
-}
-
-
-/* =========================================================
-   CLEAR SEO
-========================================================= */
-
-function clearSEOFields() {
-
-    document
-        .getElementById(
-            "meta_title"
-        )
-        .value = "";
-
-
-    document
-        .getElementById(
-            "meta_description"
-        )
-        .value = "";
-
-
-    document
-        .getElementById(
-            "focus_keyword"
-        )
-        .value = "";
-
-
-    document
-        .getElementById(
-            "canonical_url"
-        )
-        .value = "";
-
-
-    document
-        .getElementById(
-            "robots"
-        )
-        .value =
-        "index, follow";
-
-
-    document
-        .getElementById(
-            "og_title"
-        )
-        .value = "";
-
-
-    document
-        .getElementById(
-            "og_description"
-        )
-        .value = "";
-
-
-    document
-        .getElementById(
-            "og_image"
-        )
-        .value = "";
-
-
-    document
-        .getElementById(
-            "schema_data"
-        )
-        .value = "";
-
-}
-
-
-/* =========================================================
-   SAVE BOOK
-========================================================= */
-
-document
-    .getElementById(
-        "bookForm"
-    )
-    .addEventListener(
-        "submit",
-        async function(event) {
-
-            event.preventDefault();
-
-
-            const payload = {
-
-                title:
-                    document
-                        .getElementById(
-                            "title"
-                        )
-                        .value
-                        .trim(),
-
-                slug:
-                    document
-                        .getElementById(
-                            "slug"
-                        )
-                        .value
-                        .trim(),
-
-                subtitle:
-                    document
-                        .getElementById(
-                            "subtitle"
-                        )
-                        .value
-                        .trim(),
-
-                description:
-                    document
-                        .getElementById(
-                            "description"
-                        )
-                        .value,
-
-                short_description:
-                    document
-                        .getElementById(
-                            "short_description"
-                        )
-                        .value,
-
-                author_id:
-                    getNumberOrNull(
-                        "author_id"
-                    ),
-
-                language:
-                    document
-                        .getElementById(
-                            "language"
-                        )
-                        .value,
-
-                tags:
-                    document
-                        .getElementById(
-                            "tags"
-                        )
-                        .value,
-
-                cover_image:
-                    document
-                        .getElementById(
-                            "cover_image"
-                        )
-                        .value
-                        .trim(),
-
-                banner_image:
-                    document
-                        .getElementById(
-                            "banner_image"
-                        )
-                        .value
-                        .trim(),
-
-                featured_image:
-                    document
-                        .getElementById(
-                            "featured_image"
-                        )
-                        .value
-                        .trim(),
-
-                status:
-                    document
-                        .getElementById(
-                            "status"
-                        )
-                        .value,
-
-                featured:
-                    document
-                        .getElementById(
-                            "featured"
-                        )
-                        .checked,
-
-                published:
-                    document
-                        .getElementById(
-                            "published"
-                        )
-                        .checked,
-
-                publish_date:
-                    getPublishDate()
-
-            };
-
-
-            try {
-
-                let url =
-                    API_URL;
-
-                let method =
-                    "POST";
-
-
-                if (editingBookId) {
-
-                    url =
-                        `${API_URL}/${editingBookId}`;
-
-                    method =
-                        "PUT";
-
-                }
-
-
-                /* =================================================
-                   SAVE BOOK
-                ================================================== */
-
-                const response =
-                    await fetch(
-                        url,
-                        {
-
-                            method:
-
-                                method,
-
-                            credentials:
-
-                                "same-origin",
-
-                            headers: {
-
-                                "Content-Type":
-                                    "application/json"
-
-                            },
-
-                            body:
-                                JSON.stringify(
-                                    payload
-                                )
-
-                        }
-                    );
-
-
-                const data =
-                    await response.json();
-
-
-                if (!response.ok) {
-
-                    throw new Error(
-                        data.message ||
-                        "Unable to save book."
-                    );
-
-                }
-
-
-                const savedBookId =
-                    editingBookId ||
-                    data.book_id ||
-                    data.id;
-
-
-                /* =================================================
-                   SAVE SEO
-                ================================================== */
-
-                if (savedBookId) {
-
-                    await saveBookSEO(
-                        savedBookId
-                    );
-
-                }
-
-
-                closeBookModal();
-
-
-                showMessage(
-                    data.message ||
-                    "Book saved successfully."
-                );
-
-
-                await loadBooks();
-
-
-            } catch (error) {
-
-                showMessage(
-                    error.message,
-                    true
-                );
-
-            }
-
-        }
-    );
-
-
-/* =========================================================
-   SAVE BOOK SEO
-========================================================= */
-
-async function saveBookSEO(bookId) {
-
-    const seoPayload = {
-
-        entity_type:
-            "book",
-
-        entity_id:
-            Number(bookId),
-
-        meta_title:
-            document
-                .getElementById(
-                    "meta_title"
-                )
-                .value
-                .trim(),
-
-        meta_description:
-            document
-                .getElementById(
-                    "meta_description"
-                )
-                .value
-                .trim(),
-
-        focus_keyword:
-            document
-                .getElementById(
-                    "focus_keyword"
-                )
-                .value
-                .trim(),
-
-        canonical_url:
-            document
-                .getElementById(
-                    "canonical_url"
-                )
-                .value
-                .trim(),
-
-        robots:
-            document
-                .getElementById(
-                    "robots"
-                )
-                .value
-                .trim() ||
-            "index, follow",
-
-        og_title:
-            document
-                .getElementById(
-                    "og_title"
-                )
-                .value
-                .trim(),
-
-        og_description:
-            document
-                .getElementById(
-                    "og_description"
-                )
-                .value
-                .trim(),
-
-        og_image:
-            document
-                .getElementById(
-                    "og_image"
-                )
-                .value
-                .trim(),
-
-        schema_data:
-            document
-                .getElementById(
-                    "schema_data"
-                )
-                .value
-                .trim()
-
-    };
-
-
-    /* =====================================================
-       CHECK EXISTING SEO
-    ====================================================== */
-
-    const checkResponse =
-        await fetch(
-            `${SEO_API_URL}?entity_type=book&entity_id=${bookId}`,
-            {
-                method: "GET",
-                credentials: "same-origin"
-            }
-        );
-
-
-    const checkData =
-        await checkResponse.json();
-
-
-    const existing =
-        checkData.seo_settings || [];
-
-
-    let response;
-
-
-    /* =====================================================
-       UPDATE EXISTING SEO
-    ====================================================== */
-
-    if (existing.length) {
-
-        response =
-            await fetch(
-                `${SEO_API_URL}/${existing[0].id}`,
-                {
-
-                    method: "PUT",
-
-                    credentials:
-                        "same-origin",
-
-                    headers: {
-
-                        "Content-Type":
-                            "application/json"
-
-                    },
-
-                    body:
-                        JSON.stringify(
-                            seoPayload
-                        )
-
-                }
-            );
-
-    }
-
-
-    /* =====================================================
-       CREATE NEW SEO
-    ====================================================== */
-
-    else {
-
-        response =
-            await fetch(
-                SEO_API_URL,
-                {
-
-                    method: "POST",
-
-                    credentials:
-                        "same-origin",
-
-                    headers: {
-
-                        "Content-Type":
-                            "application/json"
-
-                    },
-
-                    body:
-                        JSON.stringify(
-                            seoPayload
-                        )
-
-                }
-            );
-
-    }
-
-
-    const data =
-        await response.json();
-
-
-    if (!response.ok) {
-
-        throw new Error(
-            data.message ||
-            "Unable to save SEO settings."
-        );
-
-    }
-
-
-    return data;
-
-}
-
-
-/* =========================================================
-   DELETE BOOK
-========================================================= */
-
-async function deleteBook(bookId) {
-
-    const book =
-        books.find(
-            item =>
-                item.id === bookId
-        );
-
-
-    const title =
-        book
-            ? book.title
-            : "this book";
-
-
-    const confirmed =
-        confirm(
-            `Are you sure you want to delete "${title}"?`
-        );
-
-
-    if (!confirmed) {
-        return;
-    }
-
-
-    try {
-
-        const response =
-            await fetch(
-                `${API_URL}/${bookId}`,
-                {
-
-                    method:
-                        "DELETE",
-
-                    credentials:
-                        "same-origin"
-
-                }
-            );
-
-
-        const data =
-            await response.json();
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                data.message ||
-                "Unable to delete book."
-            );
-
-        }
-
-
-        showMessage(
-            data.message ||
-            "Book deleted successfully."
-        );
-
-
-        await loadBooks();
-
-
-    } catch (error) {
-
-        showMessage(
-            error.message,
-            true
-        );
-
-    }
-
-}
-
-
-/* =========================================================
-   HELPERS
-========================================================= */
-
-function getNumberOrNull(id) {
-
-    const value =
-        document
-            .getElementById(id)
-            .value
-            .trim();
-
-
-    if (!value) {
-        return null;
-    }
-
-
-    const number =
-        Number(value);
-
-
-    return Number.isFinite(number)
-        ? number
-        : null;
-
-}
-
-
-/* =========================================================
-   PUBLISH DATE
-========================================================= */
-
-function getPublishDate() {
-
-    const value =
-        document
-            .getElementById(
-                "publish_date"
-            )
-            .value;
-
-
-    if (!value) {
-        return null;
-    }
-
-
-    return new Date(
-        value
-    ).toISOString();
-
-}
-
-
-/* =========================================================
-   FORMAT DATE
-========================================================= */
-
-function formatDateTimeLocal(value) {
-
-    const date =
-        new Date(value);
-
-
-    if (
-        Number.isNaN(
-            date.getTime()
-        )
-    ) {
-
-        return "";
-
-    }
-
-
-    const year =
-        date.getFullYear();
-
-
-    const month =
-        String(
-            date.getMonth() + 1
-        )
-        .padStart(2, "0");
-
-
-    const day =
-        String(
-            date.getDate()
-        )
-        .padStart(2, "0");
-
-
-    const hours =
-        String(
-            date.getHours()
-        )
-        .padStart(2, "0");
-
-
-    const minutes =
-        String(
-            date.getMinutes()
-        )
-        .padStart(2, "0");
-
-
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
-
-}
-
-
-/* =========================================================
-   MESSAGE
-========================================================= */
-
-function showMessage(
-    text,
-    error = false
-) {
-
-    const message =
-        document.getElementById(
-            "message"
-        );
-
-
-    message.textContent =
-        text;
-
-
-    message.classList.add(
-        "show"
-    );
-
-
-    setTimeout(
-        () => {
-
-            message.classList.remove(
-                "show"
-            );
-
-        },
-        4000
-    );
-
-}
-
-
-/* =========================================================
-   ESCAPE HTML
-========================================================= */
-
-function escapeHtml(value) {
-
-    return String(value)
-
-        .replaceAll(
-            "&",
-            "&amp;"
-        )
-
-        .replaceAll(
-            "<",
-            "&lt;"
-        )
-
-        .replaceAll(
-            ">",
-            "&gt;"
-        )
-
-        .replaceAll(
-            '"',
-            "&quot;"
-        )
-
-        .replaceAll(
-            "'",
-            "&#039;"
-        );
-
-}
-
-
-/* =========================================================
-   ESCAPE ATTRIBUTE
-========================================================= */
-
-function escapeAttribute(value) {
-
-    return escapeHtml(
-        value
-    );
-
-}
-
-
-/* =========================================================
-   MODAL OUTSIDE CLICK
-========================================================= */
-
-document
-    .getElementById(
-        "bookModal"
-    )
-    .addEventListener(
-        "click",
-        function(event) {
-
-            if (
-                event.target === this
-            ) {
-
-                closeBookModal();
-
-            }
-
-        }
-    );
-
-
-/* =========================================================
-   INITIAL LOAD
-========================================================= */
+<script defer>
 
 document.addEventListener(
     "DOMContentLoaded",
-    function() {
+    function () {
 
-        loadBooks();
+        const toggle =
+            document.getElementById(
+                "adminSidebarToggle"
+            );
+
+        const sidebar =
+            document.getElementById(
+                "adminSidebar"
+            );
+
+
+        if (
+            toggle &&
+            sidebar
+        ) {
+
+            toggle.addEventListener(
+                "click",
+                function () {
+
+                    sidebar.classList.toggle(
+                        "open"
+                    );
+
+                }
+            );
+
+        }
 
     }
 );
 
 </script>
 
+
 </body>
+
 </html>
